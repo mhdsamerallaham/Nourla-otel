@@ -1,0 +1,105 @@
+{
+  "nav": {
+    "home": "Startseite",
+    "about": "Über Uns",
+    "rooms": "Zimmer & Preise",
+    "urla": "Urla Reiseführer",
+    "sustainability": "Nachhaltigkeit",
+    "gallery": "Galerie",
+    "contact": "Kontakt",
+    "reserve": "Jetzt Buchen"
+  },
+  "hero": {
+    "subtitle": "Eine ägäische Oase, wo die Zeit langsamer fließt",
+    "title": "Eleganz, Oliven & Ruhe in Urla",
+    "description": "Ein exklusives Boutique-Hotel-Erlebnis mit 10 maßgeschneiderten Suiten inmitten von Urlas historischer Steinarchitektur und alten Olivenhainen.",
+    "cta_reserve": "Suite Reservieren",
+    "cta_discover": "Urla Entdecken",
+    "badge": "Luxus Boutique Hotel — Urla, Izmir"
+  },
+  "intro": {
+    "tag": "UNSERE PHILOSOPHIE",
+    "title": "Ein ruhiges & stilvolles Zufluchtsort im Herzen der Ägäis",
+    "p1": "Das Nourla Boutique Hotel entstand in Urla, wo warme ägäische Winde auf jahrhundertealte Olivenhaine treffen. Unsere architektonische Restaurierung verbindet traditionelle Steinmetzkunst mit modernem Minimalismus.",
+    "p2": "Mit nur 10 individuell gestalteten Suiten bieten wir unseren Gästen mehr als nur einen Aufenthalt: einen verfeinerten Lebensrhythmus im Einklang mit Gastronomie und Natur."
+  },
+  "featured_rooms": {
+    "tag": "EXKLUSIVE SUITEN",
+    "title": "10 Maßgeschneiderte Luxussuiten",
+    "subtitle": "Natürliche Texturen, maßgeschneiderte Leinen und beruhigende ägäische Aussichten.",
+    "per_night": "Nacht",
+    "details": "Suite Details",
+    "book": "Suite Buchen",
+    "view_all": "Alle Zimmer Ansehen"
+  },
+  "experience": {
+    "tag": "NOURLA ERLEBNISSE",
+    "title": "Feine Akzente für Ihre Seele",
+    "wine_title": "Weinroute & Sommelier-Verkostung",
+    "wine_desc": "Probieren Sie seltene Jahrgänge aus Urlas antiken Weinbergslagen unter Anleitung eines Sommeliers.",
+    "gastro_title": "Vom Feld auf den Tisch",
+    "gastro_desc": "Mit Olivenöl verfeinerte ägäische Köstlichkeiten und Bio-Frühstück aus frischen lokalen Zutaten.",
+    "spa_title": "Aromatherapie & Gelassenheit",
+    "spa_desc": "Erfrischen Sie sich mit Therapiesitzungen mit ägäischem Olivenöl und Lavendelextrakten."
+  },
+  "urla_section": {
+    "tag": "LOKALER REISEFÜHRER",
+    "title": "Entdecken Sie die Seele von Urla",
+    "subtitle": "Von den antiken Ruinen Klazomenais bis zu Gastronomie-Routen und versteckten Buchten.",
+    "history": "Geschichte von Urla",
+    "beaches": "Nahegelegene Strände",
+    "culture": "Kulturelle Besuche",
+    "festivals": "Urla Festivals",
+    "wine": "Weinbau & Weinroute",
+    "gastronomy": "Gastronomie",
+    "itinerary": "Kuratierte Route",
+    "cycling": "Malerische Radwege"
+  },
+  "sustainability": {
+    "tag": "FÜR DIE ZUKUNFT",
+    "title": "Luxus im Einklang mit Natur & Menschheit",
+    "subtitle": "Bewahrung des natürlichen und kulturellen Erbes von Urla bei strebensfreiem CO2-Fußabdruck.",
+    "env": "Umweltpolitik",
+    "energy": "Energieeffizienz",
+    "child": "Kinderrechte",
+    "gender": "Gleichberechtigung",
+    "survey": "Gäste-Nachhaltigkeitsumfrage"
+  },
+  "reservation": {
+    "title": "Planen Sie Ihren Luxusaufenthalt",
+    "subtitle": "Erhalten Sie ein maßgeschneidertes Buchungsangebot im Nourla Boutique Hotel.",
+    "check_in": "Anreisedatum",
+    "check_out": "Abreisedatum",
+    "room_select": "Suite Auswählen",
+    "guests": "Anzahl der Gäste",
+    "adults": "Erwachsene",
+    "children": "Kinder",
+    "addons": "Exklusive Erlebnisse",
+    "transfer": "VIP-Flughafentransfer (+€90)",
+    "wine_tasting": "Urla Weinberg-Weintour (+€120)",
+    "spa_package": "Aromatherapie Massagepaket (+€150)",
+    "total": "Geschätzter Gesamtpreis",
+    "submit": "Buchungsanfrage Senden",
+    "success_title": "Buchungsanfrage Erhalten",
+    "success_desc": "Unser Concierge-Team wird Sie innerhalb von 2 Stunden kontaktieren."
+  },
+  "contact": {
+    "title": "Kontaktieren Sie Uns",
+    "subtitle": "Wir stehen Ihnen jederzeit für Fragen zu Ihrem Zufluchtsort in Urla zur Verfügung.",
+    "address_label": "Adresse",
+    "address_val": "İskele Mahallesi, 2222/5 Sokak No: 4/1, Urla / Izmir, Türkei",
+    "phone_label": "Telefon",
+    "email_label": "E-Mail",
+    "form_name": "Vollständiger Name",
+    "form_email": "E-Mail-Adresse",
+    "form_phone": "Telefonnummer",
+    "form_message": "Ihre Nachricht",
+    "form_send": "Nachricht Senden"
+  },
+  "footer": {
+    "desc": "Ein stilvoller und ruhiger Zufluchtsort im Herzen von Urla mit 10 maßgeschneiderten Suiten.",
+    "quick_links": "Nützliche Links",
+    "rights": "Alle Rechte vorbehalten.",
+    "tagline": "Mit Gelassenheit in Urla, Türkei geschaffen"
+  }
+}

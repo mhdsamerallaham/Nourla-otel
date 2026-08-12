@@ -1,0 +1,105 @@
+{
+  "nav": {
+    "home": "Anasayfa",
+    "about": "Hakkımızda",
+    "rooms": "Odalar & Fiyatlar",
+    "urla": "Urla Rehberi",
+    "sustainability": "Sürdürülebilirlik",
+    "gallery": "Galeri",
+    "contact": "İletişim",
+    "reserve": "Rezervasyon Yap"
+  },
+  "hero": {
+    "subtitle": "Zamanın Yavaş Aktığı Ege Vahası",
+    "title": "Zarafet, Zeytin & Huzurun Urla Buluşması",
+    "description": "Urla'nın tarihi taş mimarisi ve kadim zeytin ağaçları arasında, sadece 10 özel süitle unutulmaz bir butik otel deneyimi.",
+    "cta_reserve": "Hemen Oda Rezerve Edin",
+    "cta_discover": "Urla'yı Keşfedin",
+    "badge": "Lüks Butik Otel — Urla, İzmir"
+  },
+  "intro": {
+    "tag": "FELSEFEMİZ",
+    "title": "Ege'nin Kalbinde Sakin ve Rafine Bir Sığınak",
+    "p1": "Nourla Boutique Hotel, Ege denizinden esen ılık rüzgarların zeytin bahçeleriyle buluştuğu Urla'da doğdu. Mimari restorasyonumuz geleneksel taş işçiliğini modern minimalizm ve Akdeniz sıcaklığı ile harmanlıyor.",
+    "p2": "Her biri özgün tasarıma sahip 10 süitimizle, misafirlerimize yalnızca bir konaklama değil; duyuları dinlendiren, gastronomi ve doğa ile bütünleşen ayrıcalıklı bir yaşam ritmi sunuyoruz."
+  },
+  "featured_rooms": {
+    "tag": "KONAKLAMA SÜİTLERİ",
+    "title": "Bespoke Tasarlanmış 10 Özel Süit",
+    "subtitle": "Doğal dokular, özel yapım ketenler ve huzur veren Akdeniz manzaraları.",
+    "per_night": "gece",
+    "details": "Süit Detayları",
+    "book": "Rezerve Et",
+    "view_all": "Tüm Odaları İnceleyin"
+  },
+  "experience": {
+    "tag": "NOURLA DENEYİMLERİ",
+    "title": "Ruhunuzu Dinlendiren İnce Dokunuşlar",
+    "wine_title": "Bağ Yolu & Şarap Tadımı",
+    "wine_desc": "Urla'nın antik bağlarında yetişen nadide üzümlerden üretilen yerel şarapları sommelier eşliğinde tadın.",
+    "gastro_title": "Tarladan Sofraya Gastronomi",
+    "gastro_desc": "Zeytinyağlı Ege lezzetleri ve organik bahçemizden sabah toplanan ürünlerle hazırlanan gurme kahvaltılar.",
+    "spa_title": "Aromaterapi & Huzur",
+    "spa_desc": "Ege zeytinyağı ve lavanta özleriyle hazırlanan özel terapi seansları ile tazelenin."
+  },
+  "urla_section": {
+    "tag": "LOCAL GUIDE",
+    "title": "Urla'nın Ruhunu Keşfedin",
+    "subtitle": "Antik Klazomenai kentinden gastronomi rotalarına, bağ yollarından bakir Ege koylarına.",
+    "history": "Urla Tarihi",
+    "beaches": "Yakın Plajlar",
+    "culture": "Kültürel Ziyaretler",
+    "festivals": "Urla Festivalleri",
+    "wine": "Bağcılık & Şarap Yolu",
+    "gastronomy": "Gastronomi",
+    "itinerary": "Gezi Rotası",
+    "cycling": "Bisiklet Rotaları"
+  },
+  "sustainability": {
+    "tag": "GELECEK İÇİN",
+    "title": "Doğaya ve İnsana Saygılı Lüks",
+    "subtitle": "Karbon ayak izimizi sıfırlarken Urla'nın doğal ve kültürel mirasını koruyoruz.",
+    "env": "Çevre Politikası",
+    "energy": "Enerji Verimliliği",
+    "child": "Çocuk Hakları",
+    "gender": "Toplumsal Cinsiyet Eşitliği",
+    "survey": "Misafir Sürdürülebilirlik Anketimiz"
+  },
+  "reservation": {
+    "title": "Lüks Konaklamanızı Planlayın",
+    "subtitle": "Nourla Boutique Hotel'de size özel hazırlanan konaklama teklifini hemen alın.",
+    "check_in": "Giriş Tarihi",
+    "check_out": "Çıkış Tarihi",
+    "room_select": "Oda Seçimi",
+    "guests": "Misafir Sayısı",
+    "adults": "Yetişkin",
+    "children": "Çocuk",
+    "addons": "Özel Deneyim Eklentileri",
+    "transfer": "Vip Havalimanı Transferi (+€90)",
+    "wine_tasting": "Urla Bağ Tadım Turu (+€120)",
+    "spa_package": "Aromaterapi Masaj Paketi (+€150)",
+    "total": "Tahmini Toplam",
+    "submit": "Rezervasyon Talebi Gönder",
+    "success_title": "Rezervasyon Talebiniz Alındı",
+    "success_desc": "Nourla Butik Otel ekibi 2 saat içerisinde sizinle iletişime geçecektir."
+  },
+  "contact": {
+    "title": "İletişime Geçin",
+    "subtitle": "Urla'daki sığınağınız hakkında sorularınız için her zaman buradayız.",
+    "address_label": "Adres",
+    "address_val": "İskele Mahallesi, 2222/5 Sokak No: 4/1, Urla / İzmir, Türkiye",
+    "phone_label": "Telefon",
+    "email_label": "E-Posta",
+    "form_name": "Adınız Soyadınız",
+    "form_email": "E-Posta Adresiniz",
+    "form_phone": "Telefon Numarası",
+    "form_message": "Mesajınız",
+    "form_send": "Mesajı Gönder"
+  },
+  "footer": {
+    "desc": "Urla'nın kalbinde, doğa ile uyum içinde 10 bespoked süit ile rafine ve huzurlu konaklama.",
+    "quick_links": "Hızlı Bağlantılar",
+    "rights": "Tüm hakları saklıdır.",
+    "tagline": "Crafted with serenity in Urla, Turkey"
+  }
+}

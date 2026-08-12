@@ -1,0 +1,105 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About Us",
+    "rooms": "Rooms & Rates",
+    "urla": "Urla Guide",
+    "sustainability": "Sustainability",
+    "gallery": "Gallery",
+    "contact": "Contact",
+    "reserve": "Book Now"
+  },
+  "hero": {
+    "subtitle": "An Aegean Oasis Where Time Slows Down",
+    "title": "Elegance, Olives & Serenity in Urla",
+    "description": "An exclusive boutique hotel experience featuring 10 custom-crafted suites surrounded by Urla's historic stone architecture and ancient olive groves.",
+    "cta_reserve": "Reserve Your Suite",
+    "cta_discover": "Discover Urla",
+    "badge": "Luxury Boutique Hotel — Urla, Izmir"
+  },
+  "intro": {
+    "tag": "OUR PHILOSOPHY",
+    "title": "A Calm & Refined Sanctuary in the Heart of the Aegean",
+    "p1": "Nourla Boutique Hotel was born in Urla, where warm Aegean breezes meet centuries-old olive orchards. Our architectural restoration harmonizes traditional stonework with modern minimalism and Mediterranean warmth.",
+    "p2": "With only 10 individually designed suites, we offer our guests more than a stay: an elevated lifestyle rhythm that restores the senses, integrated with gastronomy and nature."
+  },
+  "featured_rooms": {
+    "tag": "BESPOKE SUITES",
+    "title": "10 Exclusively Crafted Luxury Suites",
+    "subtitle": "Natural textures, custom linens, and serene Mediterranean views.",
+    "per_night": "night",
+    "details": "Suite Details",
+    "book": "Book Suite",
+    "view_all": "Explore All Rooms"
+  },
+  "experience": {
+    "tag": "NOURLA EXPERIENCES",
+    "title": "Refined Details to Soothe Your Soul",
+    "wine_title": "Wine Route & Sommelier Tasting",
+    "wine_desc": "Sample rare vintages crafted from Urla's ancient vineyards under expert sommelier guidance.",
+    "gastro_title": "Farm-to-Table Gastronomy",
+    "gastro_desc": "Olive-oil infused Aegean delicacies and gourmet breakfasts prepared with morning-picked organic produce.",
+    "spa_title": "Aromatherapy & Serenity",
+    "spa_desc": "Rejuvenate with bespoke therapy sessions infused with Aegean olive oil and wild lavender extracts."
+  },
+  "urla_section": {
+    "tag": "LOCAL GUIDE",
+    "title": "Discover the Soul of Urla",
+    "subtitle": "From ancient Klazomenai ruins to gastronomy routes, wine paths, and secluded Aegean coves.",
+    "history": "History of Urla",
+    "beaches": "Nearby Beaches",
+    "culture": "Cultural Visits",
+    "festivals": "Urla Festivals",
+    "wine": "Viticulture & Wine Route",
+    "gastronomy": "Gastronomy",
+    "itinerary": "Curated Itinerary",
+    "cycling": "Scenic Cycling Trails"
+  },
+  "sustainability": {
+    "tag": "FOR THE FUTURE",
+    "title": "Luxury in Harmony with Nature & Humanity",
+    "subtitle": "Preserving Urla's natural and cultural heritage while striving for zero carbon footprint.",
+    "env": "Environmental Policy",
+    "energy": "Energy Efficiency",
+    "child": "Child Rights",
+    "gender": "Gender Equality",
+    "survey": "Guest Sustainability Survey"
+  },
+  "reservation": {
+    "title": "Plan Your Luxury Stay",
+    "subtitle": "Receive a personalized booking proposal at Nourla Boutique Hotel in real-time.",
+    "check_in": "Check-In Date",
+    "check_out": "Check-Out Date",
+    "room_select": "Select Suite",
+    "guests": "Guest Count",
+    "adults": "Adults",
+    "children": "Children",
+    "addons": "Bespoke Experience Add-ons",
+    "transfer": "VIP Airport Transfer (+€90)",
+    "wine_tasting": "Urla Vineyard Wine Tour (+€120)",
+    "spa_package": "Aromatherapy Massage Package (+€150)",
+    "total": "Estimated Total",
+    "submit": "Submit Reservation Request",
+    "success_title": "Reservation Request Received",
+    "success_desc": "Our concierge team at Nourla Boutique Hotel will contact you within 2 hours."
+  },
+  "contact": {
+    "title": "Get in Touch",
+    "subtitle": "We are always at your service for any questions regarding your sanctuary in Urla.",
+    "address_label": "Address",
+    "address_val": "İskele District, 2222/5 St. No: 4/1, Urla / Izmir, Turkey",
+    "phone_label": "Telephone",
+    "email_label": "Email",
+    "form_name": "Full Name",
+    "form_email": "Email Address",
+    "form_phone": "Phone Number",
+    "form_message": "Your Message",
+    "form_send": "Send Message"
+  },
+  "footer": {
+    "desc": "A refined and serene sanctuary in the heart of Urla with 10 bespoke suites in harmony with nature.",
+    "quick_links": "Quick Links",
+    "rights": "All rights reserved.",
+    "tagline": "Crafted with serenity in Urla, Turkey"
+  }
+}

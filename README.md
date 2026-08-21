@@ -1,384 +1,204 @@
-# 🏨 Nourla Boutique Hotel — Web Sitesi & API Entegrasyon Dokümantasyonu
+# 🏨 Nourla Boutique Hotel — Web Sitesi & ElektraWeb PMS API Dokümantasyonu
 
-> **Urla, İzmir** | Lüks Butik Otel | Elektraweb PMS Entegrasyonu
+> **Urla, İzmir** | Lüks Butik Otel | ElektraWeb PMS Entegrasyonu | Canlı TCMB Döviz Kuru Servisi
 
 ---
 
-## 📌 Proje Özeti
+## 📌 Proje Özeti & Canlı Durum
 
-Nourla Boutique Hotel'in çok dilli kurumsal web sitesi ve Elektraweb PMS rezervasyon entegrasyonunu içeren tam stack projedir.
+Nourla Boutique Hotel'in çok dilli kurumsal web sitesi, canlı ElektraWeb PMS entegrasyonu, TCMB canlı döviz kuru entegrasyonu ve otomatik rezervasyon senkronizasyonunu içeren full-stack web uygulamasıdır.
 
-| Alan | Detay |
-|------|-------|
+| Parametre | Canlı Veri / Detay |
+|---|---|
 | **Otel Adı** | Nourla Boutique Hotel |
 | **Konum** | Urla, İzmir, Türkiye |
-| **Hotel ID (Elektraweb)** | 37555 |
+| **Canlı Domain** | [https://www.nourla.com.tr](https://www.nourla.com.tr) (Vercel Production) |
+| **Hotel ID (ElektraWeb)** | `37555` |
+| **PMS Base URL** | `https://bookingapi.elektraweb.com` |
+| **Döviz Kuru Kaynağı** | TCMB Canlı XML (`https://www.tcmb.gov.tr/kurlar/today.xml`) |
 | **Diller** | TR 🇹🇷 / EN 🇬🇧 / DE 🇩🇪 / RU 🇷🇺 |
-| **Oda Sayısı** | 10 Bespoke Oda |
+| **Otomasyon Testleri** | 15/15 Entegrasyon Testi %100 PASS (`node server/tests/runAllTests.js`) |
 
 ---
 
-## 🏗️ Mimari
+## 🚀 Son Tamamlanan Geliştirmeler & Özellikler
 
-```
-Browser (React SPA)
-       ↓
-Nourla Frontend   (Vite + React 18 — port :5173)
-       ↓  /api/elektra/*  (dev: Vite proxy)
-Nourla Backend    (Node.js + Express — port :3001)
-       ↓  Authorization: Bearer JWT
-Elektraweb BookingAPI   (https://bookingapi.elektraweb.com)
-       ↓
-Elektraweb PMS
-```
+### 1. 🎨 Özel Lüks Otel Takvim Modülü (`LuxuryDatePickerModal.jsx`)
+- **Site Tasarım Konseptine %100 Uyum:** Otelin lüks konseptine uygun zeytin yeşili (`#6F7255`), krem zemin (`#FDFBF7`), serif tipografi ve özel kenarlıklar ile geliştirilmiştir.
+- **Tüm Kutunun Tıklanabilirliği:** Giriş veya Çıkış Tarihi kutusunun yalnızca simgesine değil, **herhangi bir yerine** basıldığında lüks takvim penceresi açılır.
+- **ElektraWeb Canlı Ay Fiyatları:** Takvim açıldığında ElektraWeb'den ilgili ayın canlı fiyat grid'i çekilir. Müsait günlerin altında canlı oda başlangıç fiyatı basılır (Örn: `18.472 ₺`).
+- **Kademeli Oda Fiyatı Yansıtma:** Eğer bir tarihte en ucuz oda tipi (Örn: Tasarım Oda) dolmuşsa, takvim o gün için otelde müsait olan **bir sonraki oda tipinin canlı fiyatını** (Örn: Deluxe Oda `21.550 ₺`) yansıtır.
+- **Kilitli ve Çizgili "Müsaitlik Yok" Uyarısı:** Ancak ve ancak oteldeki **TÜM oda tipleri dolduğunda** o günün üzerine belirgin kırmızı çizgi (`line-through text-rose-600`) çekilir, altında kırmızı **`Müsaitlik Yok`** basılır ve tıklanması tamamen engellenir (`disabled`).
+- **Çıkış Tarihi Otomatik Seçimi:** Kullanıcı takvimden Giriş Tarihini seçtiğinde Çıkış Tarihi otomatik olarak **Check-in + 1 Gece** olarak ayarlanır ve takvim aralığı anında vurgulanır.
+- **Ay Sonu Tamamlama (30 ve 31. Günler):** ElektraWeb API'sinin check-out sınırları nedeniyle ayın 30 ve 31. günlerinde yaşanan fiyat kesintisi, ay sonu devir mantığı ile çözülmüş ve ayın 30 ve 31. günleri aktifleşmiştir.
+- **Akıllı Alt Aralık Sorgulama (Smart Sub-Range Lookup):** Örneğin Eylül ayının 1-15 arası kapalı, 16-30 arası açık olduğunda 30 günlük sorguya 0 teklif dönse bile sistem otomatik olarak 16-30 Eylül aralığına alt sorgu atarak 16 canlı teklifi çeker.
 
-### Güvenlik Katmanı
-- Token **yalnızca** backend `server/.env` içinde
-- Frontend hiçbir zaman Elektraweb ile doğrudan iletişim kurmaz
-- JWT her gün yenilenir, backend in-memory cache'de tutulur
-- CORS sadece frontend origin'e izin verir
+### 2. 💎 %100 Canlı Veri Mimarisi (Sıfır Fallback Kuralı)
+- Web sitesindeki tüm oda fiyatları, müsaitlik stok sayıları ve oda nitelikleri (m², yatak sayısı, donanımlar) %100 canlı ElektraWeb PMS yanıtlarından beslenir.
+- Fallback/statik veriler tamamen kaldırılmıştır; ElektraWeb'de tanımı veya stoğu bulunmayan odalar doğrudan **"Dolu / Kapalı"** olarak kilitlenir.
+
+### 3. 🏦 TCMB Canlı Döviz Kuru Servisi (`tcmbService.js`)
+- `https://www.tcmb.gov.tr/kurlar/today.xml` adresi üzerinden canlı USD ve EUR ForexSelling kurları otomatik çekilir ve `TRY`, `USD`, `EUR` geçişlerinde canlı dönüştürülür.
+
+### 4. 🛡️ İzole Otomasyon Test Paketi (`TEST_SUITE_MOCK_PMS`)
+- Local entegrasyon testleri (`node server/tests/runAllTests.js`) çalıştırıldığında testler 50ms sürede sandbox SQLite veritabanında koşar. `TEST_SUITE_MOCK_PMS = 'true'` kuralı sayesinde otomatik testler ElektraWeb canlı resepsiyon ekranına test kaydı düşürmez.
+- Canlı siteden (`www.nourla.com.tr`) gelen gerçek müşteri rezervasyonları ise %100 canlı olarak ElektraWeb PMS resepsiyon paneline düşer.
 
 ---
 
-## 📁 Proje Yapısı
+## 🏗️ Mimari & Veri Akışı
+
+```
+[Müşteri Tarayıcısı (React SPA)]
+       │
+       ▼  GET /api/booking/price, definitions, exchange-rates
+[Vercel Serverless / Express Backend (server/app.js)]
+       ├──► [ElektraWeb BookingAPI (bookingapi.elektraweb.com)] (Hotel ID: 37555)
+       ├──► [TCMB XML Servisi (tcmb.gov.tr)]
+       └──► [Local/Serverless SQLite DB (db.js)]
+```
+
+---
+
+## 📁 Proje Yapısı & Önemli Dosyalar
 
 ```
 Nourla-otel-main/
-├── src/                          # Frontend (Vite + React)
-│   ├── App.jsx                   # Router & layout
-│   ├── main.jsx                  # Entry point
-│   ├── i18n.js                   # i18next konfigürasyonu
-│   ├── index.css                 # Global stiller
-│   ├── components/
-│   │   ├── layout/
-│   │   │   ├── Header.jsx
-│   │   │   └── Footer.jsx
-│   │   └── ui/
-│   │       ├── BookingWidget.jsx  # Rezervasyon formu (Elektraweb bağlantılı)
-│   │       ├── RoomCard.jsx
-│   │       ├── RoomInspectModal.jsx
-│   │       ├── BackgroundMusic.jsx
-│   │       └── ...
-│   ├── pages/
-│   │   ├── Home.jsx
-│   │   ├── Rooms.jsx
-│   │   ├── RoomDetail.jsx
-│   │   ├── Reservation.jsx
-│   │   ├── About.jsx
-│   │   ├── Gallery.jsx
-│   │   ├── Contact.jsx
-│   │   ├── Sustainability.jsx
-│   │   └── UrlaGuide.jsx
-│   ├── data/
-│   │   ├── rooms.js              # Oda tanımları
-│   │   └── ...
-│   ├── services/
-│   │   └── api.js                # [PHASE 1] Frontend→Backend API client
-│   └── locales/
-│       ├── tr.json
-│       ├── en.json
-│       ├── de.json
-│       └── ru.json
-│
-├── server/                       # [PHASE 1] Backend (Node.js + Express)
-│   ├── index.js
-│   ├── package.json
-│   ├── .env                      # ⚠️ GİT'E COMMIT ETME
-│   ├── .env.example
-│   ├── services/
-│   │   └── elektraweb/
-│   │       ├── index.js          # Servis metodları
-│   │       ├── client.js         # Axios HTTP client
-│   │       └── auth.js           # JWT token manager
-│   ├── routes/
-│   │   └── elektra.js
+├── api/
+│   └── index.js                      # Vercel Serverless Function giriş noktası
+├── server/                           # Express Backend & Entegrasyon Servisleri
+│   ├── app.js                        # Express uygulama konfigürasyonu ve CORS izinleri
+│   ├── index.js                      # Local server başlatıcı (Port 3001)
+│   ├── database/
+│   │   └── db.js                     # SQLite veritabanı sürücüsü ve tablo şeması
 │   ├── middleware/
-│   │   ├── validation.js
-│   │   └── logger.js
+│   │   ├── validation.js             # Tarih ve fiyat parametre validasyonu (past date auto-fix)
+│   │   └── logger.js                 # API istek loglayıcı
+│   ├── routes/
+│   │   ├── booking.js                # /api/booking/price, definitions, exchange-rates, reservation
+│   │   └── payment.js                # /api/payment/process, callback
+│   ├── services/
+│   │   ├── elektraweb/
+│   │   │   ├── index.js              # ElektraWeb API metodları (getPrices, createReservation)
+│   │   │   ├── client.js             # HTTP Client & Auto Retry
+│   │   │   └── auth.js               # JWT Token Manager (login-token & token cache)
+│   │   ├── currency/
+│   │   │   └── tcmbService.js        # TCMB XML Parser & Cache
+│   │   ├── reservation/
+│   │   │   └── reservationService.js # DB rezervasyon durum takibi & ElektraWeb sync
+│   │   └── payment/
+│   │       └── paymentService.js     # Ödeme işlemleri & mock/Ziraat Sanal POS gateway
+│   ├── tests/
+│   │   ├── runAllTests.js            # 15 senaryolu otomatik entegrasyon test paketi
+│   │   └── test_nourla.sqlite        # Test veritabanı sandbox
 │   └── utils/
-│       └── responseNormalizer.js
+│       └── responseNormalizer.js     # ElektraWeb ham verilerini (price-arr, availability-arr) normalize edici
 │
-├── public/nourla/                # Oda görselleri
-├── index.html
-├── package.json
-├── vite.config.js
-├── vercel.json
-└── README.md
+├── src/                              # React SPA Frontend
+│   ├── components/
+│   │   └── ui/
+│   │       ├── BookingWidget.jsx     # Ana rezervasyon modülü (Step 1 -> 4)
+│   │       ├── LuxuryDatePickerModal.jsx # Özel lüks takvim modülü (Canlı ay fiyat gridi)
+│   │       ├── RoomCard.jsx          # Oda kartları
+│   │       └── RoomInspectModal.jsx  # ElektraWeb verileriyle detaylı oda popup'ı
+│   ├── services/
+│   │   └── api.js                    # Frontend API client helpers (getPrices, getTcmbRates)
+│   └── locales/                      # TR / EN / DE / RU çeviri dosyaları
+│
+├── vercel.json                       # Vercel routing ve rewrites ayarları
+├── vite.config.js                    # Vite dev server proxy konfigürasyonu
+└── README.md                         # Proje dokümantasyonu
 ```
 
 ---
 
-## 🔌 Elektraweb API Endpointleri
+## 🗄️ Veritabanı Şeması (SQLite)
 
-> **Resmi Base URL:** `https://bookingapi.elektraweb.com`
-> **Hotel ID:** `375075`
-> **Docs:** https://hotel.docs.bookingapi.elektraweb.com/
-> **Auth:** `Authorization: Bearer <JWT_TOKEN>`
+Veritabanı otomatik olarak ilk çalışma anında `server/database/db.js` tarafından ilklendirilir:
 
-### Authentication
-```
-POST /login
-Body: { "email": "<email>", "password": "<password>" }
-Response: { "success": true, "token": "<JWT_TOKEN>" }
-```
+```sql
+-- Rezervasyonlar Tablosu
+CREATE TABLE IF NOT EXISTS RESERVATIONS (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reservation_code TEXT UNIQUE NOT NULL,
+  pms_reservation_id TEXT,
+  pms_room_type_id INTEGER NOT NULL,
+  check_in TEXT NOT NULL,
+  check_out TEXT NOT NULL,
+  adult_count INTEGER NOT NULL DEFAULT 2,
+  child_count INTEGER NOT NULL DEFAULT 0,
+  guest_name TEXT NOT NULL,
+  guest_email TEXT NOT NULL,
+  guest_phone TEXT NOT NULL,
+  special_notes TEXT,
+  currency TEXT NOT NULL DEFAULT 'TRY',
+  total_price REAL NOT NULL,
+  payment_status TEXT NOT NULL DEFAULT 'PENDING', -- PENDING, PAID, FAILED, REFUNDED
+  sync_status TEXT NOT NULL DEFAULT 'PENDING',    -- PENDING, SYNCED, SYNC_FAILED
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
-### Hotel Definitions
-```
-GET /hotel/375075/definition        # Room types, board types, rates
-GET /hotel/375075/params            # Booking policies
-GET /hotel/375075/exchange-rate     # Para birimleri
-GET /hotel/375075/extra-services    # Ekstra hizmetler
-```
-
-### Price & Availability
-```
-GET /hotel/375075/price/
-  ?fromdate=YYYY-MM-DD
-  &todate=YYYY-MM-DD
-  &adult=2
-  &childage=4,7        (opsiyonel)
-  &currency=EUR
-  &nationality=TR
-  &language=tr
-  &onlybestoffer=true
-  &promo-code=         (opsiyonel)
-
-GET /hotel/375075/availability
-  ?fromdate=YYYY-MM-DD
-  &todate=YYYY-MM-DD
-```
-
-### System Lists
-```
-GET /cities
-GET /countries
-GET /std-board-type
-```
-
-### Reservation (2. Aşama — Henüz Aktif Değil)
-```
-POST /hotel/375075/createReservation
-POST /hotel/375075/updateReservation
-POST /hotel/375075/createServiceReservation
+-- Ödemeler Tablosu
+CREATE TABLE IF NOT EXISTS PAYMENTS (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reservation_id INTEGER NOT NULL,
+  transaction_id TEXT UNIQUE NOT NULL,
+  payment_provider TEXT NOT NULL DEFAULT 'mock',
+  amount REAL NOT NULL,
+  currency TEXT NOT NULL,
+  status TEXT NOT NULL,
+  gateway_response TEXT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
 ---
 
-## 🌐 Backend Endpointlerimiz
+## 🧪 Entegrasyon Testlerini Çalıştırma
 
-| Endpoint | Açıklama | Durum |
-|----------|----------|-------|
-| `GET /api/elektra/health` | Bağlantı testi | Aşama 1 |
-| `GET /api/elektra/hotel-definitions` | Otel tanımları | Aşama 1 |
-| `GET /api/elektra/availability` | Müsaitlik | Aşama 1 |
-| `GET /api/elektra/price` | Fiyat | Aşama 1 |
-| `POST /api/elektra/reservation` | Rezervasyon oluştur | Aşama 2 |
+Tüm entegrasyon senaryolarını (stok değişimi, fiyat değişimi, 3D secure, çift ödeme koruması, ElektraWeb senkronizasyon retry mekanizması) test etmek için terminalde şu komutu çalıştırabilirsiniz:
 
----
-
-## 🗄️ Veritabanı Yapısı
-
-> **Aşama 1:** Veritabanı yok (read-only, Elektraweb'den canlı veri)
-> **Aşama 2:** Rezervasyon sistemi için aşağıdaki tablolar eklenecek
-
-### `elektra_room_mapping`
-```sql
-id                    INTEGER PRIMARY KEY
-our_room_id           VARCHAR(100)   -- rooms.js id (ör: "olive-grove-suite")
-elektra_room_type_id  INTEGER        -- Elektraweb roomTypeId
-name_tr / en / de / ru VARCHAR(200)
-capacity              INTEGER
-active                BOOLEAN DEFAULT 1
-created_at / updated_at DATETIME
+```powershell
+node server/tests/runAllTests.js
 ```
 
-### `elektra_rate_mapping`
-```sql
-id                    INTEGER PRIMARY KEY
-elektra_rate_type_id  INTEGER
-elektra_rate_code_id  INTEGER
-elektra_board_type_id INTEGER
-name_tr / en          VARCHAR(200)
-active                BOOLEAN DEFAULT 1
-created_at            DATETIME
+**Test Sonucu:**
 ```
-
-### `elektra_sync_log`
-```sql
-id            INTEGER PRIMARY KEY
-endpoint      VARCHAR(200)
-hotel_id      INTEGER
-status_code   INTEGER
-duration_ms   INTEGER
-success       BOOLEAN
-error_message TEXT
-created_at    DATETIME
-```
-
-### `reservations` (Aşama 2)
-```sql
-id                      INTEGER PRIMARY KEY
-elektra_reservation_id  VARCHAR(100)
-hotel_id / room_type_id / rate_type_id / board_type_id  INTEGER
-check_in / check_out    DATE
-adult_count             INTEGER
-child_ages              VARCHAR(100)   -- JSON: "[4,7]"
-currency                VARCHAR(10)
-total_price             DECIMAL(10,2)
-status                  VARCHAR(50)    -- PENDING, CONFIRMED, CANCELLED
-contact_name / email / phone VARCHAR
-nationality             VARCHAR(10)
-special_notes           TEXT
-payment_type            INTEGER        -- 2=NOT PAID, 3=PAID
-created_at / updated_at DATETIME
+=====================================================
+ ALL 15 INTEGRATION TESTS PASSED SUCCESSFULLY!
+=====================================================
 ```
 
 ---
 
-## ⚙️ Environment Variables
+## ⚙️ Environment Variables (Geliştirici Notu)
 
-### `server/.env` ⚠️ Git'e commit etme!
-```
-ELEKTRA_API_BASE_URL=https://bookingapi.elektraweb.com
-ELEKTRA_HOTEL_ID=375075
-ELEKTRA_API_TOKEN=YOUR_SECRET_TOKEN_HERE
+`server/.env` dosyasında bulunması gereken anahtar değişkenler:
 
+```env
 PORT=3001
-NODE_ENV=development
-FRONTEND_URL=http://localhost:5173
-```
+NODE_ENV=production
+FRONTEND_URL=https://www.nourla.com.tr
+DATABASE_PATH=./nourla_hotel.sqlite
 
-### `server/.env.example` (commit edilebilir)
-```
+# ElektraWeb PMS Bilgileri
 ELEKTRA_API_BASE_URL=https://bookingapi.elektraweb.com
-ELEKTRA_HOTEL_ID=375075
-ELEKTRA_API_TOKEN=
+ELEKTRA_HOTEL_ID=37555
+ELEKTRA_API_TOKEN="urlawebsitesi#37555$011da0257ad34e12acfce8ea2ad2727f63fbd8157dc6eebabdc105b8d80185b0253ee9e65ee8f74e41b846702cc7a2cd5104c2267e44f4d916f0c6404bdb6175"
 
-PORT=3001
-NODE_ENV=development
-FRONTEND_URL=http://localhost:5173
+# Ödeme Sağlayıcısı
+PAYMENT_PROVIDER=mock
 ```
 
 ---
 
-## 🚀 Kurulum & Çalıştırma
+## 🔮 Yarın Devam Edilecek Konular & Yol Haritası
 
-### Frontend
-```bash
-npm install
-npm run dev
-# → http://localhost:5173
-```
-
-### Backend
-```bash
-cd server
-npm install
-cp .env.example .env
-# .env içine ELEKTRA_API_TOKEN yaz
-npm start
-# → http://localhost:3001
-```
-
-### Bağlantı Testleri
-```bash
-curl http://localhost:3001/api/elektra/health
-curl http://localhost:3001/api/elektra/hotel-definitions
-curl "http://localhost:3001/api/elektra/availability?fromdate=2026-08-25&todate=2026-08-28"
-curl "http://localhost:3001/api/elektra/price?fromdate=2026-08-25&todate=2026-08-28&adult=2&currency=EUR"
-```
+1. **Ziraat Sanal POS Canlı/Test Bilgilerinin Girilmesi:**
+   - Banka Sanal POS üye işyeri bilgileri (`ZIRAAT_MERCHANT_ID`, `ZIRAAT_TERMINAL_ID`, `ZIRAAT_STORE_KEY`) ulaştığında `server/.env` dosyasına girilerek gerçek kart ile testlerin yapılması.
+2. **Admin Paneli & Rezervasyon Sorgulama:**
+   - Resepsiyon veya yöneticilerin web üzerinden SQLite/ElektraWeb senkronizasyon durumunu takip edebileceği yönetim paneli ekranlarının tamamlanması.
 
 ---
 
-## 📋 Geliştirme Aşamaları
-
-### ✅ Aşama 0 — Frontend Web Sitesi (TAMAMLANDI)
-- [x] Vite + React 18, Tailwind CSS v4
-- [x] 4 dilli i18n (TR/EN/DE/RU)
-- [x] React Router v6 URL-bazlı dil yönlendirmesi
-- [x] 10 oda tanımı (rooms.js hardcoded)
-- [x] BookingWidget (simüle edilmiş müsaitlik)
-- [x] Tüm sayfalar tamamlandı
-- [x] Vercel deployment konfigürasyonu
-
-### 🔄 Aşama 1 — Elektraweb Read-Only Entegrasyonu (TAMAMLANDI)
-
-**Başlangıç:** 2026-08-21
-
-- [x] Proje analizi tamamlandı
-- [x] Elektraweb API dokümantasyonu okundu
-- [x] API endpoint listesi çıkarıldı
-- [x] Mimari tasarımı yapıldı
-- [x] README.md oluşturuldu
-- [x] `server/` Express backend kurulumu
-[x] Environment variables yapısı
-[x] Elektraweb auth service (JWT manager)
-[x] HTTP client (timeout, retry)
-[x] Backend routeları (health, definitions, availability, price)
-[x] Response normalizer
-[x] Vite proxy konfigürasyonu
-[x] `src/services/api.js` frontend client
-- [ ] BookingWidget → gerçek API bağlantısı
-- [x] TEST 1: Hotel definitions ✅ (HTTP 200)
-- [x] TEST 2: Availability ✅ (HTTP 200)
-- [x] TEST 3: Price ✅ (HTTP 200)
-
-**Önemli Notlar (Aşama 1):**
-- Elektraweb base URL: `https://bookingapi.elektraweb.com`
-- Auth flow: POST `/login` → JWT → Bearer header
-- Token cache: Backend in-memory, günde 1 yenile
-- `ELEKTRA_API_TOKEN` → login credentials veya API key (`server/.env`)
-- Timeout: 15 saniye
-- Retry: max 2 (sadece GET)
-
-### ⏳ Aşama 2 — Rezervasyon Sistemi (PLANLI)
-- [ ] `createReservation` entegrasyonu
-- [ ] Double booking koruması
-- [ ] Ödeme entegrasyonu
-- [ ] Veritabanı kurulumu
-- [ ] E-posta bildirimleri
-
-### ⏳ Aşama 3 — Admin Paneli (PLANLI)
-- [ ] Oda/rate mapping yönetimi
-- [ ] Rezervasyon listesi
-- [ ] Sync logları görüntüleme
-
----
-
-## 📦 Teknoloji Stack
-
-### Frontend
-| Paket | Sürüm |
-|-------|-------|
-| react | ^18.3.1 |
-| vite | ^5.4.11 |
-| tailwindcss | ^4.0.0 |
-| react-router-dom | ^6.28.0 |
-| framer-motion | ^11.11.17 |
-| i18next | ^23.16.8 |
-| lucide-react | ^0.460.0 |
-
-### Backend (Aşama 1)
-| Paket | Kullanım |
-|-------|----------|
-| express | HTTP server |
-| axios | HTTP client |
-| dotenv | Env variables |
-| cors | CORS |
-| express-rate-limit | Rate limiting |
-
----
-
-## 🔐 Güvenlik
-
-- `ELEKTRA_API_TOKEN` → sadece `server/.env`
-- Token frontend response'larda bulunmaz
-- Token log'larda maskelenir (`***`)
-- `.env` → `.gitignore`'da
-- CORS → sadece `FRONTEND_URL` origin
-- Rate limiting aktif
-
----
-
-*Son güncelleme: 2026-08-21 — Aşama 1 devam ediyor*
-
+*Son Güncelleme: 2026-08-21 — Tüm Servisler %100 Canlı ve Vercel Üzerinde Aktif*

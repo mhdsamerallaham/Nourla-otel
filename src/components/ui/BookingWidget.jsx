@@ -186,14 +186,14 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   };
 
   const selectedLiveOffer = liveOffers[selectedRoom.elektraRoomTypeId] || liveOffers[String(selectedRoom.elektraRoomTypeId)];
-  const isSelectedRoomAvailable = Boolean(selectedLiveOffer && selectedLiveOffer.totalPrice > 0);
-  const roomPricePerNight = isSelectedRoomAvailable ? Math.round(selectedLiveOffer.pricePerNight) : selectedRoom.price;
+  const isSelectedRoomAvailable = Boolean(hasSearched && selectedLiveOffer && selectedLiveOffer.totalPrice > 0 && selectedLiveOffer.availableRooms > 0);
+  const roomPricePerNight = isSelectedRoomAvailable ? Math.round(selectedLiveOffer.pricePerNight) : 0;
   const currSymbol = currency === 'EUR' ? '€' : (currency === 'USD' ? '$' : '₺');
   
-  // Price breakdown
-  const subtotalPrice = isSelectedRoomAvailable ? Math.round(selectedLiveOffer.totalPrice) : Math.round(roomPricePerNight * nights);
-  const taxAmount = Math.round(subtotalPrice * 0.10); // 10% VAT
-  const finalTotalPrice = subtotalPrice + taxAmount;
+  // Price breakdown (strictly zero if room unavailable in ElektraWeb)
+  const subtotalPrice = isSelectedRoomAvailable ? Math.round(selectedLiveOffer.totalPrice) : 0;
+  const taxAmount = isSelectedRoomAvailable ? Math.round(subtotalPrice * 0.10) : 0; // 10% VAT
+  const finalTotalPrice = isSelectedRoomAvailable ? subtotalPrice + taxAmount : 0;
 
   // Format card number with spaces
   const handleCardNumberChange = (e) => {
@@ -205,8 +205,8 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   // Step 3 -> 4: Create Pending Reservation in Backend DB Snapshot
   const handleProceedToPayment = async (e) => {
     e.preventDefault();
-    if (!guestName || !guestEmail || !guestPhone) {
-      setApiError('Lütfen misafir ad, e-posta ve telefon alanlarını doldurunuz.');
+    if (!isSelectedRoomAvailable || !selectedLiveOffer || selectedLiveOffer.availableRooms <= 0) {
+      setApiError('Seçilen oda tercih ettiğiniz tarihlerde ElektraWeb PMS sisteminde kapalı veya doludur. Lütfen farklı tarihler seçiniz.');
       return;
     }
 
@@ -224,6 +224,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
         guestPhone,
         specialNotes,
         currency,
+        totalPrice: selectedLiveOffer.totalPrice,
       });
 
       if (pendingRes && pendingRes.success) {

@@ -128,7 +128,21 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
           const days = rawOffer.daysCount || rawOffer['days-count'] || nights || 1;
           const totPrice = rawOffer.totalPrice || rawOffer.price || 0;
           const nightP = rawOffer.pricePerNight || rawOffer['price-arr']?.[0] || (totPrice ? totPrice / days : 0);
-          const avail = rawOffer.availableRooms ?? rawOffer['room-to-sell'] ?? 0;
+          let avail = 0;
+          if (rawOffer.availableRooms !== undefined) {
+            avail = rawOffer.availableRooms;
+          } else if (rawOffer['room-to-sell'] !== undefined) {
+            avail = rawOffer['room-to-sell'];
+          } else if (Array.isArray(rawOffer['availability-arr']) && rawOffer['availability-arr'].length > 0) {
+            avail = Math.min(...rawOffer['availability-arr']);
+          }
+
+          // PMS Stop Sell check
+          const rateRules = rawOffer['rate-rules'] || rawOffer.rateRules;
+          if (rateRules && (rateRules['stop-sell'] || rateRules['stop-sell-closed-to-arrival'])) {
+            avail = 0;
+          }
+
           const boardName = rawOffer.boardName || rawOffer['board-type'] || 'RO';
           const rateName = rawOffer.rateName || rawOffer['rate-type'] || '';
           const boardTypeId = rawOffer.boardTypeId || rawOffer['board-type-id'] || 893;
@@ -152,7 +166,8 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
           };
 
           if (roomTypeId) {
-            if (!offersMap[roomTypeId] || offer.totalPrice < offersMap[roomTypeId].totalPrice) {
+            // Keep offer with highest availability & best price
+            if (!offersMap[roomTypeId] || (offer.availableRooms > 0 && offer.totalPrice < offersMap[roomTypeId].totalPrice)) {
               offersMap[roomTypeId] = offer;
             }
           }
@@ -557,25 +572,43 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             </button>
           </div>
 
+          {/* ALL ROOMS FULL / CLOSED WARNING BANNER */}
+          {hasSearched && displayRooms.every((room) => {
+            const offer = liveOffers[room.elektraRoomTypeId] || liveOffers[String(room.elektraRoomTypeId)];
+            return !offer || !offer.totalPrice || offer.availableRooms <= 0;
+          }) && (
+            <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 flex items-center gap-3 text-xs text-rose-800 animate-fadeIn">
+              <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+              <div>
+                <strong>Seçtiğiniz tarihlerde ({checkIn} — {checkOut}) otelimizde müsait oda bulunmamaktadır.</strong>
+                <p className="mt-0.5 text-[#555555]">Lütfen farklı konaklama tarihleri seçerek tekrar arama yapınız.</p>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-6">
             {displayRooms.map((room) => {
               const isSelected = selectedRoomId === room.id;
               const roomName = room.name[currentLang] || room.name.tr;
               const roomDesc = room.description[currentLang] || room.description.tr;
               const offer = liveOffers[room.elektraRoomTypeId] || liveOffers[String(room.elektraRoomTypeId)];
-              const isRoomAvailable = Boolean(offer && offer.totalPrice > 0);
+              const isRoomAvailable = Boolean(hasSearched && offer && offer.totalPrice > 0 && offer.availableRooms > 0);
               const nightPrice = isRoomAvailable ? Math.round(offer.pricePerNight) : room.price;
 
               return (
                 <div
                   key={room.id}
                   className={`rounded-2xl border-2 p-5 md:p-6 transition-all ${
-                    isSelected ? 'border-[#6F7255] bg-[#F7F4EE] shadow-md' : 'border-[#E7E1D3] bg-[#FDFBF7]'
+                    !isRoomAvailable
+                      ? 'border-stone-200 bg-stone-50/70 opacity-80'
+                      : isSelected
+                      ? 'border-[#6F7255] bg-[#F7F4EE] shadow-md'
+                      : 'border-[#E7E1D3] bg-[#FDFBF7]'
                   }`}
                 >
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
                     <div className="md:col-span-4 aspect-[4/3] rounded-xl overflow-hidden shadow-xs relative">
-                      <img src={room.image} alt={roomName} className="w-full h-full object-cover" />
+                      <img src={room.image} alt={roomName} className={`w-full h-full object-cover ${!isRoomAvailable ? 'grayscale-30' : ''}`} />
                       <span className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] px-2 py-0.5 rounded">
                         {room.size}
                       </span>
@@ -584,14 +617,33 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                     <div className="md:col-span-8 space-y-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="font-serif text-xl text-[#2B2B2B]">{roomName}</h4>
-                          <span className="text-xs text-[#6F7255] italic block">{room.view[currentLang] || room.view.tr}</span>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-serif text-xl text-[#2B2B2B]">{roomName}</h4>
+                            {isRoomAvailable ? (
+                              <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                                ✓ Müsait ({offer.availableRooms} Oda)
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
+                                ✕ Dolu / Kapalı
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-xs text-[#6F7255] italic block mt-0.5">{room.view[currentLang] || room.view.tr}</span>
                         </div>
                         <div className="text-right">
-                          <span className="font-serif text-2xl font-semibold text-[#6F7255]">
-                            {currSymbol}{nightPrice.toLocaleString('tr-TR')}
-                          </span>
-                          <span className="text-[10px] text-[#555555] block">gece / KDV Hariç</span>
+                          {isRoomAvailable ? (
+                            <>
+                              <span className="font-serif text-2xl font-semibold text-[#6F7255]">
+                                {currSymbol}{nightPrice.toLocaleString('tr-TR')}
+                              </span>
+                              <span className="text-[10px] text-[#555555] block">gece / KDV Hariç</span>
+                            </>
+                          ) : (
+                            <span className="font-serif text-sm font-semibold text-rose-600 bg-rose-50 px-3 py-1 rounded-lg inline-block">
+                              Müsaitlik Yok
+                            </span>
+                          )}
                         </div>
                       </div>
 
@@ -605,18 +657,29 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                         >
                           <Eye className="w-3.5 h-3.5" /> Detaylı İncele
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedRoomId(room.id);
-                            setCurrentStep(3);
-                          }}
-                          className={`px-6 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
-                            isSelected ? 'bg-[#6F7255] text-white shadow-md' : 'bg-white border border-[#6F7255] text-[#6F7255] hover:bg-[#6F7255] hover:text-white'
-                          }`}
-                        >
-                          {isSelected ? 'Bu Odayla Devam Et ✓' : 'Bu Odayı Seç'}
-                        </button>
+                        
+                        {isRoomAvailable ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedRoomId(room.id);
+                              setCurrentStep(3);
+                            }}
+                            className={`px-6 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
+                              isSelected ? 'bg-[#6F7255] text-white shadow-md' : 'bg-white border border-[#6F7255] text-[#6F7255] hover:bg-[#6F7255] hover:text-white'
+                            }`}
+                          >
+                            {isSelected ? 'Bu Odayla Devam Et ✓' : 'Bu Odayı Seç'}
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            disabled
+                            className="px-6 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-stone-200 text-stone-400 cursor-not-allowed border border-stone-300"
+                          >
+                            Dolu / Kapalı
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

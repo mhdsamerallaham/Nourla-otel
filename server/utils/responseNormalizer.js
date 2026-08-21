@@ -197,8 +197,10 @@ function extractPriceOffers(raw) {
     const rateName = offer['rate-type'] || offer.rateType;
     const totalPrice = offer.price || offer.totalPrice || 0;
     const daysCount = offer['days-count'] || 1;
-    const pricePerNight = offer['price-arr']?.[0] || Math.round((totalPrice / daysCount) * 100) / 100;
-    const availableRooms = offer['room-to-sell'] ?? 0;
+    const priceArr = offer['price-arr'] || offer.priceArr || [];
+    const availabilityArr = offer['availability-arr'] || offer.availabilityArr || [];
+    const pricePerNight = priceArr[0] || (daysCount ? Math.round((totalPrice / daysCount) * 100) / 100 : 0);
+    const availableRooms = offer['room-to-sell'] ?? offer.availableRooms ?? 0;
     const currency = offer.currency || 'TRY';
 
     return {
@@ -211,6 +213,8 @@ function extractPriceOffers(raw) {
       totalPrice,
       pricePerNight,
       daysCount,
+      priceArr,
+      availabilityArr,
       availableRooms,
       currency,
       rawOffer: offer,

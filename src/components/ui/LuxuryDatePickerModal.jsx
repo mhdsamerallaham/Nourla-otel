@@ -52,8 +52,7 @@ export default function LuxuryDatePickerModal({
     const year = viewDate.getFullYear();
     const month = viewDate.getMonth();
     const todayStr = new Date().toISOString().split('T')[0];
-    
-    // First & last day of month string YYYY-MM-DD
+
     const lastDayNum = new Date(year, month + 1, 0).getDate();
     let fromStr = `${year}-${String(month + 1).padStart(2, '0')}-01`;
     if (fromStr < todayStr) {
@@ -77,16 +76,17 @@ export default function LuxuryDatePickerModal({
       });
 
       const dayMap = {};
+      const startDate = new Date(fromStr + 'T00:00:00Z');
 
       if (priceRes && priceRes.success && Array.isArray(priceRes.offers)) {
         priceRes.offers.forEach((rawOffer) => {
-          const priceArr = rawOffer['price-arr'] || [];
-          const availArr = rawOffer['availability-arr'] || [];
+          const priceArr = rawOffer.priceArr || rawOffer['price-arr'] || rawOffer.rawOffer?.['price-arr'] || [];
+          const availArr = rawOffer.availabilityArr || rawOffer['availability-arr'] || rawOffer.rawOffer?.['availability-arr'] || [];
 
-          priceArr.forEach((priceVal, idx) => {
-            const dayNumber = idx + 1;
-            if (dayNumber <= lastDayNum) {
-              const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNumber).padStart(2, '0')}`;
+          if (priceArr.length > 0) {
+            priceArr.forEach((priceVal, idx) => {
+              const currDate = new Date(startDate.getTime() + idx * 86400000);
+              const dateKey = currDate.toISOString().split('T')[0];
               const avail = availArr[idx] !== undefined ? availArr[idx] : (rawOffer.availableRooms || 0);
 
               if (!dayMap[dateKey]) {
@@ -96,13 +96,28 @@ export default function LuxuryDatePickerModal({
               if (avail > 0 && priceVal > 0) {
                 dayMap[dateKey].available = true;
                 dayMap[dateKey].availableRooms = Math.max(dayMap[dateKey].availableRooms, avail);
-                const nightPrice = rawOffer.daysCount ? priceVal : priceVal / (priceArr.length || 1);
-                if (nightPrice < dayMap[dateKey].minPrice) {
-                  dayMap[dateKey].minPrice = Math.round(nightPrice);
+                if (priceVal < dayMap[dateKey].minPrice) {
+                  dayMap[dateKey].minPrice = Math.round(priceVal);
+                }
+              }
+            });
+          } else if (rawOffer.pricePerNight || rawOffer.totalPrice) {
+            const avail = rawOffer.availableRooms ?? 0;
+            const nightP = Math.round(rawOffer.pricePerNight || rawOffer.totalPrice);
+            for (let d = 1; d <= lastDayNum; d++) {
+              const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+              if (!dayMap[dateKey]) {
+                dayMap[dateKey] = { available: false, minPrice: Infinity, availableRooms: 0 };
+              }
+              if (avail > 0 && nightP > 0) {
+                dayMap[dateKey].available = true;
+                dayMap[dateKey].availableRooms = Math.max(dayMap[dateKey].availableRooms, avail);
+                if (nightP < dayMap[dateKey].minPrice) {
+                  dayMap[dateKey].minPrice = nightP;
                 }
               }
             }
-          });
+          }
         });
       }
 
@@ -266,7 +281,7 @@ export default function LuxuryDatePickerModal({
               const isInRange = tempCheckIn && tempCheckOut && dateStr > tempCheckIn && dateStr < tempCheckOut;
 
               const dayInfo = monthData[dateStr];
-              const isAvailable = dayInfo && dayInfo.available && dayInfo.minPrice !== Infinity;
+              const isAvailable = Boolean(dayInfo && dayInfo.available && dayInfo.minPrice !== Infinity);
               const minPrice = isAvailable ? dayInfo.minPrice : null;
 
               return (
@@ -281,12 +296,12 @@ export default function LuxuryDatePickerModal({
                       ? 'bg-[#6F7255] text-white border-[#6F7255] shadow-md z-10'
                       : isInRange
                       ? 'bg-[#6F7255]/15 text-[#2B2B2B] border-[#6F7255]/30'
-                      : !isAvailable && dayInfo
+                      : !isAvailable
                       ? 'bg-rose-50/80 border-rose-200 hover:bg-rose-100 text-rose-700'
                       : 'bg-white border-[#E7E1D3] hover:border-[#6F7255] text-[#2B2B2B]'
                   }`}
                 >
-                  <span className={`font-semibold ${!isPast && !isAvailable && dayInfo ? 'line-through text-rose-600' : ''}`}>
+                  <span className={`font-semibold ${!isPast && !isAvailable ? 'line-through text-rose-600 font-bold' : ''}`}>
                     {dayNum}
                   </span>
 
@@ -296,13 +311,9 @@ export default function LuxuryDatePickerModal({
                         <span className={`text-[9px] font-bold block leading-tight ${isCheckIn || isCheckOut ? 'text-white' : 'text-emerald-700'}`}>
                           {currSymbol}{minPrice.toLocaleString('tr-TR')}
                         </span>
-                      ) : dayInfo ? (
+                      ) : (
                         <span className="text-[8px] font-semibold text-rose-600 block leading-tight">
                           Müsaitlik Yok
-                        </span>
-                      ) : (
-                        <span className="text-[8px] opacity-40 block leading-tight">
-                          -
                         </span>
                       )}
                     </div>

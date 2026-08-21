@@ -62,8 +62,8 @@ async function runTests() {
   await test('Room availability successful', async () => {
     const res = await reservationService.createPendingReservation({
       pmsRoomTypeId: 3219,
-      checkIn: '2026-11-10',
-      checkOut: '2026-11-12',
+      checkIn: '2026-10-15',
+      checkOut: '2026-10-17',
       guestName: 'Ahmet Yılmaz',
     });
     assert.strictEqual(res.pms_room_type_id, 3219);
@@ -85,8 +85,8 @@ async function runTests() {
   await test('Price changed before payment', async () => {
     const res = await reservationService.createPendingReservation({
       pmsRoomTypeId: 3220,
-      checkIn: '2026-11-10',
-      checkOut: '2026-11-12',
+      checkIn: '2026-10-15',
+      checkOut: '2026-10-17',
       guestName: 'Mehmet Demir',
     });
     const originalPrice = res.total_price;
@@ -107,8 +107,8 @@ async function runTests() {
   await test('Payment success', async () => {
     const res = await reservationService.createPendingReservation({
       pmsRoomTypeId: 3221,
-      checkIn: '2026-11-10',
-      checkOut: '2026-11-12',
+      checkIn: '2026-10-15',
+      checkOut: '2026-10-17',
       guestName: 'Ayşe Kaya',
     });
     const payRes = await paymentService.createPayment({
@@ -124,8 +124,8 @@ async function runTests() {
   await test('Payment failed', async () => {
     const res = await reservationService.createPendingReservation({
       pmsRoomTypeId: 3219,
-      checkIn: '2026-11-10',
-      checkOut: '2026-11-12',
+      checkIn: '2026-10-15',
+      checkOut: '2026-10-17',
       guestName: 'Fatma Şahin',
     });
     const payRes = await paymentService.createPayment({
@@ -141,8 +141,8 @@ async function runTests() {
   await test('3D Secure required', async () => {
     const res = await reservationService.createPendingReservation({
       pmsRoomTypeId: 3222,
-      checkIn: '2026-11-10',
-      checkOut: '2026-11-12',
+      checkIn: '2026-10-15',
+      checkOut: '2026-10-17',
       guestName: 'Ali Öztürk',
     });
     const payRes = await paymentService.createPayment({
@@ -172,8 +172,8 @@ async function runTests() {
   await test('Payment callback duplicated', async () => {
     const res = await reservationService.createPendingReservation({
       pmsRoomTypeId: 3219,
-      checkIn: '2026-11-10',
-      checkOut: '2026-11-12',
+      checkIn: '2026-10-15',
+      checkOut: '2026-10-17',
       guestName: 'Zeynep Yıldız',
     });
     const payRes = await paymentService.createPayment({
@@ -203,8 +203,8 @@ async function runTests() {
   await test('Payment successful but ElektraWeb reservation failed', async () => {
     const res = await reservationService.createPendingReservation({
       pmsRoomTypeId: 999999, // Invalid PMS ID to trigger sync failure
-      checkIn: '2026-11-10',
-      checkOut: '2026-11-12',
+      checkIn: '2026-10-15',
+      checkOut: '2026-10-17',
       guestName: 'Can Arslan',
     });
     const payRes = await paymentService.createPayment({
@@ -226,8 +226,8 @@ async function runTests() {
   await test('ElektraWeb reservation retry successful', async () => {
     const res = await reservationService.createPendingReservation({
       pmsRoomTypeId: 3220,
-      checkIn: '2026-12-10',
-      checkOut: '2026-12-12',
+      checkIn: '2026-10-25',
+      checkOut: '2026-10-27',
       guestName: 'Deniz Aydin',
     });
     await runQuery(`UPDATE RESERVATIONS SET sync_status = 'SYNC_FAILED', payment_status = 'PAID' WHERE id = ?`, [res.id]);

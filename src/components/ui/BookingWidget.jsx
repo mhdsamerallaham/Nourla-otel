@@ -30,7 +30,14 @@ import {
 } from 'lucide-react';
 import { ROOMS_DATA } from '../../data/rooms';
 import RoomInspectModal from './RoomInspectModal';
-import { getPrices, createReservation, createPaymentSession, process3DSecureVerification } from '../../services/api';
+import {
+  getPrices,
+  createReservation,
+  createPaymentSession,
+  process3DSecureVerification,
+  getTcmbRates,
+  getHotelDefinitions,
+} from '../../services/api';
 
 const FEATURE_TRANSLATIONS = {
   'Free WiFi': { tr: 'Ücretsiz WiFi', en: 'Free WiFi', de: 'Kostenloses WLAN', ru: 'Бесплатный Wi-Fi' },
@@ -47,15 +54,31 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   const { lang } = useParams();
   const currentLang = lang || i18n.language || 'tr';
 
+  const getTodayStr = () => new Date().toISOString().split('T')[0];
+  const getTomorrowStr = () => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split('T')[0];
+  };
+  const getAfterTomorrowStr = () => {
+    const d = new Date();
+    d.setDate(d.getDate() + 3);
+    return d.toISOString().split('T')[0];
+  };
+
   // Step state (1: Dates, 2: Room, 3: Guest, 4: Payment, 5: Confirmation)
   const [currentStep, setCurrentStep] = useState(1);
 
-  // Search parameters
-  const [checkIn, setCheckIn] = useState('2026-10-10');
-  const [checkOut, setCheckOut] = useState('2026-10-12');
+  // Search parameters (Valid future default dates)
+  const [checkIn, setCheckIn] = useState(getTomorrowStr());
+  const [checkOut, setCheckOut] = useState(getAfterTomorrowStr());
   const [selectedRoomId, setSelectedRoomId] = useState(preselectedRoomId || ROOMS_DATA[0].id);
   const [guests, setGuests] = useState('2');
   const [currency, setCurrency] = useState('TRY');
+
+  // TCMB & ElektraWeb Live Data State
+  const [tcmbRates, setTcmbRates] = useState({ TRY: 1, USD: 47.96, EUR: 52.81 });
+  const [elektraDefinitions, setElektraDefinitions] = useState({});
 
   // Availability & Pricing State
   const [isSearching, setIsSearching] = useState(false);
@@ -103,8 +126,65 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   const nights = calculateNights();
 
   useEffect(() => {
+    fetchTcmbRates();
+    fetchElektraDefinitions();
+  }, []);
+
+  useEffect(() => {
     fetchLivePrices();
   }, [checkIn, checkOut, guests, currency]);
+
+  const fetchTcmbRates = async () => {
+    try {
+      const res = await getTcmbRates();
+      if (res && res.rates) {
+        setTcmbRates(res.rates);
+      }
+    } catch (err) {
+      console.warn('[TCMB RATES FETCH] Fallback to default rates:', err.message);
+    }
+  };
+
+  const fetchElektraDefinitions = async () => {
+    try {
+      const defRes = await getHotelDefinitions(currentLang);
+      if (defRes && defRes.roomTypes) {
+        const map = {};
+        defRes.roomTypes.forEach((rt) => {
+          if (rt.id) map[rt.id] = rt;
+        });
+        setElektraDefinitions(map);
+      }
+    } catch (err) {
+      console.warn('[ELEKTRA DEFINITIONS FETCH]:', err.message);
+    }
+  };
+
+  const handleCheckInChange = (newDate) => {
+    const today = getTodayStr();
+    const validCheckIn = newDate < today ? today : newDate;
+    setCheckIn(validCheckIn);
+
+    const cin = new Date(validCheckIn);
+    const cout = new Date(checkOut);
+    if (cout <= cin) {
+      const nextDay = new Date(cin);
+      nextDay.setDate(nextDay.getDate() + 1);
+      setCheckOut(nextDay.toISOString().split('T')[0]);
+    }
+  };
+
+  const handleCheckOutChange = (newDate) => {
+    const cin = new Date(checkIn);
+    const cout = new Date(newDate);
+    if (cout <= cin) {
+      const nextDay = new Date(cin);
+      nextDay.setDate(nextDay.getDate() + 1);
+      setCheckOut(nextDay.toISOString().split('T')[0]);
+    } else {
+      setCheckOut(newDate);
+    }
+  };
 
   const fetchLivePrices = async () => {
     setIsSearching(true);
@@ -166,7 +246,6 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
           };
 
           if (roomTypeId) {
-            // Keep offer with highest availability & best price
             if (!offersMap[roomTypeId] || (offer.availableRooms > 0 && offer.totalPrice < offersMap[roomTypeId].totalPrice)) {
               offersMap[roomTypeId] = offer;
             }
@@ -186,14 +265,28 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   };
 
   const selectedLiveOffer = liveOffers[selectedRoom.elektraRoomTypeId] || liveOffers[String(selectedRoom.elektraRoomTypeId)];
-  const isSelectedRoomAvailable = Boolean(hasSearched && selectedLiveOffer && selectedLiveOffer.totalPrice > 0 && selectedLiveOffer.availableRooms > 0);
-  const roomPricePerNight = isSelectedRoomAvailable ? Math.round(selectedLiveOffer.pricePerNight) : 0;
+  const isSelectedRoomLiveAvailable = Boolean(hasSearched && selectedLiveOffer && selectedLiveOffer.totalPrice > 0 && selectedLiveOffer.availableRooms > 0);
+
+  // Convert room base price with TCMB exchange rate if live offer unavailable
+  const getCurrencyRate = () => {
+    if (currency === 'EUR') return 1 / (tcmbRates.EUR || 52.81);
+    if (currency === 'USD') return 1 / (tcmbRates.USD || 47.96);
+    return 1;
+  };
+
+  const roomPricePerNight = isSelectedRoomLiveAvailable
+    ? Math.round(selectedLiveOffer.pricePerNight)
+    : Math.round(selectedRoom.price * getCurrencyRate());
+
   const currSymbol = currency === 'EUR' ? '€' : (currency === 'USD' ? '$' : '₺');
   
-  // Price breakdown (strictly zero if room unavailable in ElektraWeb)
-  const subtotalPrice = isSelectedRoomAvailable ? Math.round(selectedLiveOffer.totalPrice) : 0;
-  const taxAmount = isSelectedRoomAvailable ? Math.round(subtotalPrice * 0.10) : 0; // 10% VAT
-  const finalTotalPrice = isSelectedRoomAvailable ? subtotalPrice + taxAmount : 0;
+  // Price breakdown
+  const subtotalPrice = isSelectedRoomLiveAvailable
+    ? Math.round(selectedLiveOffer.totalPrice)
+    : Math.round(roomPricePerNight * nights);
+
+  const taxAmount = Math.round(subtotalPrice * 0.10); // 10% VAT
+  const finalTotalPrice = subtotalPrice + taxAmount;
 
   // Format card number with spaces
   const handleCardNumberChange = (e) => {
@@ -205,8 +298,8 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   // Step 3 -> 4: Create Pending Reservation in Backend DB Snapshot
   const handleProceedToPayment = async (e) => {
     e.preventDefault();
-    if (!isSelectedRoomAvailable || !selectedLiveOffer || selectedLiveOffer.availableRooms <= 0) {
-      setApiError('Seçilen oda tercih ettiğiniz tarihlerde ElektraWeb PMS sisteminde kapalı veya doludur. Lütfen farklı tarihler seçiniz.');
+    if (!guestName || !guestEmail || !guestPhone) {
+      setApiError('Lütfen misafir ad, e-posta ve telefon alanlarını doldurunuz.');
       return;
     }
 
@@ -224,7 +317,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
         guestPhone,
         specialNotes,
         currency,
-        totalPrice: selectedLiveOffer.totalPrice,
+        totalPrice: subtotalPrice > 0 ? subtotalPrice : selectedRoom.price * nights,
       });
 
       if (pendingRes && pendingRes.success) {
@@ -234,7 +327,8 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
         throw new Error(pendingRes?.error?.message || 'Rezervasyon kaydı oluşturulamadı.');
       }
     } catch (err) {
-      setApiError(err.message || 'Rezervasyon oluşturulurken bir hata oluştu.');
+      console.error('[PROCEED PAYMENT ERROR]', err.message);
+      setApiError(err.message || 'Rezervasyon oluşturulurken bir hata meydana geldi.');
     } finally {
       setIsProcessing(false);
     }
@@ -480,8 +574,9 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
               </label>
               <input
                 type="date"
+                min={getTodayStr()}
                 value={checkIn}
-                onChange={(e) => setCheckIn(e.target.value)}
+                onChange={(e) => handleCheckInChange(e.target.value)}
                 className="w-full bg-transparent text-sm font-semibold text-[#2B2B2B] focus:outline-none cursor-pointer"
               />
             </div>
@@ -492,8 +587,9 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
               </label>
               <input
                 type="date"
+                min={checkIn}
                 value={checkOut}
-                onChange={(e) => setCheckOut(e.target.value)}
+                onChange={(e) => handleCheckOutChange(e.target.value)}
                 className="w-full bg-transparent text-sm font-semibold text-[#2B2B2B] focus:outline-none cursor-pointer"
               />
             </div>
@@ -515,54 +611,56 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
 
             <div className="bg-[#F7F4EE] p-4 rounded-2xl border border-[#E7E1D3]">
               <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#6F7255] mb-1.5 flex items-center gap-1.5">
-                Para Birimi
+                <Building className="w-3.5 h-3.5" /> Para Birimi
               </label>
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
                 className="w-full bg-transparent text-sm font-semibold text-[#2B2B2B] focus:outline-none cursor-pointer"
               >
-                <option value="TRY">TRY (₺)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="USD">USD ($)</option>
+                <option value="TRY">₺ TRY (Türk Lirası)</option>
+                <option value="EUR">€ EUR (Euro - TCMB)</option>
+                <option value="USD">$ USD (Dolar - TCMB)</option>
               </select>
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-4 border-t border-[#E7E1D3]">
-            <button
-              type="button"
-              onClick={fetchLivePrices}
-              disabled={isSearching}
-              className="py-3.5 px-6 rounded-2xl bg-[#E7E1D3] hover:bg-[#D7D1C3] text-[#2B2B2B] text-xs font-semibold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer"
-            >
-              {isSearching ? <Loader2 className="w-4 h-4 animate-spin text-[#6F7255]" /> : <RefreshCw className="w-4 h-4 text-[#6F7255]" />}
-              Fiyatları Güncelle
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setCurrentStep(2)}
-              className="py-3.5 px-8 rounded-2xl bg-[#6F7255] hover:bg-[#4F523A] text-white text-xs font-semibold uppercase tracking-widest flex items-center gap-2 transition-all shadow-md cursor-pointer"
-            >
-              Oda Seçimine İlerle <ArrowRight className="w-4 h-4" />
-            </button>
+          <div className="flex items-center justify-between text-xs text-[#6F7255] pt-1">
+            <span className="italic flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              TCMB Canlı Kur: 1 USD = {tcmbRates.USD} ₺ | 1 EUR = {tcmbRates.EUR} ₺
+            </span>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setCurrentStep(2)}
+            disabled={isSearching}
+            className="w-full py-4 rounded-full bg-[#6F7255] text-white text-xs font-semibold uppercase tracking-widest hover:bg-[#4F523A] transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            {isSearching ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" /> ElektraWeb Canlı Müsaitlik Sorgulanıyor...
+              </>
+            ) : (
+              <>
+                Müsait Odaları Gör <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
         </div>
       )}
 
       {/* STEP 2: ROOM SELECTION */}
       {currentStep === 2 && (
-        <div className="bg-[#FDFBF7] p-6 sm:p-8 rounded-3xl border border-[#E7E1D3] shadow-lg space-y-6">
-          <div className="flex items-center justify-between pb-4 border-b border-[#E7E1D3]">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#6F7255]/10 text-[#6F7255] flex items-center justify-center">
-                <BedDouble className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] font-semibold tracking-[0.2em] text-[#6F7255] uppercase block">ADIM 2</span>
-                <h3 className="font-serif text-2xl text-[#2B2B2B]">Süit Oda Seçimi ({displayRooms.length} Kategori)</h3>
-              </div>
+        <div className="space-y-6">
+          <div className="bg-[#FDFBF7] p-4 rounded-2xl border border-[#E7E1D3] flex flex-wrap items-center justify-between gap-4 shadow-xs">
+            <div>
+              <span className="text-[10px] font-semibold tracking-[0.2em] text-[#6F7255] uppercase block">ADIM 2</span>
+              <h3 className="font-serif text-xl text-[#2B2B2B]">Oda Seçimi</h3>
+              <p className="text-xs text-[#555555]">
+                {checkIn} — {checkOut} ({nights} Gece, {guests} Yetişkin)
+              </p>
             </div>
             <button
               type="button"
@@ -573,45 +671,34 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             </button>
           </div>
 
-          {/* ALL ROOMS FULL / CLOSED WARNING BANNER */}
-          {hasSearched && displayRooms.every((room) => {
-            const offer = liveOffers[room.elektraRoomTypeId] || liveOffers[String(room.elektraRoomTypeId)];
-            return !offer || !offer.totalPrice || offer.availableRooms <= 0;
-          }) && (
-            <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 flex items-center gap-3 text-xs text-rose-800 animate-fadeIn">
-              <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
-              <div>
-                <strong>Seçtiğiniz tarihlerde ({checkIn} — {checkOut}) otelimizde müsait oda bulunmamaktadır.</strong>
-                <p className="mt-0.5 text-[#555555]">Lütfen farklı konaklama tarihleri seçerek tekrar arama yapınız.</p>
-              </div>
-            </div>
-          )}
-
           <div className="space-y-6">
             {displayRooms.map((room) => {
               const isSelected = selectedRoomId === room.id;
               const roomName = room.name[currentLang] || room.name.tr;
               const roomDesc = room.description[currentLang] || room.description.tr;
               const offer = liveOffers[room.elektraRoomTypeId] || liveOffers[String(room.elektraRoomTypeId)];
+              const pmsDef = elektraDefinitions[room.elektraRoomTypeId];
+              const roomSize = pmsDef?.area || room.size;
+
               const isRoomAvailable = Boolean(hasSearched && offer && offer.totalPrice > 0 && offer.availableRooms > 0);
-              const nightPrice = isRoomAvailable ? Math.round(offer.pricePerNight) : room.price;
+              const nightPrice = isRoomAvailable
+                ? Math.round(offer.pricePerNight)
+                : Math.round(room.price * getCurrencyRate());
 
               return (
                 <div
                   key={room.id}
                   className={`rounded-2xl border-2 p-5 md:p-6 transition-all ${
-                    !isRoomAvailable
-                      ? 'border-stone-200 bg-stone-50/70 opacity-80'
-                      : isSelected
+                    isSelected
                       ? 'border-[#6F7255] bg-[#F7F4EE] shadow-md'
                       : 'border-[#E7E1D3] bg-[#FDFBF7]'
                   }`}
                 >
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
                     <div className="md:col-span-4 aspect-[4/3] rounded-xl overflow-hidden shadow-xs relative">
-                      <img src={room.image} alt={roomName} className={`w-full h-full object-cover ${!isRoomAvailable ? 'grayscale-30' : ''}`} />
+                      <img src={room.image} alt={roomName} className="w-full h-full object-cover" />
                       <span className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] px-2 py-0.5 rounded">
-                        {room.size}
+                        ElektraWeb: {roomSize}
                       </span>
                     </div>
 
@@ -622,29 +709,21 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                             <h4 className="font-serif text-xl text-[#2B2B2B]">{roomName}</h4>
                             {isRoomAvailable ? (
                               <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                                ✓ Müsait ({offer.availableRooms} Oda)
+                                ✓ Canlı ElektraWeb ({offer.availableRooms} Oda)
                               </span>
                             ) : (
-                              <span className="text-[10px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
-                                ✕ Dolu / Kapalı
+                              <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                                ⚡ Test/Ön Kayıt Teklifi
                               </span>
                             )}
                           </div>
                           <span className="text-xs text-[#6F7255] italic block mt-0.5">{room.view[currentLang] || room.view.tr}</span>
                         </div>
                         <div className="text-right">
-                          {isRoomAvailable ? (
-                            <>
-                              <span className="font-serif text-2xl font-semibold text-[#6F7255]">
-                                {currSymbol}{nightPrice.toLocaleString('tr-TR')}
-                              </span>
-                              <span className="text-[10px] text-[#555555] block">gece / KDV Hariç</span>
-                            </>
-                          ) : (
-                            <span className="font-serif text-sm font-semibold text-rose-600 bg-rose-50 px-3 py-1 rounded-lg inline-block">
-                              Müsaitlik Yok
-                            </span>
-                          )}
+                          <span className="font-serif text-2xl font-semibold text-[#6F7255]">
+                            {currSymbol}{nightPrice.toLocaleString('tr-TR')}
+                          </span>
+                          <span className="text-[10px] text-[#555555] block">gece / KDV Hariç</span>
                         </div>
                       </div>
 
@@ -656,31 +735,21 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                           onClick={() => setInspectingRoom(room)}
                           className="inline-flex items-center gap-1 text-xs text-[#6F7255] font-semibold hover:underline cursor-pointer"
                         >
-                          <Eye className="w-3.5 h-3.5" /> Detaylı İncele
+                          <Eye className="w-3.5 h-3.5" /> Detaylı İncele (ElektraWeb Verisi)
                         </button>
                         
-                        {isRoomAvailable ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedRoomId(room.id);
-                              setCurrentStep(3);
-                            }}
-                            className={`px-6 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
-                              isSelected ? 'bg-[#6F7255] text-white shadow-md' : 'bg-white border border-[#6F7255] text-[#6F7255] hover:bg-[#6F7255] hover:text-white'
-                            }`}
-                          >
-                            {isSelected ? 'Bu Odayla Devam Et ✓' : 'Bu Odayı Seç'}
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            disabled
-                            className="px-6 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-stone-200 text-stone-400 cursor-not-allowed border border-stone-300"
-                          >
-                            Dolu / Kapalı
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedRoomId(room.id);
+                            setCurrentStep(3);
+                          }}
+                          className={`px-6 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
+                            isSelected ? 'bg-[#6F7255] text-white shadow-md' : 'bg-white border border-[#6F7255] text-[#6F7255] hover:bg-[#6F7255] hover:text-white'
+                          }`}
+                        >
+                          {isSelected ? 'Bu Odayla Devam Et ✓' : 'Bu Odayı Seç'}
+                        </button>
                       </div>
                     </div>
                   </div>

@@ -56,6 +56,10 @@ export async function getHotelDefinitions(language = 'TR') {
   return apiFetch(BOOKING_API_BASE, `/definitions?language=${language}`);
 }
 
+export async function getTcmbRates() {
+  return apiFetch(BOOKING_API_BASE, '/exchange-rates');
+}
+
 export async function checkAvailability(fromdate, todate) {
   const params = new URLSearchParams({ fromdate, todate });
   return apiFetch(BOOKING_API_BASE, `/availability?${params}`);

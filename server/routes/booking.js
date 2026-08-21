@@ -29,6 +29,17 @@ router.get('/definitions', async (req, res) => {
   }
 });
 
+// ─── Exchange Rates (TCMB) ──────────────────────────────────────────────────
+router.get('/exchange-rates', async (req, res) => {
+  try {
+    const { getTcmbExchangeRates } = require('../services/currency/tcmbService');
+    const rates = await getTcmbExchangeRates();
+    return res.json(rates);
+  } catch (err) {
+    return res.status(500).json(normalizeError(err));
+  }
+});
+
 // ─── Availability ─────────────────────────────────────────────────────────────
 router.get('/availability', validateAvailabilityDates, async (req, res) => {
   try {

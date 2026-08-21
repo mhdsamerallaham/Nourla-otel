@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { ROOMS_DATA } from '../../data/rooms';
 import RoomInspectModal from './RoomInspectModal';
+import LuxuryDatePickerModal from './LuxuryDatePickerModal';
 import {
   getPrices,
   createReservation,
@@ -68,6 +69,15 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
 
   // Step state (1: Dates, 2: Room, 3: Guest, 4: Payment, 5: Confirmation)
   const [currentStep, setCurrentStep] = useState(1);
+
+  // Custom Luxury Date Picker Modal State
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [datePickerTarget, setDatePickerTarget] = useState('checkIn');
+
+  const openDatePicker = (target = 'checkIn') => {
+    setDatePickerTarget(target);
+    setIsDatePickerOpen(true);
+  };
 
   // Search parameters (Valid future default dates)
   const [checkIn, setCheckIn] = useState(getTomorrowStr());
@@ -568,30 +578,44 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-[#F7F4EE] p-4 rounded-2xl border border-[#E7E1D3]">
-              <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#6F7255] mb-1.5 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5" /> Giriş Tarihi
+            {/* GİRİŞ TARİHİ KUTUSU - HER YERİNE TIKLANABİLİR */}
+            <div
+              onClick={() => openDatePicker('checkIn')}
+              className="bg-[#F7F4EE] p-4 rounded-2xl border border-[#E7E1D3] hover:border-[#6F7255] cursor-pointer transition-all flex flex-col justify-between group shadow-2xs hover:shadow-md"
+            >
+              <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#6F7255] mb-1.5 flex items-center justify-between cursor-pointer">
+                <span className="flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-[#6F7255]" /> Giriş Tarihi
+                </span>
+                <span className="text-[10px] text-[#6F7255] bg-white px-2 py-0.5 rounded-full border border-[#E7E1D3] font-semibold group-hover:bg-[#6F7255] group-hover:text-white transition-all">
+                  Seç / Değiştir
+                </span>
               </label>
-              <input
-                type="date"
-                min={getTodayStr()}
-                value={checkIn}
-                onChange={(e) => handleCheckInChange(e.target.value)}
-                className="w-full bg-transparent text-sm font-semibold text-[#2B2B2B] focus:outline-none cursor-pointer"
-              />
+              <div className="flex items-center justify-between pt-1">
+                <span className="font-serif text-lg font-semibold text-[#2B2B2B] group-hover:text-[#6F7255] transition-colors">
+                  {checkIn ? checkIn.split('-').reverse().join('.') : 'Tarih Seçin'}
+                </span>
+              </div>
             </div>
 
-            <div className="bg-[#F7F4EE] p-4 rounded-2xl border border-[#E7E1D3]">
-              <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#6F7255] mb-1.5 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5" /> Çıkış Tarihi
+            {/* ÇIKIŞ TARİHİ KUTUSU - HER YERİNE TIKLANABİLİR */}
+            <div
+              onClick={() => openDatePicker('checkOut')}
+              className="bg-[#F7F4EE] p-4 rounded-2xl border border-[#E7E1D3] hover:border-[#6F7255] cursor-pointer transition-all flex flex-col justify-between group shadow-2xs hover:shadow-md"
+            >
+              <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#6F7255] mb-1.5 flex items-center justify-between cursor-pointer">
+                <span className="flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-[#6F7255]" /> Çıkış Tarihi
+                </span>
+                <span className="text-[10px] text-[#6F7255] bg-white px-2 py-0.5 rounded-full border border-[#E7E1D3] font-semibold group-hover:bg-[#6F7255] group-hover:text-white transition-all">
+                  Seç / Değiştir
+                </span>
               </label>
-              <input
-                type="date"
-                min={checkIn}
-                value={checkOut}
-                onChange={(e) => handleCheckOutChange(e.target.value)}
-                className="w-full bg-transparent text-sm font-semibold text-[#2B2B2B] focus:outline-none cursor-pointer"
-              />
+              <div className="flex items-center justify-between pt-1">
+                <span className="font-serif text-lg font-semibold text-[#2B2B2B] group-hover:text-[#6F7255] transition-colors">
+                  {checkOut ? checkOut.split('-').reverse().join('.') : 'Tarih Seçin'}
+                </span>
+              </div>
             </div>
 
             <div className="bg-[#F7F4EE] p-4 rounded-2xl border border-[#E7E1D3]">
@@ -1122,6 +1146,21 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
           setCurrentStep(3);
         }}
         currentLang={currentLang}
+      />
+
+      {/* LUXURY DATE PICKER MODAL */}
+      <LuxuryDatePickerModal
+        isOpen={isDatePickerOpen}
+        onClose={() => setIsDatePickerOpen(false)}
+        checkIn={checkIn}
+        checkOut={checkOut}
+        onSelectDates={(newCin, newCout) => {
+          setCheckIn(newCin);
+          setCheckOut(newCout);
+        }}
+        currency={currency}
+        tcmbRates={tcmbRates}
+        initialTarget={datePickerTarget}
       />
     </div>
   );

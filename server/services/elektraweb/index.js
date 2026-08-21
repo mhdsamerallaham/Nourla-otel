@@ -150,6 +150,18 @@ async function createReservation(data) {
     'guest-list': guestList,
   };
 
+  if (process.env.TEST_SUITE_MOCK_PMS === 'true') {
+    if (String(data.roomTypeId) === '999999') {
+      throw new Error('Geçersiz oda tipi ID (Test PMS Sync Failure).');
+    }
+    console.log(`[TEST SUITE MOCK PMS] Mocking ElektraWeb reservation creation for test roomType: ${data.roomTypeId}`);
+    return {
+      success: true,
+      reservationId: Math.floor(1000000 + Math.random() * 9000000),
+      message: 'Mock test reservation created successfully',
+    };
+  }
+
   console.log(`[ELEKTRA RESERVATION] Sending createReservation request for roomType: ${data.roomTypeId}...`);
 
   if (String(data.roomTypeId) === '999999') {

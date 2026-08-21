@@ -8,8 +8,128 @@ const path = require('path');
 const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
 
-const DB_PATH = process.env.DATABASE_PATH || path.join(__dirname, 'nourla_hotel.sqlite');
+const isVercel = Boolean(process.env.VERCEL || process.env.NOW_REGION);
+const defaultDbPath = isVercel
+  ? path.join('/tmp', 'nourla_hotel.sqlite')
+  : path.join(__dirname, 'nourla_hotel.sqlite');
+
+const DB_PATH = process.env.DATABASE_PATH || defaultDbPath;
 const MIGRATION_PATH = path.join(__dirname, '../../database/migrations/001_initial_schema.sql');
+
+const FALLBACK_SCHEMA_SQL = `
+CREATE TABLE IF NOT EXISTS HOTELS (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  pms_hotel_id VARCHAR(64) UNIQUE NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  code VARCHAR(50) DEFAULT 'NOURLA',
+  currency VARCHAR(10) DEFAULT 'TRY',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS ROOMS (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  hotel_id INTEGER NOT NULL,
+  pms_room_type_id INTEGER NOT NULL UNIQUE,
+  code VARCHAR(50) NOT NULL,
+  name_tr VARCHAR(255) NOT NULL,
+  name_en VARCHAR(255),
+  description_tr TEXT,
+  description_en TEXT,
+  image_url VARCHAR(500),
+  size_m2 VARCHAR(50),
+  max_adults INTEGER DEFAULT 2,
+  max_children INTEGER DEFAULT 0,
+  base_price DECIMAL(10, 2) DEFAULT 0.00,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (hotel_id) REFERENCES HOTELS(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS RESERVATIONS (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reservation_code VARCHAR(100) UNIQUE NOT NULL,
+  reservation_uuid VARCHAR(100) UNIQUE,
+  hotel_id INTEGER NOT NULL,
+  room_id INTEGER NOT NULL,
+  pms_room_type_id INTEGER NOT NULL,
+  room_name VARCHAR(255) NOT NULL,
+  rate_plan VARCHAR(100) DEFAULT 'STANDARD',
+  board_type_id INTEGER DEFAULT 893,
+  rate_type_id INTEGER DEFAULT 792,
+  rate_code_id INTEGER DEFAULT 6844,
+  price_agency_id INTEGER DEFAULT 44573,
+  check_in DATE NOT NULL,
+  check_out DATE NOT NULL,
+  night_count INTEGER NOT NULL,
+  adult_count INTEGER DEFAULT 2,
+  child_count INTEGER DEFAULT 0,
+  base_price DECIMAL(10, 2) NOT NULL,
+  discount_amount DECIMAL(10, 2) DEFAULT 0.00,
+  tax_amount DECIMAL(10, 2) DEFAULT 0.00,
+  total_price DECIMAL(10, 2) NOT NULL,
+  currency VARCHAR(10) DEFAULT 'TRY',
+  status VARCHAR(50) DEFAULT 'PENDING_PAYMENT',
+  payment_status VARCHAR(50) DEFAULT 'PENDING',
+  sync_status VARCHAR(50) DEFAULT 'SYNC_PENDING',
+  pms_reservation_id VARCHAR(100),
+  pms_reservation_uuid VARCHAR(100),
+  sync_attempts INTEGER DEFAULT 0,
+  last_sync_error TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS RESERVATION_GUESTS (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reservation_id INTEGER NOT NULL,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  email VARCHAR(255),
+  phone VARCHAR(50),
+  is_primary BOOLEAN DEFAULT 0,
+  gender INTEGER DEFAULT 0,
+  country VARCHAR(10) DEFAULT 'TR',
+  special_notes TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS PAYMENTS (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  payment_code VARCHAR(100) UNIQUE NOT NULL,
+  reservation_id INTEGER NOT NULL,
+  payment_provider VARCHAR(50) NOT NULL DEFAULT 'mock',
+  gateway_transaction_id VARCHAR(255),
+  amount DECIMAL(10, 2) NOT NULL,
+  currency VARCHAR(10) DEFAULT 'TRY',
+  status VARCHAR(50) DEFAULT 'PENDING',
+  idempotency_key VARCHAR(255) UNIQUE,
+  masked_card_number VARCHAR(30),
+  card_holder_name VARCHAR(100),
+  error_code VARCHAR(100),
+  error_message TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS PAYMENT_TRANSACTIONS (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  payment_id INTEGER NOT NULL,
+  reservation_id INTEGER NOT NULL,
+  transaction_type VARCHAR(50) NOT NULL,
+  amount DECIMAL(10, 2) NOT NULL,
+  currency VARCHAR(10) DEFAULT 'TRY',
+  status VARCHAR(50) NOT NULL,
+  provider_code VARCHAR(50),
+  response_payload_sanitized TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS PAYMENT_CALLBACKS (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  payment_id INTEGER NOT NULL,
+  provider VARCHAR(50) NOT NULL,
+  callback_status VARCHAR(50) NOT NULL,
+  payload_hash VARCHAR(255) NOT NULL,
+  processed BOOLEAN DEFAULT 0,
+  raw_body_sanitized TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+`;
 
 let db = null;
 
@@ -73,7 +193,9 @@ async function initializeDatabase() {
       await execSqlScript(sql);
       console.log('[DATABASE] Initial schema migration executed successfully.');
     } else {
-      console.warn('[DATABASE] Migration file not found at:', MIGRATION_PATH);
+      console.log('[DATABASE] Migration file not found, executing embedded fallback schema...');
+      await execSqlScript(FALLBACK_SCHEMA_SQL);
+      console.log('[DATABASE] Embedded fallback schema executed successfully.');
     }
 
     // Seed default hotel if not exists

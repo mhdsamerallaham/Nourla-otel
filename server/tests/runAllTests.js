@@ -26,8 +26,9 @@ const path = require('path');
 const process = require('process');
 
 // Load environment variables for test
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 process.env.DATABASE_PATH = path.join(__dirname, 'test_nourla.sqlite');
-process.env.ELEKTRA_HOTEL_ID = '37555';
+process.env.ELEKTRA_HOTEL_ID = process.env.ELEKTRA_HOTEL_ID || '37555';
 process.env.PAYMENT_PROVIDER = 'mock';
 
 const { initializeDatabase, runQuery, getQuery } = require('../database/db');

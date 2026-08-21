@@ -76,7 +76,7 @@ async function getPrices(params) {
     fromdate: params.fromdate,
     todate: params.todate,
     adult: params.adult || 2,
-    currency: (params.currency || 'EUR').toUpperCase(),
+    currency: (params.currency || 'TRY').toUpperCase(),
     language: (params.language || 'TR').toUpperCase(),
   };
 

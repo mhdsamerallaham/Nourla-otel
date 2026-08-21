@@ -67,7 +67,7 @@ export default function LuxuryDatePickerModal({
     }
 
     try {
-      const priceRes = await getPrices({
+      let priceRes = await getPrices({
         fromdate: fromStr,
         todate: toStr,
         adult: 2,
@@ -75,11 +75,35 @@ export default function LuxuryDatePickerModal({
         language: 'TR',
       });
 
-      const dayMap = {};
-      const startDate = new Date(fromStr + 'T00:00:00Z');
+      let offers = (priceRes && priceRes.success && Array.isArray(priceRes.offers)) ? priceRes.offers : [];
+      let queryStartDateStr = fromStr;
 
-      if (priceRes && priceRes.success && Array.isArray(priceRes.offers)) {
-        priceRes.offers.forEach((rawOffer) => {
+      // If full month query starting on sold-out/closed early days returns 0 offers, query second half of month
+      if (offers.length === 0) {
+        const midDay = 16;
+        if (midDay < lastDayNum) {
+          const midFromStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(midDay).padStart(2, '0')}`;
+          if (midFromStr >= todayStr) {
+            const subRes = await getPrices({
+              fromdate: midFromStr,
+              todate: toStr,
+              adult: 2,
+              currency,
+              language: 'TR',
+            });
+            if (subRes && subRes.success && Array.isArray(subRes.offers) && subRes.offers.length > 0) {
+              offers = subRes.offers;
+              queryStartDateStr = midFromStr;
+            }
+          }
+        }
+      }
+
+      const dayMap = {};
+      const startDate = new Date(queryStartDateStr + 'T00:00:00Z');
+
+      if (offers.length > 0) {
+        offers.forEach((rawOffer) => {
           const priceArr = rawOffer.priceArr || rawOffer['price-arr'] || rawOffer.rawOffer?.['price-arr'] || [];
           const availArr = rawOffer.availabilityArr || rawOffer['availability-arr'] || rawOffer.rawOffer?.['availability-arr'] || [];
 

@@ -155,6 +155,20 @@ export default function LuxuryDatePickerModal({
         });
       }
 
+      // Complete month-end date (30th/31st) if check-out date boundary truncated it in ElektraWeb price-arr
+      const lastMonthDateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDayNum).padStart(2, '0')}`;
+      if (!dayMap[lastMonthDateKey] || !dayMap[lastMonthDateKey].available) {
+        const prevDayNum = lastDayNum - 1;
+        const prevMonthDateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(prevDayNum).padStart(2, '0')}`;
+        if (dayMap[prevMonthDateKey] && dayMap[prevMonthDateKey].available) {
+          dayMap[lastMonthDateKey] = {
+            available: true,
+            minPrice: dayMap[prevMonthDateKey].minPrice,
+            availableRooms: dayMap[prevMonthDateKey].availableRooms,
+          };
+        }
+      }
+
       setMonthData(dayMap);
     } catch (err) {
       console.warn('[MONTH CALENDAR] ElektraWeb month price fetch:', err.message);

@@ -9,13 +9,27 @@ const BOOKING_API_BASE = '/api/booking';
 const PAYMENT_API_BASE = '/api/payment';
 
 async function apiFetch(baseUrl, endpoint, options = {}) {
-  const response = await fetch(`${baseUrl}${endpoint}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    ...options,
-  });
+  const url = `${baseUrl}${endpoint}`;
+  let response;
+
+  try {
+    response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      ...options,
+    });
+  } catch (netErr) {
+    throw new Error(`Backend sunucusuna ulaşılamadı (${netErr.message}). Lütfen backend sunucusunun (Port 3001) çalıştığından emin olun.`);
+  }
+
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    throw new Error(
+      `API sunucusu beklenmeyen yanıt döndürdü (HTTP ${response.status}). Backend servisinin (Port 3001) aktif olduğundan emin olun.`
+    );
+  }
 
   const data = await response.json();
 

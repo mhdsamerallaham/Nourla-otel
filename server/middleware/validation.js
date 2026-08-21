@@ -62,20 +62,26 @@ function validateAvailabilityDates(req, res, next) {
     });
   }
 
-  const fromDate = fromResult.date;
+  let fromDate = fromResult.date;
   const toDate = toResult.date;
+  let fromdateStr = fromdate;
   const today = new Date();
   today.setUTCHours(0, 0, 0, 0);
 
   // Geçmiş tarih kontrolü
   if (fromDate < today) {
-    return res.status(400).json({
-      success: false,
-      error: {
-        code: 'PAST_DATE',
-        message: `Check-in tarihi geçmişte olamaz. Seçilen: ${fromdate}`,
-      },
-    });
+    if (toDate > today) {
+      fromDate = today;
+      fromdateStr = today.toISOString().split('T')[0];
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'PAST_DATE',
+          message: `Check-in tarihi geçmişte olamaz. Seçilen: ${fromdate}`,
+        },
+      });
+    }
   }
 
   // check-in < check-out kontrolü
@@ -130,16 +136,22 @@ function validatePriceParams(req, res, next) {
     });
   }
 
-  const fromDate = fromResult.date;
+  let fromDate = fromResult.date;
   const toDate = toResult.date;
+  let fromdateStr = fromdate;
   const today = new Date();
   today.setUTCHours(0, 0, 0, 0);
 
   if (fromDate < today) {
-    return res.status(400).json({
-      success: false,
-      error: { code: 'PAST_DATE', message: `Check-in tarihi geçmişte olamaz.` },
-    });
+    if (toDate > today) {
+      fromDate = today;
+      fromdateStr = today.toISOString().split('T')[0];
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'PAST_DATE', message: `Check-in tarihi geçmişte olamaz.` },
+      });
+    }
   }
 
   if (fromDate >= toDate) {

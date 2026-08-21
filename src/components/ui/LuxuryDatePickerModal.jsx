@@ -51,11 +51,21 @@ export default function LuxuryDatePickerModal({
     setIsLoadingMonth(true);
     const year = viewDate.getFullYear();
     const month = viewDate.getMonth();
+    const todayStr = new Date().toISOString().split('T')[0];
     
     // First & last day of month string YYYY-MM-DD
     const lastDayNum = new Date(year, month + 1, 0).getDate();
-    const fromStr = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+    let fromStr = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+    if (fromStr < todayStr) {
+      fromStr = todayStr;
+    }
     const toStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDayNum).padStart(2, '0')}`;
+
+    if (fromStr >= toStr) {
+      setMonthData({});
+      setIsLoadingMonth(false);
+      return;
+    }
 
     try {
       const priceRes = await getPrices({

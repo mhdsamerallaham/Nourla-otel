@@ -87,7 +87,17 @@ export default function LuxuryDatePickerModal({
             priceArr.forEach((priceVal, idx) => {
               const currDate = new Date(startDate.getTime() + idx * 86400000);
               const dateKey = currDate.toISOString().split('T')[0];
-              const avail = availArr[idx] !== undefined ? availArr[idx] : (rawOffer.availableRooms || 0);
+
+              let avail = 0;
+              if (Array.isArray(availArr) && availArr[idx] !== undefined && availArr[idx] > 0) {
+                avail = availArr[idx];
+              } else if (rawOffer.availableRooms !== undefined && rawOffer.availableRooms > 0) {
+                avail = rawOffer.availableRooms;
+              } else if (rawOffer.rawOffer?.['room-to-sell'] !== undefined && rawOffer.rawOffer['room-to-sell'] > 0) {
+                avail = rawOffer.rawOffer['room-to-sell'];
+              } else if (priceVal > 0) {
+                avail = 1; // Positive ElektraWeb price indicates availability
+              }
 
               if (!dayMap[dateKey]) {
                 dayMap[dateKey] = { available: false, minPrice: Infinity, availableRooms: 0 };
@@ -102,7 +112,7 @@ export default function LuxuryDatePickerModal({
               }
             });
           } else if (rawOffer.pricePerNight || rawOffer.totalPrice) {
-            const avail = rawOffer.availableRooms ?? 0;
+            const avail = rawOffer.availableRooms || 1;
             const nightP = Math.round(rawOffer.pricePerNight || rawOffer.totalPrice);
             for (let d = 1; d <= lastDayNum; d++) {
               const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
@@ -151,6 +161,10 @@ export default function LuxuryDatePickerModal({
   const handleDayClick = (dayNum) => {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
     if (dateStr < todayStr) return; // Disallow past dates
+
+    const dayInfo = monthData[dateStr];
+    const isAvailable = Boolean(dayInfo && dayInfo.available && dayInfo.minPrice !== Infinity);
+    if (!isAvailable) return; // Disallow picking unavailable dates!
 
     if (activeTarget === 'checkIn') {
       setTempCheckIn(dateStr);
@@ -288,7 +302,7 @@ export default function LuxuryDatePickerModal({
                 <button
                   key={dateStr}
                   onClick={() => handleDayClick(dayNum)}
-                  disabled={isPast}
+                  disabled={isPast || (!isPast && !isAvailable)}
                   className={`h-16 p-1 rounded-xl flex flex-col items-center justify-between text-xs transition-all relative border ${
                     isPast
                       ? 'bg-stone-100/60 border-transparent text-stone-300 opacity-40 cursor-not-allowed'
@@ -297,7 +311,7 @@ export default function LuxuryDatePickerModal({
                       : isInRange
                       ? 'bg-[#6F7255]/15 text-[#2B2B2B] border-[#6F7255]/30'
                       : !isAvailable
-                      ? 'bg-rose-50/80 border-rose-200 hover:bg-rose-100 text-rose-700'
+                      ? 'bg-rose-50/60 border-rose-200 text-rose-500 cursor-not-allowed opacity-75'
                       : 'bg-white border-[#E7E1D3] hover:border-[#6F7255] text-[#2B2B2B]'
                   }`}
                 >

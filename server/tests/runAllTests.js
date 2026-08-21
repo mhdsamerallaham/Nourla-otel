@@ -226,8 +226,8 @@ async function runTests() {
   await test('ElektraWeb reservation retry successful', async () => {
     const res = await reservationService.createPendingReservation({
       pmsRoomTypeId: 3220,
-      checkIn: '2026-10-28',
-      checkOut: '2026-10-30',
+      checkIn: '2026-11-01',
+      checkOut: '2026-11-03',
       guestName: 'Deniz Aydin',
     });
     await runQuery(`UPDATE RESERVATIONS SET sync_status = 'SYNC_FAILED', payment_status = 'PAID' WHERE id = ?`, [res.id]);

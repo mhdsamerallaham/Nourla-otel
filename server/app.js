@@ -26,6 +26,7 @@ const corsOptions = {
   origin: (origin, callback) => {
     if (
       !origin ||
+      origin.includes('nourla.com.tr') ||
       origin.includes('vercel.app') ||
       origin.includes('localhost') ||
       origin === FRONTEND_URL

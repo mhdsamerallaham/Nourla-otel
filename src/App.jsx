@@ -13,6 +13,7 @@ import Sustainability from './pages/Sustainability';
 import Gallery from './pages/Gallery';
 import Contact from './pages/Contact';
 import Reservation from './pages/Reservation';
+import BookingStatus from './pages/BookingStatus';
 import TestScrollVideo from './pages/TestScrollVideo';
 import BackgroundMusic from './components/ui/BackgroundMusic';
 
@@ -54,6 +55,9 @@ export default function App() {
             {/* Root redirects to /tr */}
             <Route path="/" element={<Navigate to="/tr" replace />} />
 
+            {/* Payment gateway callback landing — no lang prefix required */}
+            <Route path="/booking-status" element={<BookingStatus />} />
+
             {/* Multi-language routes */}
             <Route
               path="/:lang/*"
@@ -71,6 +75,7 @@ export default function App() {
                     <Route path="gallery" element={<Gallery />} />
                     <Route path="contact" element={<Contact />} />
                     <Route path="reservation" element={<Reservation />} />
+                    <Route path="booking-status" element={<BookingStatus />} />
                     <Route path="test-scroll-video" element={<TestScrollVideo />} />
                     <Route path="*" element={<Navigate to="/tr" replace />} />
                   </Routes>

@@ -7,3 +7,10 @@ dist
 .env.production.local
 .env.development.local
 .vite
+# Backend secrets — GİT'E COMMIT ETME
+server/.env
+server/node_modules
+*.sqlite
+server/*.sqlite
+server/tests/*.sqlite
+

@@ -8,6 +8,17 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+
+  // Dev'de /api/* isteklerini Express backend'e yönlendir
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
   build: {
     chunkSizeWarningLimit: 1000,
     rollupOptions: {

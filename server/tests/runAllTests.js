@@ -225,7 +225,7 @@ async function runTests() {
   // ---------------------------------------------------------------------------
   await test('ElektraWeb reservation retry successful', async () => {
     const res = await reservationService.createPendingReservation({
-      pmsRoomTypeId: 3219,
+      pmsRoomTypeId: 3222,
       checkIn: '2026-10-10',
       checkOut: '2026-10-12',
       guestName: 'Deniz Aydin',

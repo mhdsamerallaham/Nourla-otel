@@ -113,14 +113,20 @@ export default function LuxuryDatePickerModal({
               const dateKey = currDate.toISOString().split('T')[0];
 
               let avail = 0;
-              if (Array.isArray(availArr) && availArr[idx] !== undefined && availArr[idx] > 0) {
+              if (Array.isArray(availArr) && availArr[idx] !== undefined) {
                 avail = availArr[idx];
-              } else if (rawOffer.availableRooms !== undefined && rawOffer.availableRooms > 0) {
+              } else if (rawOffer.availableRooms !== undefined) {
                 avail = rawOffer.availableRooms;
-              } else if (rawOffer.rawOffer?.['room-to-sell'] !== undefined && rawOffer.rawOffer['room-to-sell'] > 0) {
+              } else if (rawOffer.rawOffer?.['room-to-sell'] !== undefined) {
                 avail = rawOffer.rawOffer['room-to-sell'];
               } else if (priceVal > 0) {
                 avail = 1; // Positive ElektraWeb price indicates availability
+              }
+
+              // Check for rate rules stop-sell
+              const rateRules = rawOffer.rawOffer?.['rate-rules'] || rawOffer.rateRules;
+              if (rateRules && (rateRules['stop-sell'] || rateRules['stop-sell-closed-to-arrival'])) {
+                avail = 0;
               }
 
               if (!dayMap[dateKey]) {

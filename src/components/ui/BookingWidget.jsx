@@ -267,7 +267,6 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
       }
     } catch (err) {
       console.warn('[RESERVATION WIDGET] Price fetch fallback:', err.message);
-      setApiError(err.message);
       setLiveOffers({});
     } finally {
       setIsSearching(false);

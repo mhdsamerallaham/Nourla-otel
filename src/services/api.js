@@ -21,13 +21,13 @@ async function apiFetch(baseUrl, endpoint, options = {}) {
       ...options,
     });
   } catch (netErr) {
-    throw new Error(`Backend sunucusuna ulaşılamadı (${netErr.message}). Lütfen backend sunucusunun (Port 3001) çalıştığından emin olun.`);
+    throw new Error(`Bağlantı sağlanamadı (${netErr.message}). Lütfen bağlantınızı kontrol ediniz.`);
   }
 
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('application/json')) {
     throw new Error(
-      `API sunucusu beklenmeyen yanıt döndürdü (HTTP ${response.status}). Backend servisinin (Port 3001) aktif olduğundan emin olun.`
+      `Sunucu yanıtı alınamadı (HTTP ${response.status}).`
     );
   }
 

@@ -918,36 +918,27 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                         </span>
                       </div>
 
-                      {/* Segmented Switch Pills Bar */}
-                      <div className="bg-[#F7F4EE] p-1.5 rounded-2xl border border-[#E7E1D3] grid grid-cols-2 gap-1.5 shadow-2xs">
+                      {/* Single-line Compact Segmented Switch Pill Bar */}
+                      <div className="bg-[#F7F4EE] p-1 rounded-xl border border-[#E7E1D3] grid grid-cols-2 gap-1 shadow-2xs">
                         
                         {/* Left Segment: Kahvaltı Dahil (BB) */}
                         {bbOffer && (
                           <button
                             type="button"
                             onClick={() => setSelectedBoardChoice((prev) => ({ ...prev, [room.id]: 'BB' }))}
-                            className={`py-2.5 px-3 rounded-xl transition-all text-left flex flex-col justify-between cursor-pointer ${
+                            className={`py-2 px-2.5 rounded-lg transition-all flex items-center justify-between gap-1 cursor-pointer ${
                               currentBoardChoice === 'BB'
-                                ? 'bg-white text-[#2B2B2B] shadow-md border border-[#6F7255]/40 ring-1 ring-[#6F7255]/20'
-                                : 'text-[#555555] hover:text-[#2B2B2B] hover:bg-white/60'
+                                ? 'bg-white text-[#2B2B2B] shadow-xs border border-[#6F7255]/40 font-semibold ring-1 ring-[#6F7255]/20'
+                                : 'text-[#555555] hover:text-[#2B2B2B] hover:bg-white/60 font-light'
                             }`}
                           >
-                            <div className="flex items-center justify-between gap-1">
-                              <span className="text-xs font-serif font-bold text-[#2B2B2B] flex items-center gap-1.5">
-                                <Coffee className="w-3.5 h-3.5 text-[#6F7255]" /> Kahvaltı Dahil
-                              </span>
-                              <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
-                                currentBoardChoice === 'BB' ? 'border-[#6F7255] bg-[#6F7255]' : 'border-[#D5CEBE]'
-                              }`}>
-                                {currentBoardChoice === 'BB' && <div className="w-1 h-1 rounded-full bg-white" />}
-                              </div>
-                            </div>
-                            <div className="mt-1 pt-1 border-t border-[#E7E1D3]/50 flex items-baseline justify-between">
-                              <span className="text-[9px] text-[#6F7255] uppercase font-semibold">Gecelik</span>
-                              <span className="font-serif text-base sm:text-lg font-bold text-[#6F7255]">
-                                {currSymbol}{Math.round(bbOffer.pricePerNight).toLocaleString('tr-TR')}
-                              </span>
-                            </div>
+                            <span className="text-[11px] truncate flex items-center gap-1">
+                              <Coffee className="w-3.5 h-3.5 text-[#6F7255] shrink-0" />
+                              Kahvaltılı
+                            </span>
+                            <span className="font-serif text-xs font-bold text-[#6F7255] shrink-0">
+                              {currSymbol}{Math.round(bbOffer.pricePerNight).toLocaleString('tr-TR')}
+                            </span>
                           </button>
                         )}
 
@@ -956,28 +947,19 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                           <button
                             type="button"
                             onClick={() => setSelectedBoardChoice((prev) => ({ ...prev, [room.id]: 'RO' }))}
-                            className={`py-2.5 px-3 rounded-xl transition-all text-left flex flex-col justify-between cursor-pointer ${
+                            className={`py-2 px-2.5 rounded-lg transition-all flex items-center justify-between gap-1 cursor-pointer ${
                               currentBoardChoice === 'RO'
-                                ? 'bg-white text-[#2B2B2B] shadow-md border border-[#6F7255]/40 ring-1 ring-[#6F7255]/20'
-                                : 'text-[#555555] hover:text-[#2B2B2B] hover:bg-white/60'
+                                ? 'bg-white text-[#2B2B2B] shadow-xs border border-[#6F7255]/40 font-semibold ring-1 ring-[#6F7255]/20'
+                                : 'text-[#555555] hover:text-[#2B2B2B] hover:bg-white/60 font-light'
                             }`}
                           >
-                            <div className="flex items-center justify-between gap-1">
-                              <span className="text-xs font-serif font-bold text-[#2B2B2B] flex items-center gap-1.5">
-                                <Building className="w-3.5 h-3.5 text-[#6F7255]" /> Sadece Oda
-                              </span>
-                              <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
-                                currentBoardChoice === 'RO' ? 'border-[#6F7255] bg-[#6F7255]' : 'border-[#D5CEBE]'
-                              }`}>
-                                {currentBoardChoice === 'RO' && <div className="w-1 h-1 rounded-full bg-white" />}
-                              </div>
-                            </div>
-                            <div className="mt-1 pt-1 border-t border-[#E7E1D3]/50 flex items-baseline justify-between">
-                              <span className="text-[9px] text-[#6F7255] uppercase font-semibold">Gecelik</span>
-                              <span className="font-serif text-base sm:text-lg font-bold text-[#6F7255]">
-                                {currSymbol}{Math.round(roOffer.pricePerNight).toLocaleString('tr-TR')}
-                              </span>
-                            </div>
+                            <span className="text-[11px] truncate flex items-center gap-1">
+                              <Building className="w-3.5 h-3.5 text-[#6F7255] shrink-0" />
+                              Kahvaltısız
+                            </span>
+                            <span className="font-serif text-xs font-bold text-[#6F7255] shrink-0">
+                              {currSymbol}{Math.round(roOffer.pricePerNight).toLocaleString('tr-TR')}
+                            </span>
                           </button>
                         )}
                       </div>

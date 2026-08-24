@@ -85,6 +85,15 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [datePickerTarget, setDatePickerTarget] = useState('checkIn');
 
+  useEffect(() => {
+    if (isDatePickerOpen) {
+      document.body.setAttribute('data-datepicker-open', 'true');
+    } else {
+      document.body.removeAttribute('data-datepicker-open');
+    }
+    window.dispatchEvent(new CustomEvent('nourla:datepicker-state', { detail: { open: isDatePickerOpen } }));
+  }, [isDatePickerOpen]);
+
   const openDatePicker = (target = 'checkIn') => {
     setDatePickerTarget(target);
     setIsDatePickerOpen(true);

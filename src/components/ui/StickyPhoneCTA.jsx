@@ -11,10 +11,21 @@ import { Phone, MessageCircle, X } from 'lucide-react';
 export default function StickyPhoneCTA() {
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [isDatePickerActive, setIsDatePickerActive] = useState(false);
   const location = useLocation();
 
   // Detect if user is in booking flow / reservation page
   const isReservationPage = location.pathname.includes('/reservation') || location.pathname.includes('/booking');
+
+  useEffect(() => {
+    const handleDatePickerEvent = (e) => {
+      if (e && e.detail) {
+        setIsDatePickerActive(Boolean(e.detail.open));
+      }
+    };
+    window.addEventListener('nourla:datepicker-state', handleDatePickerEvent);
+    return () => window.removeEventListener('nourla:datepicker-state', handleDatePickerEvent);
+  }, []);
 
   useEffect(() => {
     // Check if user previously dismissed
@@ -36,7 +47,7 @@ export default function StickyPhoneCTA() {
     localStorage.setItem('nourla_sticky_dismissed', String(Date.now()));
   };
 
-  if (dismissed || !visible || isReservationPage) return null;
+  if (dismissed || !visible || isReservationPage || isDatePickerActive) return null;
 
   return (
     <div

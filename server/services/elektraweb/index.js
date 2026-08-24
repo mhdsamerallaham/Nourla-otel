@@ -78,7 +78,8 @@ async function getPrices(params) {
     adult: params.adult || 2,
     currency: (params.currency || 'TRY').toUpperCase(),
     language: (params.language || 'TR').toUpperCase(),
-    onlybestoffer: params.onlybestoffer !== undefined ? params.onlybestoffer : true,
+    // NOTE: onlybestoffer=true returns only 1 offer for the whole hotel (cheapest room).
+    // We never default it — pass explicitly only when intentionally needed.
   };
 
   if (params.childage) queryParams.childage = params.childage;

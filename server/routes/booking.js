@@ -66,8 +66,14 @@ router.get('/price', validatePriceParams, async (req, res) => {
 
     if (params.childage) priceParams.childage = params.childage;
     if (params.nationality) priceParams.nationality = params.nationality;
-    priceParams.onlybestoffer = req.query.onlybestoffer !== undefined ? req.query.onlybestoffer === 'true' : true;
-    priceParams['promo-code'] = req.query['promo-code'] || req.query.promo_code || 'ONLINE';
+    // onlybestoffer=true returns only 1 offer (cheapest room in the hotel) — do NOT default to true.
+    // Only pass it if the caller explicitly requests it.
+    if (req.query.onlybestoffer !== undefined) {
+      priceParams.onlybestoffer = req.query.onlybestoffer === 'true';
+    }
+    if (req.query['promo-code'] || req.query.promo_code) {
+      priceParams['promo-code'] = req.query['promo-code'] || req.query.promo_code;
+    }
     if (req.query['price-agency-id']) {
       priceParams['price-agency-id'] = req.query['price-agency-id'];
     }

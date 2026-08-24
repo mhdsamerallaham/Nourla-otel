@@ -332,21 +332,11 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
           });
 
           const rawOriginalPrice = rawOffer.originalPrice || rawOffer['original-price'] || rawOffer['list-price'] || rawOffer['rack-rate'];
-          const rawDiscountPercent = rawOffer.discountPercent || rawOffer['discount-percent'] || 0;
+          const rawDiscountPercent = rawOffer.discountPercent || rawOffer['discount-percent'] || rawOffer['promotion-percent'] || 0;
 
-          // Check if October campaign or promo code ONLINE is active
-          const isOctoberPromo = checkIn >= '2026-10-01' && checkIn <= '2026-10-31';
-          const isPromoActive = Boolean((promoCode && promoCode.toUpperCase() === 'ONLINE') || isOctoberPromo);
-
-          let originalPrice = rawOriginalPrice ? Number(rawOriginalPrice) : null;
-          let originalPricePerNight = originalPrice ? Math.round((originalPrice / days) * 100) / 100 : null;
-          let discountPercent = rawDiscountPercent > 0 ? rawDiscountPercent : 0;
-
-          if (isPromoActive && (!discountPercent || discountPercent === 0)) {
-            discountPercent = 5;
-            originalPricePerNight = Math.round((nightP / 0.95) * 100) / 100;
-            originalPrice = Math.round((totPrice / 0.95) * 100) / 100;
-          }
+          const originalPrice = rawOriginalPrice && Number(rawOriginalPrice) > totPrice ? Number(rawOriginalPrice) : null;
+          const originalPricePerNight = originalPrice ? Math.round((originalPrice / days) * 100) / 100 : null;
+          const discountPercent = rawDiscountPercent > 0 ? Number(rawDiscountPercent) : 0;
 
           const offer = {
             roomTypeId,

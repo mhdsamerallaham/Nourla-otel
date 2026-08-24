@@ -88,8 +88,6 @@ async function getPrices(params) {
   }
   if (params['promo-code'] || params.promo_code) {
     queryParams['promo-code'] = params['promo-code'] || params.promo_code;
-  } else {
-    queryParams['promo-code'] = 'ONLINE';
   }
 
   return elektraGet(`/hotel/${HOTEL_ID}/price/`, queryParams, { label: 'price' });

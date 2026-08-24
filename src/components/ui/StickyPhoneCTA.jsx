@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Phone, MessageCircle, X } from 'lucide-react';
 
 /**
  * StickyPhoneCTA — mobile-only fixed bottom bar with phone + WhatsApp CTAs.
  * Hidden on lg+ breakpoints to not interfere with desktop layout.
+ * Auto-hides on reservation/booking pages to avoid blocking reservation buttons.
  * Auto-hides for 24h if user closes it.
  */
 export default function StickyPhoneCTA() {
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const location = useLocation();
+
+  // Detect if user is in booking flow / reservation page
+  const isReservationPage = location.pathname.includes('/reservation') || location.pathname.includes('/booking');
 
   useEffect(() => {
     // Check if user previously dismissed
@@ -30,7 +36,7 @@ export default function StickyPhoneCTA() {
     localStorage.setItem('nourla_sticky_dismissed', String(Date.now()));
   };
 
-  if (dismissed || !visible) return null;
+  if (dismissed || !visible || isReservationPage) return null;
 
   return (
     <div

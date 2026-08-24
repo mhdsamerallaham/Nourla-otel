@@ -83,8 +83,20 @@ async function getPrices(params) {
   if (params.childage) queryParams.childage = params.childage;
   if (params.nationality) queryParams.nationality = params.nationality.toUpperCase();
   if (params.onlybestoffer !== undefined) queryParams.onlybestoffer = params.onlybestoffer;
-  if (params['promo-code'] || params.promo_code) {
-    queryParams['promo-code'] = params['promo-code'] || params.promo_code;
+
+  const agencyId = params['price-agency-id'] || params.priceAgencyId || process.env.ELEKTRA_AGENCY_ID || '44573';
+  const priceCode = params['price-code'] || params.priceCode || 'ONLINE';
+  const promoCode = params['promo-code'] || params.promo_code || 'ONLINE';
+
+  if (agencyId) {
+    queryParams['price-agency-id'] = agencyId;
+    queryParams['agency-id'] = agencyId;
+  }
+  if (priceCode) {
+    queryParams['price-code'] = priceCode;
+  }
+  if (promoCode) {
+    queryParams['promo-code'] = promoCode;
   }
 
   return elektraGet(`/hotel/${HOTEL_ID}/price/`, queryParams, { label: 'price' });

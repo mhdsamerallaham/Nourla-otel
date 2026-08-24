@@ -112,6 +112,55 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   // Inline photo gallery active index per room
   const [activePhotoMap, setActivePhotoMap] = useState({});
 
+  // Multi-Room Cart State: { [cartKey]: { cartKey, room, boardChoice, quantity, offer } }
+  const [roomCart, setRoomCart] = useState({});
+
+  const addToCart = (room, boardChoice) => {
+    const cartKey = `${room.id}_${boardChoice}`;
+    const roomOffersGroup = liveOffers[room.elektraRoomTypeId] || liveOffers[String(room.elektraRoomTypeId)];
+    const offer = (boardChoice === 'RO' ? roomOffersGroup?.offers?.RO : roomOffersGroup?.offers?.BB) || roomOffersGroup?.bestOffer;
+    if (!offer) return;
+    const maxAvail = offer.availableRooms || 1;
+
+    setRoomCart((prev) => {
+      const existing = prev[cartKey];
+      const currentQty = existing ? existing.quantity : 0;
+      if (currentQty >= maxAvail) return prev;
+      return {
+        ...prev,
+        [cartKey]: {
+          cartKey,
+          room,
+          boardChoice,
+          quantity: currentQty + 1,
+          offer,
+        },
+      };
+    });
+  };
+
+  const removeFromCart = (cartKey) => {
+    setRoomCart((prev) => {
+      const existing = prev[cartKey];
+      if (!existing) return prev;
+      if (existing.quantity <= 1) {
+        const copy = { ...prev };
+        delete copy[cartKey];
+        return copy;
+      }
+      return {
+        ...prev,
+        [cartKey]: {
+          ...existing,
+          quantity: existing.quantity - 1,
+        },
+      };
+    });
+  };
+
+  const cartItems = Object.values(roomCart);
+  const totalSelectedRoomsCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
   // Guest Details
   const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
@@ -137,7 +186,8 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   const [show3DSModal, setShow3DSModal] = useState(false);
   const [simulated3DHtml, setSimulated3DHtml] = useState('');
 
-  const selectedRoom = ROOMS_DATA.find((r) => r.id === selectedRoomId) || ROOMS_DATA[0];
+  const primaryCartItem = cartItems[0];
+  const selectedRoom = primaryCartItem?.room || ROOMS_DATA.find((r) => r.id === selectedRoomId) || ROOMS_DATA[0];
 
   const calculateNights = () => {
     const start = new Date(checkIn);
@@ -355,18 +405,14 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
     }
   };
 
-  const roomOffersGroup = liveOffers[selectedRoom.elektraRoomTypeId] || liveOffers[String(selectedRoom.elektraRoomTypeId)];
-  const activeBoardChoice = selectedBoardChoice[selectedRoom.id] || 'BB';
-  const selectedLiveOffer = roomOffersGroup?.offers?.[activeBoardChoice] || roomOffersGroup?.bestOffer;
-  const isSelectedRoomLiveAvailable = Boolean(hasSearched && selectedLiveOffer && selectedLiveOffer.totalPrice > 0 && selectedLiveOffer.availableRooms > 0);
-
-  const roomPricePerNight = isSelectedRoomLiveAvailable ? Math.round(selectedLiveOffer.pricePerNight) : 0;
   const currSymbol = currency === 'EUR' ? '€' : (currency === 'USD' ? '$' : '₺');
   
-  // Price breakdown (strictly zero if room unavailable in ElektraWeb)
-  const subtotalPrice = isSelectedRoomLiveAvailable ? Math.round(selectedLiveOffer.totalPrice) : 0;
-  const taxAmount = isSelectedRoomLiveAvailable ? Math.round(subtotalPrice * 0.10) : 0; // 10% VAT
-  const finalTotalPrice = isSelectedRoomLiveAvailable ? subtotalPrice + taxAmount : 0;
+  // Price breakdown for multi-room cart (strictly zero if cart empty)
+  const isSelectedRoomLiveAvailable = totalSelectedRoomsCount > 0;
+  const subtotalPrice = cartItems.reduce((sum, item) => sum + (item.offer ? Math.round(item.offer.totalPrice * item.quantity) : 0), 0);
+  const taxAmount = Math.round(subtotalPrice * 0.10); // 10% VAT
+  const finalTotalPrice = subtotalPrice + taxAmount;
+  const roomPricePerNight = totalSelectedRoomsCount > 0 ? Math.round(subtotalPrice / (nights || 1)) : 0;
 
   // Format card number with spaces
   const handleCardNumberChange = (e) => {
@@ -383,8 +429,8 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
       return;
     }
 
-    if (!isSelectedRoomLiveAvailable || !selectedLiveOffer) {
-      setApiError('Seçtiğiniz oda tercih ettiğiniz tarihlerde ElektraWeb PMS sisteminde kapalı veya doludur. Lütfen farklı bir tarih seçiniz.');
+    if (totalSelectedRoomsCount === 0 || cartItems.length === 0) {
+      setApiError('Lütfen devam etmek için en az bir oda seçiniz.');
       return;
     }
 
@@ -392,6 +438,15 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
     setApiError(null);
 
     try {
+      const roomSummaryNotes = cartItems
+        .map(
+          (item) =>
+            `${item.quantity}x ${item.room.name.tr} (${item.boardChoice === 'BB' ? 'Kahvaltılı' : 'Kahvaltısız'})`
+        )
+        .join(', ');
+
+      const fullNotes = `${specialNotes ? specialNotes + ' | ' : ''}Kiralanan Odalar: ${roomSummaryNotes}`;
+
       const pendingRes = await createReservation({
         roomTypeId: selectedRoom.elektraRoomTypeId,
         checkIn,
@@ -400,9 +455,9 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
         guestName,
         guestEmail,
         guestPhone,
-        specialNotes,
+        specialNotes: fullNotes,
         currency,
-        totalPrice: selectedLiveOffer.totalPrice,
+        totalPrice: finalTotalPrice,
       });
 
       if (pendingRes && pendingRes.success) {
@@ -524,25 +579,33 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
 
         {/* Receipt Card */}
         <div className="bg-[#F7F4EE] p-6 sm:p-8 rounded-2xl text-left border border-[#E7E1D3] space-y-4 mb-8">
-          <div className="flex items-center justify-between pb-4 border-b border-[#E7E1D3]">
-            <div className="flex items-center gap-4">
-              <img src={selectedRoom.image} alt="" className="w-20 h-16 object-cover rounded-xl shadow-xs" />
-              <div>
-                <span className="text-[10px] text-[#6F7255] font-semibold uppercase tracking-wider block">SEÇİLEN SÜİT</span>
-                <h4 className="font-serif text-xl text-[#2B2B2B]">
-                  {selectedRoom.name[currentLang] || selectedRoom.name.tr}
-                </h4>
-                <span className="text-xs text-[#555555]">
-                  {currSymbol}{roomPricePerNight.toLocaleString('tr-TR')} / gece
-                </span>
-              </div>
-            </div>
-
-            <div className="text-right">
-              <span className="text-[10px] text-[#6F7255] font-semibold uppercase block">REZERVASYON KODU</span>
-              <span className="font-mono text-sm font-bold text-[#2B2B2B] bg-[#E7E1D3] px-3 py-1 rounded-lg inline-block mt-1">
+          <div className="pb-4 border-b border-[#E7E1D3] space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-[#6F7255] font-semibold uppercase tracking-wider block">
+                SEÇİLEN ODALAR VE PANSİYON DÖKÜMÜ ({totalSelectedRoomsCount || 1} ODA)
+              </span>
+              <span className="font-mono text-sm font-bold text-[#2B2B2B] bg-[#E7E1D3] px-3 py-1 rounded-lg">
                 {resCode}
               </span>
+            </div>
+
+            <div className="space-y-2">
+              {(cartItems.length > 0 ? cartItems : [{ room: selectedRoom, boardChoice: 'BB', quantity: 1, offer: { totalPrice: finalTotalPrice, pricePerNight: roomPricePerNight } }]).map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-white border border-[#E7E1D3] text-xs">
+                  <div className="flex items-center gap-3">
+                    <img src={item.room.image} alt="" className="w-14 h-11 object-cover rounded-lg shadow-2xs shrink-0" />
+                    <div>
+                      <h5 className="font-serif font-bold text-[#2B2B2B]">{item.quantity}x {item.room.name[currentLang] || item.room.name.tr}</h5>
+                      <span className="text-[10px] text-[#6F7255]">
+                        Paket: {item.boardChoice === 'BB' ? 'Organik Kahvaltı Dahil' : 'Sadece Oda (Kahvaltısız)'}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="font-serif font-bold text-[#6F7255]">
+                    {currSymbol}{(Math.round(item.offer?.totalPrice || 0) * item.quantity).toLocaleString('tr-TR')}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -971,17 +1034,47 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                           : '✓ Kahvaltısız oda konaklama paketidir.'}
                       </p>
 
-                      {/* Single Prominent Mobile & Desktop Action Button */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedRoomId(room.id);
-                          setCurrentStep(3);
-                        }}
-                        className="w-full py-3.5 rounded-full bg-[#6F7255] hover:bg-[#4F523A] text-white text-xs font-semibold uppercase tracking-widest transition-all shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2"
-                      >
-                        {currentBoardChoice === 'BB' ? 'Kahvaltılı Paketi Seç' : 'Kahvaltısız Paketi Seç'} ({currSymbol}{Math.round(activeOffer.pricePerNight).toLocaleString('tr-TR')}/gece) <ArrowRight className="w-4 h-4" />
-                      </button>
+                      {/* Multi-Room Cart Stepper & Action Controls */}
+                      {(() => {
+                        const cartKey = `${room.id}_${currentBoardChoice}`;
+                        const itemInCart = roomCart[cartKey];
+
+                        return itemInCart ? (
+                          <div className="flex items-center justify-between gap-3 bg-[#F7F4EE] p-2 rounded-full border border-[#6F7255]/40 shadow-2xs">
+                            <button
+                              type="button"
+                              onClick={() => removeFromCart(cartKey)}
+                              className="w-9 h-9 rounded-full bg-white text-[#2B2B2B] border border-[#E7E1D3] hover:bg-stone-100 flex items-center justify-center font-bold text-sm shadow-2xs transition-all cursor-pointer active:scale-95"
+                            >
+                              -
+                            </button>
+                            <div className="text-center">
+                              <span className="text-xs font-bold text-[#2B2B2B] block">
+                                {itemInCart.quantity} Adet {currentBoardChoice === 'BB' ? 'Kahvaltılı' : 'Kahvaltısız'} Oda Seçildi
+                              </span>
+                              <span className="text-[10px] text-[#6F7255]">
+                                Gecelik {currSymbol}{(Math.round(activeOffer.pricePerNight) * itemInCart.quantity).toLocaleString('tr-TR')}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => addToCart(room, currentBoardChoice)}
+                              disabled={itemInCart.quantity >= activeOffer.availableRooms}
+                              className="w-9 h-9 rounded-full bg-[#6F7255] text-white hover:bg-[#4F523A] disabled:opacity-40 flex items-center justify-center font-bold text-sm shadow-2xs transition-all cursor-pointer active:scale-95"
+                            >
+                              +
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => addToCart(room, currentBoardChoice)}
+                            className="w-full py-3.5 rounded-full bg-[#6F7255] hover:bg-[#4F523A] text-white text-xs font-semibold uppercase tracking-widest transition-all shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+                          >
+                            Odayı Sepete Ekle ({currSymbol}{Math.round(activeOffer.pricePerNight).toLocaleString('tr-TR')}/gece) +
+                          </button>
+                        );
+                      })()}
 
                     </div>
                   ) : (
@@ -1002,6 +1095,43 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
               );
             })}
           </div>
+
+          {/* FLOATING LUXURY CART SUMMARY BAR */}
+          {totalSelectedRoomsCount > 0 && (
+            <div className="fixed bottom-4 left-4 right-4 z-40 max-w-4xl mx-auto animate-fadeIn">
+              <div className="bg-[#2B2B2B] text-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-2xl border border-[#6F7255] flex flex-wrap items-center justify-between gap-4 backdrop-blur-md">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#6F7255] text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
+                    {totalSelectedRoomsCount}
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-[#E7E1D3] uppercase tracking-wider block">
+                      SEÇİLEN ODALAR SEPETİ ({totalSelectedRoomsCount} ODA)
+                    </span>
+                    <p className="text-[11px] text-stone-300 font-light truncate max-w-xs sm:max-w-md">
+                      {cartItems.map((item) => `${item.quantity}x ${item.room.name.tr} (${item.boardChoice === 'BB' ? 'Kahvaltılı' : 'Kahvaltısız'})`).join(' • ')}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <span className="text-[10px] text-[#E7E1D3]/80 uppercase block">Toplam Tutar</span>
+                    <span className="font-serif text-xl sm:text-2xl font-bold text-[#E7E1D3]">
+                      {currSymbol}{finalTotalPrice.toLocaleString('tr-TR')}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(3)}
+                    className="px-6 py-3 rounded-full bg-[#6F7255] hover:bg-[#8E9272] text-white text-xs font-semibold uppercase tracking-widest shadow-xl transition-all flex items-center gap-2 cursor-pointer active:scale-95"
+                  >
+                    Devam Et <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -1261,16 +1391,25 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             <div className="lg:col-span-5 bg-[#2B2B2B] text-white p-6 rounded-2xl space-y-4 flex flex-col justify-between">
               <div className="space-y-3">
                 <span className="text-[10px] font-semibold tracking-[0.2em] text-[#E7E1D3]/70 uppercase block">
-                  ÖDEME ÖZETİ
+                  ÖDEME ÖZETİ ({totalSelectedRoomsCount || 1} ODA)
                 </span>
-                <h4 className="font-serif text-2xl text-white">
-                  {selectedRoom.name[currentLang] || selectedRoom.name.tr}
-                </h4>
+                <div className="space-y-1.5 border-b border-white/10 pb-2">
+                  {(cartItems.length > 0 ? cartItems : [{ room: selectedRoom, boardChoice: 'BB', quantity: 1, offer: { totalPrice: subtotalPrice } }]).map((item, idx) => (
+                    <div key={idx} className="flex justify-between items-center text-xs">
+                      <span className="font-serif text-[#E7E1D3]">
+                        {item.quantity}x {item.room.name[currentLang] || item.room.name.tr} ({item.boardChoice === 'BB' ? 'Kahvaltılı' : 'Kahvaltısız'})
+                      </span>
+                      <span className="font-serif font-bold text-white">
+                        {currSymbol}{(Math.round(item.offer?.totalPrice || 0) * item.quantity).toLocaleString('tr-TR')}
+                      </span>
+                    </div>
+                  ))}
+                </div>
                 <p className="text-xs text-[#E7E1D3]/80">
                   {checkIn} – {checkOut} ({nights} Gece, {guests} Misafir)
                 </p>
 
-                <div className="pt-4 border-t border-white/10 space-y-2 text-xs">
+                <div className="pt-3 space-y-2 text-xs">
                   <div className="flex justify-between text-[#E7E1D3]/80">
                     <span>Oda Konaklama Tutarı:</span>
                     <span>{currSymbol}{subtotalPrice.toLocaleString('tr-TR')}</span>

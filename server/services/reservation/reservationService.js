@@ -74,10 +74,10 @@ async function createPendingReservation(data) {
   const basePricePerNight = pmsOffer?.pricePerNight || pmsOffer?.price || room?.base_price || 350;
 
   // Compute immutable snapshot price values
-  const basePriceTotal = parseFloat((basePricePerNight * nightCount).toFixed(2));
+  const basePriceTotal = data.totalPrice ? parseFloat(data.totalPrice) : parseFloat((basePricePerNight * nightCount).toFixed(2));
   const discountAmount = pmsOffer?.discount || 0.0;
   const taxAmount = parseFloat((basePriceTotal * 0.10).toFixed(2)); // 10% VAT
-  const totalPrice = parseFloat((basePriceTotal - discountAmount + taxAmount).toFixed(2));
+  const totalPrice = data.totalPrice ? parseFloat(data.totalPrice) : parseFloat((basePriceTotal - discountAmount + taxAmount).toFixed(2));
 
   const reservationCode = `NOURLA-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
   const reservationUuid = crypto.randomUUID();

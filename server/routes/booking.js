@@ -69,9 +69,8 @@ router.get('/price', validatePriceParams, async (req, res) => {
     if (req.query.onlybestoffer !== undefined) {
       priceParams.onlybestoffer = req.query.onlybestoffer === 'true';
     }
-    if (req.query['promo-code']) {
-      priceParams['promo-code'] = req.query['promo-code'];
-    }
+    // Pass promo-code parameter to ElektraWeb PMS (defaults to 'ONLINE' matching ElektraWeb PMS ONLINE discount code)
+    priceParams['promo-code'] = req.query['promo-code'] || req.query.promo_code || process.env.ELEKTRA_PROMO_CODE || 'ONLINE';
 
     let raw = await elektra.getPrices(priceParams);
 

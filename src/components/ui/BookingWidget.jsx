@@ -769,7 +769,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             </button>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-8">
             {displayRooms.map((room) => {
               const isSelected = selectedRoomId === room.id;
               const roomName = room.name[currentLang] || room.name.tr;
@@ -792,33 +792,34 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
               return (
                 <div
                   key={room.id}
-                  className={`rounded-3xl border-2 p-5 sm:p-7 transition-all space-y-5 ${
+                  className={`rounded-3xl border transition-all p-6 sm:p-8 space-y-6 ${
                     !isRoomAvailable
-                      ? 'border-stone-200 bg-stone-50/70 opacity-80'
+                      ? 'border-stone-200 bg-stone-50/60 opacity-70'
                       : isSelected
-                      ? 'border-[#6F7255] bg-[#F7F4EE] shadow-lg'
-                      : 'border-[#E7E1D3] bg-[#FDFBF7] hover:border-[#6F7255]/40'
+                      ? 'border-[#6F7255] bg-[#FDFBF7] shadow-xl ring-1 ring-[#6F7255]/30'
+                      : 'border-[#E7E1D3] bg-[#FDFBF7] hover:border-[#6F7255]/50 shadow-xs'
                   }`}
                 >
-                  {/* Upper Section: Photo Gallery & Room Details */}
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                  {/* Upper Section: Photo Gallery & Suite Specification */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+                    
                     {/* Photo Gallery Column */}
-                    <div className="md:col-span-4 space-y-2">
-                      <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-xs relative">
-                        <img src={activePhoto} alt={roomName} className={`w-full h-full object-cover ${!isRoomAvailable ? 'grayscale-30' : ''}`} />
-                        <span className="absolute bottom-2 left-2 bg-black/75 text-white text-[10px] px-2.5 py-0.5 rounded-md font-medium">
-                          ElektraWeb: {roomSize}
+                    <div className="md:col-span-5 space-y-3">
+                      <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-sm relative border border-[#E7E1D3]">
+                        <img src={activePhoto} alt={roomName} className={`w-full h-full object-cover ${!isRoomAvailable ? 'grayscale' : ''}`} />
+                        <span className="absolute bottom-3 left-3 bg-[#2B2B2B]/85 text-white text-[10px] font-medium tracking-wider px-3 py-1 rounded-full backdrop-blur-xs">
+                          {roomSize}
                         </span>
                       </div>
 
                       {/* Photo Thumbnails */}
                       {room.gallery && room.gallery.length > 0 && (
-                        <div className="flex gap-2 overflow-x-auto pb-1">
+                        <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-none">
                           <button
                             type="button"
                             onClick={() => setActivePhotoMap((prev) => ({ ...prev, [room.id]: room.image }))}
-                            className={`w-14 h-10 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${
-                              activePhoto === room.image ? 'border-[#6F7255]' : 'border-transparent opacity-60 hover:opacity-100'
+                            className={`w-16 h-11 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${
+                              activePhoto === room.image ? 'border-[#6F7255] scale-105' : 'border-transparent opacity-60 hover:opacity-100'
                             }`}
                           >
                             <img src={room.image} alt="" className="w-full h-full object-cover" />
@@ -828,8 +829,8 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                               key={gIdx}
                               type="button"
                               onClick={() => setActivePhotoMap((prev) => ({ ...prev, [room.id]: img }))}
-                              className={`w-14 h-10 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${
-                                activePhoto === img ? 'border-[#6F7255]' : 'border-transparent opacity-60 hover:opacity-100'
+                              className={`w-16 h-11 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${
+                                activePhoto === img ? 'border-[#6F7255] scale-105' : 'border-transparent opacity-60 hover:opacity-100'
                               }`}
                             >
                               <img src={img} alt="" className="w-full h-full object-cover" />
@@ -839,30 +840,30 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                       )}
                     </div>
 
-                    {/* Room Specs & Features Column */}
-                    <div className="md:col-span-8 space-y-3.5">
-                      <div className="flex flex-wrap items-start justify-between gap-2">
+                    {/* Room Details & Attributes Column */}
+                    <div className="md:col-span-7 space-y-4">
+                      <div className="flex flex-wrap items-start justify-between gap-3 pb-3 border-b border-[#E7E1D3]/80">
                         <div>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="font-serif text-2xl text-[#2B2B2B]">{roomName}</h4>
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <h4 className="font-serif text-2xl sm:text-3xl text-[#2B2B2B]">{roomName}</h4>
                             {isRoomAvailable ? (
-                              <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded-full border border-emerald-300">
-                                ✓ Canlı ElektraWeb ({activeOffer.availableRooms} Oda Müsait)
+                              <span className="text-[10px] font-semibold text-[#6F7255] bg-[#6F7255]/10 px-3 py-1 rounded-full border border-[#6F7255]/20 uppercase tracking-wider">
+                                Müsait ({activeOffer.availableRooms} Oda)
                               </span>
                             ) : (
-                              <span className="text-[10px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
-                                ✕ Dolu / Kapalı
+                              <span className="text-[10px] font-semibold text-stone-500 bg-stone-100 px-3 py-1 rounded-full border border-stone-200 uppercase tracking-wider">
+                                Dolu / Kapalı
                               </span>
                             )}
                           </div>
-                          <span className="text-xs text-[#6F7255] italic block mt-1">{room.view[currentLang] || room.view.tr}</span>
+                          <span className="text-xs text-[#6F7255] italic block mt-1 font-serif">{room.view[currentLang] || room.view.tr}</span>
                         </div>
 
-                        <div className="flex items-center gap-4 text-xs text-[#555555]">
-                          <span className="flex items-center gap-1 font-medium bg-[#F7F4EE] px-2.5 py-1 rounded-lg border border-[#E7E1D3]">
+                        <div className="flex items-center gap-3 text-xs text-[#555555]">
+                          <span className="flex items-center gap-1.5 font-light bg-[#F7F4EE] px-3 py-1.5 rounded-full border border-[#E7E1D3]">
                             <Maximize2 className="w-3.5 h-3.5 text-[#6F7255]" /> {roomSize}
                           </span>
-                          <span className="flex items-center gap-1 font-medium bg-[#F7F4EE] px-2.5 py-1 rounded-lg border border-[#E7E1D3]">
+                          <span className="flex items-center gap-1.5 font-light bg-[#F7F4EE] px-3 py-1.5 rounded-full border border-[#E7E1D3]">
                             <Users className="w-3.5 h-3.5 text-[#6F7255]" /> {room.capacity}
                           </span>
                         </div>
@@ -872,16 +873,16 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
 
                       {/* Full Features & Amenities Badges */}
                       <div className="pt-2">
-                        <span className="text-[10px] font-bold tracking-[0.15em] text-[#6F7255] uppercase block mb-1.5">
-                          SÜİT DONANIMI & ELEKTRAWEB ÖZELLİKLERİ:
+                        <span className="text-[10px] font-semibold tracking-[0.2em] text-[#6F7255] uppercase block mb-2">
+                          SÜİT DONANIMI VE İMKANLAR
                         </span>
-                        <div className="flex flex-wrap gap-1.5">
+                        <div className="flex flex-wrap gap-2">
                           {(room.features || []).map((feat, fIdx) => (
                             <span
                               key={fIdx}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-[#E7E1D3] text-[11px] text-[#2B2B2B] font-medium shadow-2xs"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F7F4EE] border border-[#E7E1D3] text-xs text-[#2B2B2B] font-light"
                             >
-                              <CheckCircle2 className="w-3 h-3 text-[#6F7255]" />
+                              <Sparkles className="w-3 h-3 text-[#6F7255]" />
                               {feat}
                             </span>
                           ))}
@@ -890,49 +891,53 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                     </div>
                   </div>
 
-                  {/* Lower Section: Selectable Board Options (Kahvaltılı vs Kahvaltısız) */}
+                  {/* Lower Section: Elegant Board & Breakfast Package Selection */}
                   {isRoomAvailable ? (
-                    <div className="pt-4 border-t border-[#E7E1D3] space-y-3">
-                      <span className="text-[10px] font-bold tracking-[0.15em] text-[#6F7255] uppercase block">
-                        PANSİYON VE KAHVALTI SEÇİMİ (ELEKTRAWEB CANLI FİYAT):
-                      </span>
+                    <div className="pt-5 border-t border-[#E7E1D3] space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-semibold tracking-[0.2em] text-[#6F7255] uppercase block">
+                          PAKET VE PANSIYON TERCİHİNİZİ SEÇİNİZ
+                        </span>
+                        <span className="text-[10px] text-[#555555] font-light">
+                          ElektraWeb Canlı Fiyatlandırma
+                        </span>
+                      </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        
                         {/* OPTION 1: Kahvaltı Dahil (BB) */}
                         {bbOffer && (
                           <div
                             onClick={() => setSelectedBoardChoice((prev) => ({ ...prev, [room.id]: 'BB' }))}
-                            className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                            className={`p-5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
                               currentBoardChoice === 'BB'
-                                ? 'border-emerald-600 bg-emerald-50/90 shadow-md ring-1 ring-emerald-600'
-                                : 'border-[#E7E1D3] bg-white hover:border-emerald-300'
+                                ? 'border-[#6F7255] bg-[#F7F4EE] shadow-md ring-1 ring-[#6F7255]/40'
+                                : 'border-[#E7E1D3] bg-white hover:border-[#6F7255]/40'
                             }`}
                           >
-                            <div className="flex items-start justify-between gap-3 mb-2">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xl">🍳</span>
-                                <div>
-                                  <span className="text-xs font-bold text-emerald-950 block leading-tight">
-                                    Zengin Organik Ege Kahvaltısı Dahil
-                                  </span>
-                                  <span className="text-[10px] text-emerald-800 font-light block mt-0.5">
-                                    Çiftlikten taze ürünler & serpme Ege kahvaltısı
-                                  </span>
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                  <Coffee className="w-4 h-4 text-[#6F7255]" />
+                                  <h5 className="font-serif text-lg font-semibold text-[#2B2B2B]">
+                                    Organik Ege Kahvaltısı Dahil
+                                  </h5>
                                 </div>
+                                <p className="text-xs text-[#555555] font-light leading-relaxed">
+                                  Bahçeden taze toplanan zeytinler, yerel peynirler & serpme Ege kahvaltısı.
+                                </p>
                               </div>
-                              <input
-                                type="radio"
-                                name={`board_${room.id}`}
-                                checked={currentBoardChoice === 'BB'}
-                                onChange={() => {}}
-                                className="mt-1 accent-emerald-600 cursor-pointer w-4 h-4"
-                              />
+                              <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-1 transition-all ${
+                                currentBoardChoice === 'BB' ? 'border-[#6F7255] bg-[#6F7255]' : 'border-[#D5CEBE]'
+                              }`}>
+                                {currentBoardChoice === 'BB' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                              </div>
                             </div>
 
-                            <div className="pt-3 border-t border-emerald-200/70 flex items-end justify-between mt-2">
+                            <div className="pt-3 border-t border-[#E7E1D3] flex items-center justify-between">
                               <div>
-                                <span className="text-[10px] text-emerald-800 uppercase tracking-wider block">Gecelik</span>
-                                <span className="font-serif text-2xl font-bold text-emerald-900">
+                                <span className="text-[10px] text-[#555555] font-light block uppercase tracking-wider">Gecelik Tutarlar</span>
+                                <span className="font-serif text-2xl font-bold text-[#6F7255]">
                                   {currSymbol}{Math.round(bbOffer.pricePerNight).toLocaleString('tr-TR')}
                                 </span>
                               </div>
@@ -944,7 +949,11 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                                   setSelectedRoomId(room.id);
                                   setCurrentStep(3);
                                 }}
-                                className="px-4 py-2 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold uppercase tracking-wider shadow-sm transition-all active:scale-95 cursor-pointer"
+                                className={`px-5 py-2.5 rounded-full text-xs font-semibold uppercase tracking-widest transition-all cursor-pointer active:scale-95 ${
+                                  currentBoardChoice === 'BB'
+                                    ? 'bg-[#6F7255] text-white shadow-md hover:bg-[#4F523A]'
+                                    : 'bg-[#F7F4EE] border border-[#E7E1D3] text-[#2B2B2B] hover:bg-[#6F7255] hover:text-white'
+                                }`}
                               >
                                 Kahvaltılı Seç →
                               </button>
@@ -956,37 +965,35 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                         {roOffer && (
                           <div
                             onClick={() => setSelectedBoardChoice((prev) => ({ ...prev, [room.id]: 'RO' }))}
-                            className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                            className={`p-5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
                               currentBoardChoice === 'RO'
-                                ? 'border-amber-600 bg-amber-50/90 shadow-md ring-1 ring-amber-600'
-                                : 'border-[#E7E1D3] bg-white hover:border-amber-300'
+                                ? 'border-[#6F7255] bg-[#F7F4EE] shadow-md ring-1 ring-[#6F7255]/40'
+                                : 'border-[#E7E1D3] bg-white hover:border-[#6F7255]/40'
                             }`}
                           >
-                            <div className="flex items-start justify-between gap-3 mb-2">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xl">🏠</span>
-                                <div>
-                                  <span className="text-xs font-bold text-amber-950 block leading-tight">
-                                    Sadece Oda (Kahvaltısız)
-                                  </span>
-                                  <span className="text-[10px] text-amber-800 font-light block mt-0.5">
-                                    Sadece konaklama paketidir
-                                  </span>
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                  <Building className="w-4 h-4 text-[#6F7255]" />
+                                  <h5 className="font-serif text-lg font-semibold text-[#2B2B2B]">
+                                    Sadece Konaklama (Kahvaltısız)
+                                  </h5>
                                 </div>
+                                <p className="text-xs text-[#555555] font-light leading-relaxed">
+                                  Sadece oda konaklama paketidir. Kahvaltı dahil değildir.
+                                </p>
                               </div>
-                              <input
-                                type="radio"
-                                name={`board_${room.id}`}
-                                checked={currentBoardChoice === 'RO'}
-                                onChange={() => {}}
-                                className="mt-1 accent-amber-600 cursor-pointer w-4 h-4"
-                              />
+                              <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-1 transition-all ${
+                                currentBoardChoice === 'RO' ? 'border-[#6F7255] bg-[#6F7255]' : 'border-[#D5CEBE]'
+                              }`}>
+                                {currentBoardChoice === 'RO' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                              </div>
                             </div>
 
-                            <div className="pt-3 border-t border-amber-200/70 flex items-end justify-between mt-2">
+                            <div className="pt-3 border-t border-[#E7E1D3] flex items-center justify-between">
                               <div>
-                                <span className="text-[10px] text-amber-800 uppercase tracking-wider block">Gecelik</span>
-                                <span className="font-serif text-2xl font-bold text-amber-900">
+                                <span className="text-[10px] text-[#555555] font-light block uppercase tracking-wider">Gecelik Tutarlar</span>
+                                <span className="font-serif text-2xl font-bold text-[#6F7255]">
                                   {currSymbol}{Math.round(roOffer.pricePerNight).toLocaleString('tr-TR')}
                                 </span>
                               </div>
@@ -998,24 +1005,29 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                                   setSelectedRoomId(room.id);
                                   setCurrentStep(3);
                                 }}
-                                className="px-4 py-2 rounded-full bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold uppercase tracking-wider shadow-sm transition-all active:scale-95 cursor-pointer"
+                                className={`px-5 py-2.5 rounded-full text-xs font-semibold uppercase tracking-widest transition-all cursor-pointer active:scale-95 ${
+                                  currentBoardChoice === 'RO'
+                                    ? 'bg-[#6F7255] text-white shadow-md hover:bg-[#4F523A]'
+                                    : 'bg-[#F7F4EE] border border-[#E7E1D3] text-[#2B2B2B] hover:bg-[#6F7255] hover:text-white'
+                                }`}
                               >
                                 Kahvaltısız Seç →
                               </button>
                             </div>
                           </div>
                         )}
+
                       </div>
                     </div>
                   ) : (
-                    <div className="pt-4 border-t border-stone-200 flex items-center justify-between">
-                      <span className="text-xs text-rose-600 font-semibold bg-rose-50 px-3 py-1 rounded-lg border border-rose-200">
-                        Seçilen tarihlerde ElektraWeb PMS sisteminde dolu veya kapalıdır.
+                    <div className="pt-5 border-t border-[#E7E1D3] flex items-center justify-between">
+                      <span className="text-xs text-stone-500 font-light italic">
+                        Seçilen tarihlerde ElektraWeb sisteminde dolu veya kapalıdır.
                       </span>
                       <button
                         type="button"
                         disabled
-                        className="px-6 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-stone-200 text-stone-400 cursor-not-allowed"
+                        className="px-6 py-2.5 rounded-full text-xs font-semibold uppercase tracking-widest bg-stone-100 text-stone-400 cursor-not-allowed border border-stone-200"
                       >
                         Müsaitlik Yok
                       </button>

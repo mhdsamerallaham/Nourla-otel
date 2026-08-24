@@ -24,6 +24,7 @@ import {
   Lock,
   FileText,
   Building,
+  Coffee,
   CheckSquare,
   Square,
   Printer,

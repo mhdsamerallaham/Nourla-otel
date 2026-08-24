@@ -15,6 +15,7 @@ const { requestLogger } = require('./middleware/logger');
 const elektraRoutes = require('./routes/elektra');
 const bookingRoutes = require('./routes/booking');
 const paymentRoutes = require('./routes/payment');
+const adminRoutes = require('./routes/admin');
 const sitemapRoutes = require('./routes/sitemap');
 
 const app = express();

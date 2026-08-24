@@ -866,11 +866,9 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                 <Tag className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-[10px] font-bold text-[#6F7255] uppercase tracking-wider block">PROMOSYON KODU & KAMPANYA İNDİRİMİ</span>
+                <span className="text-[10px] font-bold text-[#6F7255] uppercase tracking-wider block">PROMOSYON KODU</span>
                 <span className="text-[11px] text-[#555555]">
-                  {promoCode.toUpperCase() === 'ONLINE' || (checkIn >= '2026-10-01' && checkIn <= '2026-10-31')
-                    ? '✓ %5 ERKEN REZERVASYON İNDİRİMİ CANLI ODALARA UYGULANDI'
-                    : 'Özel kupon kodunuzu girerek uygulayabilirsiniz.'}
+                  Özel kupon kodunuzu girerek uygulayabilirsiniz.
                 </span>
               </div>
             </div>

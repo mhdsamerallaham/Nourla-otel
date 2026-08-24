@@ -244,7 +244,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             avail = 0;
           }
 
-          const boardName = rawOffer.boardName || rawOffer['board-type'] || 'RO';
+          const boardName = rawOffer.boardName || rawOffer['board-type'] || 'BB';
           const rateName = rawOffer.rateName || rawOffer['rate-type'] || '';
           const boardTypeId = rawOffer.boardTypeId || rawOffer['board-type-id'] || 893;
           const rateTypeId = rawOffer.rateTypeId || rawOffer['rate-type-id'] || 792;
@@ -252,12 +252,31 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
           const priceAgencyId = rawOffer.priceAgencyId || rawOffer['price-agency-id'] || 44573;
           const curr = rawOffer.currency || currency;
 
+          const includesBreakfast = rawOffer.includesBreakfast !== undefined
+            ? rawOffer.includesBreakfast
+            : (!String(boardName).toUpperCase().includes('RO'));
+
+          const boardTitle = rawOffer.boardTitle || (includesBreakfast ? {
+            tr: 'Zengin Organik Ege Kahvaltısı Dahil',
+            en: 'Rich Organic Aegean Breakfast Included',
+            de: 'Inklusive Organisches Bio-Frühstück',
+            ru: 'Органический эгейский завтрак включен',
+          } : {
+            tr: 'Sadece Oda (Kahvaltısız)',
+            en: 'Room Only (No Breakfast)',
+            de: 'Nur Übernachtung (Ohne Frühstück)',
+            ru: 'Только проживание (Без завтрака)',
+          });
+
           const offer = {
             roomTypeId,
             totalPrice: totPrice,
             pricePerNight: nightP,
             availableRooms: avail,
             boardName,
+            boardCode: rawOffer.boardCode || (includesBreakfast ? 'BB' : 'RO'),
+            includesBreakfast,
+            boardTitle,
             boardTypeId,
             rateName,
             rateTypeId,
@@ -744,6 +763,25 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                             )}
                           </div>
                           <span className="text-xs text-[#6F7255] italic block mt-0.5">{room.view[currentLang] || room.view.tr}</span>
+                          {/* ElektraWeb Pension & Features Badges */}
+                          {isRoomAvailable && (
+                            <div className="flex flex-wrap items-center gap-2 mt-2">
+                              {offer.includesBreakfast !== false ? (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 text-xs font-semibold shadow-2xs">
+                                  🍳 {offer.boardTitle?.[currentLang] || offer.boardTitle?.tr || 'Zengin Organik Ege Kahvaltısı Dahil'}
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-300 text-xs font-semibold shadow-2xs">
+                                  🏠 {offer.boardTitle?.[currentLang] || offer.boardTitle?.tr || 'Sadece Oda (Kahvaltısız)'}
+                                </span>
+                              )}
+                              {pmsDef?.amenities && pmsDef.amenities.map((item, idx) => (
+                                <span key={idx} className="inline-flex items-center gap-1 text-[10px] font-medium text-[#6F7255] bg-white px-2.5 py-0.5 rounded-full border border-[#E7E1D3]">
+                                  ✓ {item[currentLang] || item.tr || item.en}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                         <div className="text-right">
                           {isRoomAvailable ? (

@@ -84,6 +84,14 @@ export default function RoomInspectModal({ room, isOpen, onClose, onSelectAndBoo
 
             <div className="bg-[#F7F4EE] p-5 rounded-2xl border border-[#E7E1D3] space-y-3">
               <h4 className="font-serif text-lg text-[#2B2B2B]">Özellik Özeti</h4>
+              
+              {/* Board Type Badge */}
+              <div className="mb-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-semibold">
+                  🍳 Zengin Organik Ege Kahvaltısı Dahil
+                </span>
+              </div>
+
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div>
                   <span className="text-[#555555] block">Kapasite:</span>
@@ -103,14 +111,24 @@ export default function RoomInspectModal({ room, isOpen, onClose, onSelectAndBoo
 
           {/* Full Amenities Grid */}
           <div>
-            <h4 className="font-serif text-xl text-[#2B2B2B] mb-4">Oda İmkanları</h4>
+            <h4 className="font-serif text-xl text-[#2B2B2B] mb-4">Oda Donanımı & ElektraWeb Özellikleri</h4>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {room.features.map((feature, idx) => {
-                const Icon = AMENITY_ICONS[feature] || CheckCircle2;
+              {[
+                { name: 'Yüksek Hızlı Wi-Fi', icon: Wifi },
+                { name: 'VRF İklimlendirme / Klima', icon: Wind },
+                { name: 'Zengin Organik Kahvaltı', icon: Coffee },
+                { name: 'Özel Mermer Banyo & Küvet', icon: Bath },
+                { name: 'Özel Taş Veranda / Balkon', icon: Sun },
+                { name: 'Smart TV & Yayınlar', icon: Tv },
+                { name: 'Minibar & Organik İkramlar', icon: Wine },
+                { name: 'Özel Emanet Kasası', icon: CheckCircle2 },
+                { name: 'EV Şarj İstasyonu (22kW)', icon: CheckCircle2 },
+              ].map((item, idx) => {
+                const Icon = item.icon;
                 return (
                   <div key={idx} className="flex items-center gap-2.5 p-3 rounded-xl bg-[#F7F4EE] border border-[#E7E1D3]">
                     <Icon className="w-4 h-4 text-[#6F7255]" />
-                    <span className="text-xs font-medium text-[#2B2B2B]">{feature}</span>
+                    <span className="text-xs font-medium text-[#2B2B2B]">{item.name}</span>
                   </div>
                 );
               })}

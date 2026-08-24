@@ -162,6 +162,50 @@ function extractBoardTypes(raw) {
   }));
 }
 
+function parseBoardType(boardName, boardTypeId) {
+  const str = String(boardName || '').toUpperCase().trim();
+
+  // If RO / Sadece Oda / Room Only
+  if (str === 'RO' || str.includes('ROOM ONLY') || str.includes('SADECE') || str === 'RO-01') {
+    return {
+      code: 'RO',
+      includesBreakfast: false,
+      title: {
+        tr: 'Sadece Oda (Kahvaltısız)',
+        en: 'Room Only (No Breakfast)',
+        de: 'Nur Übernachtung (Ohne Frühstück)',
+        ru: 'Только проживание (Без завтрака)',
+      },
+    };
+  }
+
+  // If HB (Half Board)
+  if (str === 'HB' || str.includes('HALF') || str.includes('YARIM')) {
+    return {
+      code: 'HB',
+      includesBreakfast: true,
+      title: {
+        tr: 'Yarım Pansiyon (Kahvaltı & Akşam Yemeği Dahil)',
+        en: 'Half Board (Breakfast & Dinner Included)',
+        de: 'Halbpension (Inklusive Frühstück & Abendessen)',
+        ru: 'Полупансион (Завтрак ve Ужин включены)',
+      },
+    };
+  }
+
+  // Default for Nourla Boutique Hotel: BB (Bed & Breakfast / Kahvaltı Dahil)
+  return {
+    code: 'BB',
+    includesBreakfast: true,
+    title: {
+      tr: 'Zengin Organik Ege Kahvaltısı Dahil',
+      en: 'Rich Organic Aegean Breakfast Included',
+      de: 'Inklusive Organisches Bio-Frühstück',
+      ru: 'Органический эгейский завтрак включен',
+    },
+  };
+}
+
 function extractRateTypes(raw) {
   const list = raw?.ratetypes || raw?.rateTypes || raw?.data?.ratetypes || [];
   if (!Array.isArray(list)) return [];
@@ -192,7 +236,7 @@ function extractPriceOffers(raw) {
     const roomTypeId = offer['room-type-id'] || offer.roomTypeId;
     const roomName = offer['room-type'] || offer.roomName;
     const boardTypeId = offer['board-type-id'] || offer.boardTypeId;
-    const boardName = offer['board-type'] || offer.boardName;
+    const rawBoardName = offer['board-type'] || offer.boardName || 'BB';
     const rateTypeId = offer['rate-type-id'] || offer.rateTypeId;
     const rateName = offer['rate-type'] || offer.rateType;
     const totalPrice = offer.price || offer.totalPrice || 0;
@@ -203,11 +247,17 @@ function extractPriceOffers(raw) {
     const availableRooms = offer['room-to-sell'] ?? offer.availableRooms ?? 0;
     const currency = offer.currency || 'TRY';
 
+    // Parse board/pension type details (Kahvaltılı vs Kahvaltısız)
+    const boardInfo = parseBoardType(rawBoardName, boardTypeId);
+
     return {
       roomTypeId,
       roomName,
       boardTypeId,
-      boardName,
+      boardName: rawBoardName,
+      boardCode: boardInfo.code,
+      includesBreakfast: boardInfo.includesBreakfast,
+      boardTitle: boardInfo.title,
       rateTypeId,
       rateName,
       totalPrice,

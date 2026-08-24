@@ -78,25 +78,18 @@ async function getPrices(params) {
     adult: params.adult || 2,
     currency: (params.currency || 'TRY').toUpperCase(),
     language: (params.language || 'TR').toUpperCase(),
+    onlybestoffer: params.onlybestoffer !== undefined ? params.onlybestoffer : true,
   };
 
   if (params.childage) queryParams.childage = params.childage;
   if (params.nationality) queryParams.nationality = params.nationality.toUpperCase();
-  if (params.onlybestoffer !== undefined) queryParams.onlybestoffer = params.onlybestoffer;
-
-  const agencyId = params['price-agency-id'] || params.priceAgencyId || process.env.ELEKTRA_AGENCY_ID || '44573';
-  const priceCode = params['price-code'] || params.priceCode || 'ONLINE';
-  const promoCode = params['promo-code'] || params.promo_code || 'ONLINE';
-
-  if (agencyId) {
-    queryParams['price-agency-id'] = agencyId;
-    queryParams['agency-id'] = agencyId;
+  if (params['price-agency-id'] || params.priceAgencyId) {
+    queryParams['price-agency-id'] = params['price-agency-id'] || params.priceAgencyId;
   }
-  if (priceCode) {
-    queryParams['price-code'] = priceCode;
-  }
-  if (promoCode) {
-    queryParams['promo-code'] = promoCode;
+  if (params['promo-code'] || params.promo_code) {
+    queryParams['promo-code'] = params['promo-code'] || params.promo_code;
+  } else {
+    queryParams['promo-code'] = 'ONLINE';
   }
 
   return elektraGet(`/hotel/${HOTEL_ID}/price/`, queryParams, { label: 'price' });

@@ -66,13 +66,11 @@ router.get('/price', validatePriceParams, async (req, res) => {
 
     if (params.childage) priceParams.childage = params.childage;
     if (params.nationality) priceParams.nationality = params.nationality;
-    if (req.query.onlybestoffer !== undefined) {
-      priceParams.onlybestoffer = req.query.onlybestoffer === 'true';
+    priceParams.onlybestoffer = req.query.onlybestoffer !== undefined ? req.query.onlybestoffer === 'true' : true;
+    priceParams['promo-code'] = req.query['promo-code'] || req.query.promo_code || 'ONLINE';
+    if (req.query['price-agency-id']) {
+      priceParams['price-agency-id'] = req.query['price-agency-id'];
     }
-    // Pass Agency & Promo Code parameters to ElektraWeb PMS matching Acente Id: 44573 (ONLINE Nourla) and Fiyat Kodu: ONLINE
-    priceParams['price-agency-id'] = req.query['price-agency-id'] || req.query.agencyId || process.env.ELEKTRA_AGENCY_ID || '44573';
-    priceParams['price-code'] = req.query['price-code'] || req.query.priceCode || 'ONLINE';
-    priceParams['promo-code'] = req.query['promo-code'] || req.query.promo_code || process.env.ELEKTRA_PROMO_CODE || 'ONLINE';
 
     let raw = await elektra.getPrices(priceParams);
 

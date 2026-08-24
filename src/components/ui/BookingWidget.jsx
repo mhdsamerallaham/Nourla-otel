@@ -906,133 +906,101 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                     </div>
                   </div>
 
-                  {/* Lower Section: Board & Breakfast Package Selection */}
+                  {/* Lower Section: Elegant Segmented Board Selection */}
                   {isRoomAvailable ? (
                     <div className="pt-3 sm:pt-4 border-t border-[#E7E1D3] space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] font-semibold tracking-[0.15em] text-[#6F7255] uppercase block">
-                          PAKET VE PANSIYON TERCİHİ
+                          PAKET VE KAHVALTI TERCİHİ
                         </span>
-                        <span className="text-[10px] text-[#555555] font-light hidden sm:inline">
+                        <span className="text-[10px] text-[#555555] font-light">
                           ElektraWeb Canlı Fiyat
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {/* Segmented Switch Pills Bar */}
+                      <div className="bg-[#F7F4EE] p-1.5 rounded-2xl border border-[#E7E1D3] grid grid-cols-2 gap-1.5 shadow-2xs">
                         
-                        {/* OPTION 1: Kahvaltı Dahil (BB) */}
+                        {/* Left Segment: Kahvaltı Dahil (BB) */}
                         {bbOffer && (
-                          <div
+                          <button
+                            type="button"
                             onClick={() => setSelectedBoardChoice((prev) => ({ ...prev, [room.id]: 'BB' }))}
-                            className={`p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+                            className={`py-2.5 px-3 rounded-xl transition-all text-left flex flex-col justify-between cursor-pointer ${
                               currentBoardChoice === 'BB'
-                                ? 'border-[#6F7255] bg-[#F7F4EE] shadow-sm ring-1 ring-[#6F7255]/40'
-                                : 'border-[#E7E1D3] bg-white hover:border-[#6F7255]/40'
+                                ? 'bg-white text-[#2B2B2B] shadow-md border border-[#6F7255]/40 ring-1 ring-[#6F7255]/20'
+                                : 'text-[#555555] hover:text-[#2B2B2B] hover:bg-white/60'
                             }`}
                           >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="space-y-0.5">
-                                <div className="flex items-center gap-1.5">
-                                  <Coffee className="w-3.5 h-3.5 text-[#6F7255]" />
-                                  <h5 className="font-serif text-base font-semibold text-[#2B2B2B]">
-                                    Organik Kahvaltı Dahil
-                                  </h5>
-                                </div>
-                                <p className="text-[11px] text-[#555555] font-light leading-snug">
-                                  Bahçeden taze ürünler & serpme Ege kahvaltısı.
-                                </p>
-                              </div>
-                              <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-all ${
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="text-xs font-serif font-bold text-[#2B2B2B] flex items-center gap-1.5">
+                                <Coffee className="w-3.5 h-3.5 text-[#6F7255]" /> Kahvaltı Dahil
+                              </span>
+                              <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
                                 currentBoardChoice === 'BB' ? 'border-[#6F7255] bg-[#6F7255]' : 'border-[#D5CEBE]'
                               }`}>
-                                {currentBoardChoice === 'BB' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                                {currentBoardChoice === 'BB' && <div className="w-1 h-1 rounded-full bg-white" />}
                               </div>
                             </div>
-
-                            <div className="pt-2 border-t border-[#E7E1D3] flex items-center justify-between gap-2">
-                              <div>
-                                <span className="text-[9px] text-[#555555] font-light block uppercase tracking-wider">Gecelik</span>
-                                <span className="font-serif text-xl sm:text-2xl font-bold text-[#6F7255]">
-                                  {currSymbol}{Math.round(bbOffer.pricePerNight).toLocaleString('tr-TR')}
-                                </span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedBoardChoice((prev) => ({ ...prev, [room.id]: 'BB' }));
-                                  setSelectedRoomId(room.id);
-                                  setCurrentStep(3);
-                                }}
-                                className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer active:scale-95 ${
-                                  currentBoardChoice === 'BB'
-                                    ? 'bg-[#6F7255] text-white shadow-xs hover:bg-[#4F523A]'
-                                    : 'bg-[#F7F4EE] border border-[#E7E1D3] text-[#2B2B2B] hover:bg-[#6F7255] hover:text-white'
-                                }`}
-                              >
-                                Kahvaltılı Seç →
-                              </button>
+                            <div className="mt-1 pt-1 border-t border-[#E7E1D3]/50 flex items-baseline justify-between">
+                              <span className="text-[9px] text-[#6F7255] uppercase font-semibold">Gecelik</span>
+                              <span className="font-serif text-base sm:text-lg font-bold text-[#6F7255]">
+                                {currSymbol}{Math.round(bbOffer.pricePerNight).toLocaleString('tr-TR')}
+                              </span>
                             </div>
-                          </div>
+                          </button>
                         )}
 
-                        {/* OPTION 2: Kahvaltısız (RO) */}
+                        {/* Right Segment: Kahvaltısız (RO) */}
                         {roOffer && (
-                          <div
+                          <button
+                            type="button"
                             onClick={() => setSelectedBoardChoice((prev) => ({ ...prev, [room.id]: 'RO' }))}
-                            className={`p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+                            className={`py-2.5 px-3 rounded-xl transition-all text-left flex flex-col justify-between cursor-pointer ${
                               currentBoardChoice === 'RO'
-                                ? 'border-[#6F7255] bg-[#F7F4EE] shadow-sm ring-1 ring-[#6F7255]/40'
-                                : 'border-[#E7E1D3] bg-white hover:border-[#6F7255]/40'
+                                ? 'bg-white text-[#2B2B2B] shadow-md border border-[#6F7255]/40 ring-1 ring-[#6F7255]/20'
+                                : 'text-[#555555] hover:text-[#2B2B2B] hover:bg-white/60'
                             }`}
                           >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="space-y-0.5">
-                                <div className="flex items-center gap-1.5">
-                                  <Building className="w-3.5 h-3.5 text-[#6F7255]" />
-                                  <h5 className="font-serif text-base font-semibold text-[#2B2B2B]">
-                                    Sadece Konaklama
-                                  </h5>
-                                </div>
-                                <p className="text-[11px] text-[#555555] font-light leading-snug">
-                                  Kahvaltısız oda konaklama paketidir.
-                                </p>
-                              </div>
-                              <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-all ${
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="text-xs font-serif font-bold text-[#2B2B2B] flex items-center gap-1.5">
+                                <Building className="w-3.5 h-3.5 text-[#6F7255]" /> Sadece Oda
+                              </span>
+                              <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
                                 currentBoardChoice === 'RO' ? 'border-[#6F7255] bg-[#6F7255]' : 'border-[#D5CEBE]'
                               }`}>
-                                {currentBoardChoice === 'RO' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                                {currentBoardChoice === 'RO' && <div className="w-1 h-1 rounded-full bg-white" />}
                               </div>
                             </div>
-
-                            <div className="pt-2 border-t border-[#E7E1D3] flex items-center justify-between gap-2">
-                              <div>
-                                <span className="text-[9px] text-[#555555] font-light block uppercase tracking-wider">Gecelik</span>
-                                <span className="font-serif text-xl sm:text-2xl font-bold text-[#6F7255]">
-                                  {currSymbol}{Math.round(roOffer.pricePerNight).toLocaleString('tr-TR')}
-                                </span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedBoardChoice((prev) => ({ ...prev, [room.id]: 'RO' }));
-                                  setSelectedRoomId(room.id);
-                                  setCurrentStep(3);
-                                }}
-                                className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer active:scale-95 ${
-                                  currentBoardChoice === 'RO'
-                                    ? 'bg-[#6F7255] text-white shadow-xs hover:bg-[#4F523A]'
-                                    : 'bg-[#F7F4EE] border border-[#E7E1D3] text-[#2B2B2B] hover:bg-[#6F7255] hover:text-white'
-                                }`}
-                              >
-                                Kahvaltısız Seç →
-                              </button>
+                            <div className="mt-1 pt-1 border-t border-[#E7E1D3]/50 flex items-baseline justify-between">
+                              <span className="text-[9px] text-[#6F7255] uppercase font-semibold">Gecelik</span>
+                              <span className="font-serif text-base sm:text-lg font-bold text-[#6F7255]">
+                                {currSymbol}{Math.round(roOffer.pricePerNight).toLocaleString('tr-TR')}
+                              </span>
                             </div>
-                          </div>
+                          </button>
                         )}
-
                       </div>
+
+                      {/* Package Description Line */}
+                      <p className="text-[11px] text-[#555555] font-light italic px-1">
+                        {currentBoardChoice === 'BB'
+                          ? '✓ Bahçeden toplanan organik taze ürünler ile hazırlanan Ege serpme kahvaltısı dahildir.'
+                          : '✓ Kahvaltısız oda konaklama paketidir.'}
+                      </p>
+
+                      {/* Single Prominent Mobile & Desktop Action Button */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedRoomId(room.id);
+                          setCurrentStep(3);
+                        }}
+                        className="w-full py-3.5 rounded-full bg-[#6F7255] hover:bg-[#4F523A] text-white text-xs font-semibold uppercase tracking-widest transition-all shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        {currentBoardChoice === 'BB' ? 'Kahvaltılı Paketi Seç' : 'Kahvaltısız Paketi Seç'} ({currSymbol}{Math.round(activeOffer.pricePerNight).toLocaleString('tr-TR')}/gece) <ArrowRight className="w-4 h-4" />
+                      </button>
+
                     </div>
                   ) : (
                     <div className="pt-3 border-t border-[#E7E1D3] flex items-center justify-between">

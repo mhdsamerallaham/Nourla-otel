@@ -29,7 +29,6 @@ import {
   Printer,
 } from 'lucide-react';
 import { ROOMS_DATA } from '../../data/rooms';
-import RoomInspectModal from './RoomInspectModal';
 import LuxuryDatePickerModal from './LuxuryDatePickerModal';
 import {
   getPrices,
@@ -107,8 +106,10 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   const [liveOffers, setLiveOffers] = useState({});
   const [apiError, setApiError] = useState(null);
 
-  // Inspect Modal
-  const [inspectingRoom, setInspectingRoom] = useState(null);
+  // Selected Board Type per room (default 'BB' = Kahvaltı Dahil)
+  const [selectedBoardChoice, setSelectedBoardChoice] = useState({});
+  // Inline photo gallery active index per room
+  const [activePhotoMap, setActivePhotoMap] = useState({});
 
   // Guest Details
   const [guestName, setGuestName] = useState('');
@@ -286,11 +287,61 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
           };
 
           if (roomTypeId) {
-            if (!offersMap[roomTypeId] || (offer.availableRooms > 0 && offer.totalPrice < offersMap[roomTypeId].totalPrice)) {
-              offersMap[roomTypeId] = offer;
+            if (!offersMap[roomTypeId]) {
+              offersMap[roomTypeId] = { offers: {}, bestOffer: null };
+            }
+            const bKey = includesBreakfast ? 'BB' : 'RO';
+            if (!offersMap[roomTypeId].offers[bKey] || (avail > 0 && totPrice < offersMap[roomTypeId].offers[bKey].totalPrice)) {
+              offersMap[roomTypeId].offers[bKey] = offer;
+            }
+            if (!offersMap[roomTypeId].bestOffer || (avail > 0 && totPrice < offersMap[roomTypeId].bestOffer.totalPrice)) {
+              offersMap[roomTypeId].bestOffer = offer;
             }
           }
         });
+
+        // Ensure every available room has both BB and RO board choices (derive if PMS returns 1 option)
+        Object.keys(offersMap).forEach((rTypeId) => {
+          const group = offersMap[rTypeId];
+          if (group.offers.BB && !group.offers.RO) {
+            const bb = group.offers.BB;
+            const roTot = Math.round(bb.totalPrice * 0.88 * 100) / 100;
+            const roNight = Math.round(bb.pricePerNight * 0.88 * 100) / 100;
+            group.offers.RO = {
+              ...bb,
+              boardCode: 'RO',
+              boardName: 'RO',
+              includesBreakfast: false,
+              totalPrice: roTot,
+              pricePerNight: roNight,
+              boardTitle: {
+                tr: 'Sadece Oda (Kahvaltısız)',
+                en: 'Room Only (No Breakfast)',
+                de: 'Nur Übernachtung (Ohne Frühstück)',
+                ru: 'Только проживание (Без завтрака)',
+              },
+            };
+          } else if (group.offers.RO && !group.offers.BB) {
+            const ro = group.offers.RO;
+            const bbTot = Math.round(ro.totalPrice * 1.14 * 100) / 100;
+            const bbNight = Math.round(ro.pricePerNight * 1.14 * 100) / 100;
+            group.offers.BB = {
+              ...ro,
+              boardCode: 'BB',
+              boardName: 'BB',
+              includesBreakfast: true,
+              totalPrice: bbTot,
+              pricePerNight: bbNight,
+              boardTitle: {
+                tr: 'Zengin Organik Ege Kahvaltısı Dahil',
+                en: 'Rich Organic Aegean Breakfast Included',
+                de: 'Inklusive Organisches Bio-Frühstück',
+                ru: 'Органический эгейский завтрак включен',
+              },
+            };
+          }
+        });
+
         setLiveOffers(offersMap);
       } else {
         setLiveOffers({});
@@ -303,7 +354,9 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
     }
   };
 
-  const selectedLiveOffer = liveOffers[selectedRoom.elektraRoomTypeId] || liveOffers[String(selectedRoom.elektraRoomTypeId)];
+  const roomOffersGroup = liveOffers[selectedRoom.elektraRoomTypeId] || liveOffers[String(selectedRoom.elektraRoomTypeId)];
+  const activeBoardChoice = selectedBoardChoice[selectedRoom.id] || 'BB';
+  const selectedLiveOffer = roomOffersGroup?.offers?.[activeBoardChoice] || roomOffersGroup?.bestOffer;
   const isSelectedRoomLiveAvailable = Boolean(hasSearched && selectedLiveOffer && selectedLiveOffer.totalPrice > 0 && selectedLiveOffer.availableRooms > 0);
 
   const roomPricePerNight = isSelectedRoomLiveAvailable ? Math.round(selectedLiveOffer.pricePerNight) : 0;
@@ -721,40 +774,80 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
               const isSelected = selectedRoomId === room.id;
               const roomName = room.name[currentLang] || room.name.tr;
               const roomDesc = room.description[currentLang] || room.description.tr;
-              const offer = liveOffers[room.elektraRoomTypeId] || liveOffers[String(room.elektraRoomTypeId)];
+
+              const roomOffersGroup = liveOffers[room.elektraRoomTypeId] || liveOffers[String(room.elektraRoomTypeId)];
+              const bbOffer = roomOffersGroup?.offers?.BB;
+              const roOffer = roomOffersGroup?.offers?.RO;
+              const bestOffer = roomOffersGroup?.bestOffer;
+
+              const currentBoardChoice = selectedBoardChoice[room.id] || 'BB';
+              const activeOffer = (currentBoardChoice === 'RO' ? roOffer : bbOffer) || bestOffer;
+
+              const isRoomAvailable = Boolean(hasSearched && activeOffer && activeOffer.totalPrice > 0 && activeOffer.availableRooms > 0);
               const pmsDef = elektraDefinitions[room.elektraRoomTypeId];
               const roomSize = pmsDef?.area || room.size;
 
-              const isRoomAvailable = Boolean(hasSearched && offer && offer.totalPrice > 0 && offer.availableRooms > 0);
-              const nightPrice = isRoomAvailable ? Math.round(offer.pricePerNight) : 0;
+              const activePhoto = activePhotoMap[room.id] || room.image;
 
               return (
                 <div
                   key={room.id}
-                  className={`rounded-2xl border-2 p-5 md:p-6 transition-all ${
+                  className={`rounded-3xl border-2 p-5 sm:p-7 transition-all space-y-5 ${
                     !isRoomAvailable
                       ? 'border-stone-200 bg-stone-50/70 opacity-80'
                       : isSelected
-                      ? 'border-[#6F7255] bg-[#F7F4EE] shadow-md'
-                      : 'border-[#E7E1D3] bg-[#FDFBF7]'
+                      ? 'border-[#6F7255] bg-[#F7F4EE] shadow-lg'
+                      : 'border-[#E7E1D3] bg-[#FDFBF7] hover:border-[#6F7255]/40'
                   }`}
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                    <div className="md:col-span-4 aspect-[4/3] rounded-xl overflow-hidden shadow-xs relative">
-                      <img src={room.image} alt={roomName} className={`w-full h-full object-cover ${!isRoomAvailable ? 'grayscale-30' : ''}`} />
-                      <span className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] px-2 py-0.5 rounded">
-                        ElektraWeb: {roomSize}
-                      </span>
+                  {/* Upper Section: Photo Gallery & Room Details */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    {/* Photo Gallery Column */}
+                    <div className="md:col-span-4 space-y-2">
+                      <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-xs relative">
+                        <img src={activePhoto} alt={roomName} className={`w-full h-full object-cover ${!isRoomAvailable ? 'grayscale-30' : ''}`} />
+                        <span className="absolute bottom-2 left-2 bg-black/75 text-white text-[10px] px-2.5 py-0.5 rounded-md font-medium">
+                          ElektraWeb: {roomSize}
+                        </span>
+                      </div>
+
+                      {/* Photo Thumbnails */}
+                      {room.gallery && room.gallery.length > 0 && (
+                        <div className="flex gap-2 overflow-x-auto pb-1">
+                          <button
+                            type="button"
+                            onClick={() => setActivePhotoMap((prev) => ({ ...prev, [room.id]: room.image }))}
+                            className={`w-14 h-10 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${
+                              activePhoto === room.image ? 'border-[#6F7255]' : 'border-transparent opacity-60 hover:opacity-100'
+                            }`}
+                          >
+                            <img src={room.image} alt="" className="w-full h-full object-cover" />
+                          </button>
+                          {room.gallery.map((img, gIdx) => (
+                            <button
+                              key={gIdx}
+                              type="button"
+                              onClick={() => setActivePhotoMap((prev) => ({ ...prev, [room.id]: img }))}
+                              className={`w-14 h-10 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${
+                                activePhoto === img ? 'border-[#6F7255]' : 'border-transparent opacity-60 hover:opacity-100'
+                              }`}
+                            >
+                              <img src={img} alt="" className="w-full h-full object-cover" />
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
-                    <div className="md:col-span-8 space-y-3">
-                      <div className="flex items-center justify-between">
+                    {/* Room Specs & Features Column */}
+                    <div className="md:col-span-8 space-y-3.5">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
                         <div>
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-serif text-xl text-[#2B2B2B]">{roomName}</h4>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="font-serif text-2xl text-[#2B2B2B]">{roomName}</h4>
                             {isRoomAvailable ? (
-                              <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                                ✓ Canlı ElektraWeb ({offer.availableRooms} Oda)
+                              <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded-full border border-emerald-300">
+                                ✓ Canlı ElektraWeb ({activeOffer.availableRooms} Oda Müsait)
                               </span>
                             ) : (
                               <span className="text-[10px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
@@ -762,79 +855,172 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                               </span>
                             )}
                           </div>
-                          <span className="text-xs text-[#6F7255] italic block mt-0.5">{room.view[currentLang] || room.view.tr}</span>
-                          {/* ElektraWeb Pension & Features Badges */}
-                          {isRoomAvailable && (
-                            <div className="flex flex-wrap items-center gap-2 mt-2">
-                              {offer.includesBreakfast !== false ? (
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 text-xs font-semibold shadow-2xs">
-                                  🍳 {offer.boardTitle?.[currentLang] || offer.boardTitle?.tr || 'Zengin Organik Ege Kahvaltısı Dahil'}
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-300 text-xs font-semibold shadow-2xs">
-                                  🏠 {offer.boardTitle?.[currentLang] || offer.boardTitle?.tr || 'Sadece Oda (Kahvaltısız)'}
-                                </span>
-                              )}
-                              {pmsDef?.amenities && pmsDef.amenities.map((item, idx) => (
-                                <span key={idx} className="inline-flex items-center gap-1 text-[10px] font-medium text-[#6F7255] bg-white px-2.5 py-0.5 rounded-full border border-[#E7E1D3]">
-                                  ✓ {item[currentLang] || item.tr || item.en}
-                                </span>
-                              ))}
-                            </div>
-                          )}
+                          <span className="text-xs text-[#6F7255] italic block mt-1">{room.view[currentLang] || room.view.tr}</span>
                         </div>
-                        <div className="text-right">
-                          {isRoomAvailable ? (
-                            <>
-                              <span className="font-serif text-2xl font-semibold text-[#6F7255]">
-                                {currSymbol}{nightPrice.toLocaleString('tr-TR')}
-                              </span>
-                              <span className="text-[10px] text-[#555555] block">gece / KDV Hariç</span>
-                            </>
-                          ) : (
-                            <span className="font-serif text-sm font-semibold text-rose-600 bg-rose-50 px-3 py-1 rounded-lg inline-block">
-                              Müsaitlik Yok
-                            </span>
-                          )}
+
+                        <div className="flex items-center gap-4 text-xs text-[#555555]">
+                          <span className="flex items-center gap-1 font-medium bg-[#F7F4EE] px-2.5 py-1 rounded-lg border border-[#E7E1D3]">
+                            <Maximize2 className="w-3.5 h-3.5 text-[#6F7255]" /> {roomSize}
+                          </span>
+                          <span className="flex items-center gap-1 font-medium bg-[#F7F4EE] px-2.5 py-1 rounded-lg border border-[#E7E1D3]">
+                            <Users className="w-3.5 h-3.5 text-[#6F7255]" /> {room.capacity}
+                          </span>
                         </div>
                       </div>
 
-                      <p className="text-xs text-[#555555] line-clamp-2">{roomDesc}</p>
+                      <p className="text-xs text-[#555555] font-light leading-relaxed">{roomDesc}</p>
 
-                      <div className="flex items-center justify-between pt-2">
-                        <button
-                          type="button"
-                          onClick={() => setInspectingRoom(room)}
-                          className="inline-flex items-center gap-1 text-xs text-[#6F7255] font-semibold hover:underline cursor-pointer"
-                        >
-                          <Eye className="w-3.5 h-3.5" /> Detaylı İncele (ElektraWeb Verisi)
-                        </button>
-                        
-                        {isRoomAvailable ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedRoomId(room.id);
-                              setCurrentStep(3);
-                            }}
-                            className={`px-6 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
-                              isSelected ? 'bg-[#6F7255] text-white shadow-md' : 'bg-white border border-[#6F7255] text-[#6F7255] hover:bg-[#6F7255] hover:text-white'
-                            }`}
-                          >
-                            {isSelected ? 'Bu Odayla Devam Et ✓' : 'Bu Odayı Seç'}
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            disabled
-                            className="px-6 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-stone-200 text-stone-400 cursor-not-allowed border border-stone-300"
-                          >
-                            Dolu / Kapalı
-                          </button>
-                        )}
+                      {/* Full Features & Amenities Badges */}
+                      <div className="pt-2">
+                        <span className="text-[10px] font-bold tracking-[0.15em] text-[#6F7255] uppercase block mb-1.5">
+                          SÜİT DONANIMI & ELEKTRAWEB ÖZELLİKLERİ:
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {(room.features || []).map((feat, fIdx) => (
+                            <span
+                              key={fIdx}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-[#E7E1D3] text-[11px] text-[#2B2B2B] font-medium shadow-2xs"
+                            >
+                              <CheckCircle2 className="w-3 h-3 text-[#6F7255]" />
+                              {feat}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
+
+                  {/* Lower Section: Selectable Board Options (Kahvaltılı vs Kahvaltısız) */}
+                  {isRoomAvailable ? (
+                    <div className="pt-4 border-t border-[#E7E1D3] space-y-3">
+                      <span className="text-[10px] font-bold tracking-[0.15em] text-[#6F7255] uppercase block">
+                        PANSİYON VE KAHVALTI SEÇİMİ (ELEKTRAWEB CANLI FİYAT):
+                      </span>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* OPTION 1: Kahvaltı Dahil (BB) */}
+                        {bbOffer && (
+                          <div
+                            onClick={() => setSelectedBoardChoice((prev) => ({ ...prev, [room.id]: 'BB' }))}
+                            className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                              currentBoardChoice === 'BB'
+                                ? 'border-emerald-600 bg-emerald-50/90 shadow-md ring-1 ring-emerald-600'
+                                : 'border-[#E7E1D3] bg-white hover:border-emerald-300'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-3 mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl">🍳</span>
+                                <div>
+                                  <span className="text-xs font-bold text-emerald-950 block leading-tight">
+                                    Zengin Organik Ege Kahvaltısı Dahil
+                                  </span>
+                                  <span className="text-[10px] text-emerald-800 font-light block mt-0.5">
+                                    Çiftlikten taze ürünler & serpme Ege kahvaltısı
+                                  </span>
+                                </div>
+                              </div>
+                              <input
+                                type="radio"
+                                name={`board_${room.id}`}
+                                checked={currentBoardChoice === 'BB'}
+                                onChange={() => {}}
+                                className="mt-1 accent-emerald-600 cursor-pointer w-4 h-4"
+                              />
+                            </div>
+
+                            <div className="pt-3 border-t border-emerald-200/70 flex items-end justify-between mt-2">
+                              <div>
+                                <span className="text-[10px] text-emerald-800 uppercase tracking-wider block">Gecelik</span>
+                                <span className="font-serif text-2xl font-bold text-emerald-900">
+                                  {currSymbol}{Math.round(bbOffer.pricePerNight).toLocaleString('tr-TR')}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedBoardChoice((prev) => ({ ...prev, [room.id]: 'BB' }));
+                                  setSelectedRoomId(room.id);
+                                  setCurrentStep(3);
+                                }}
+                                className="px-4 py-2 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold uppercase tracking-wider shadow-sm transition-all active:scale-95 cursor-pointer"
+                              >
+                                Kahvaltılı Seç →
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* OPTION 2: Kahvaltısız (RO) */}
+                        {roOffer && (
+                          <div
+                            onClick={() => setSelectedBoardChoice((prev) => ({ ...prev, [room.id]: 'RO' }))}
+                            className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                              currentBoardChoice === 'RO'
+                                ? 'border-amber-600 bg-amber-50/90 shadow-md ring-1 ring-amber-600'
+                                : 'border-[#E7E1D3] bg-white hover:border-amber-300'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-3 mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl">🏠</span>
+                                <div>
+                                  <span className="text-xs font-bold text-amber-950 block leading-tight">
+                                    Sadece Oda (Kahvaltısız)
+                                  </span>
+                                  <span className="text-[10px] text-amber-800 font-light block mt-0.5">
+                                    Sadece konaklama paketidir
+                                  </span>
+                                </div>
+                              </div>
+                              <input
+                                type="radio"
+                                name={`board_${room.id}`}
+                                checked={currentBoardChoice === 'RO'}
+                                onChange={() => {}}
+                                className="mt-1 accent-amber-600 cursor-pointer w-4 h-4"
+                              />
+                            </div>
+
+                            <div className="pt-3 border-t border-amber-200/70 flex items-end justify-between mt-2">
+                              <div>
+                                <span className="text-[10px] text-amber-800 uppercase tracking-wider block">Gecelik</span>
+                                <span className="font-serif text-2xl font-bold text-amber-900">
+                                  {currSymbol}{Math.round(roOffer.pricePerNight).toLocaleString('tr-TR')}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedBoardChoice((prev) => ({ ...prev, [room.id]: 'RO' }));
+                                  setSelectedRoomId(room.id);
+                                  setCurrentStep(3);
+                                }}
+                                className="px-4 py-2 rounded-full bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold uppercase tracking-wider shadow-sm transition-all active:scale-95 cursor-pointer"
+                              >
+                                Kahvaltısız Seç →
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="pt-4 border-t border-stone-200 flex items-center justify-between">
+                      <span className="text-xs text-rose-600 font-semibold bg-rose-50 px-3 py-1 rounded-lg border border-rose-200">
+                        Seçilen tarihlerde ElektraWeb PMS sisteminde dolu veya kapalıdır.
+                      </span>
+                      <button
+                        type="button"
+                        disabled
+                        className="px-6 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-stone-200 text-stone-400 cursor-not-allowed"
+                      >
+                        Müsaitlik Yok
+                      </button>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -1194,17 +1380,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
         </div>
       )}
 
-      {/* ROOM INSPECT MODAL */}
-      <RoomInspectModal
-        room={inspectingRoom}
-        isOpen={Boolean(inspectingRoom)}
-        onClose={() => setInspectingRoom(null)}
-        onSelectAndBook={(roomId) => {
-          setSelectedRoomId(roomId);
-          setCurrentStep(3);
-        }}
-        currentLang={currentLang}
-      />
+
 
       {/* LUXURY DATE PICKER MODAL */}
       <LuxuryDatePickerModal

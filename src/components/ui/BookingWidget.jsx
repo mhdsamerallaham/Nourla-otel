@@ -985,9 +985,16 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                         <span className="text-[10px] font-semibold tracking-[0.15em] text-[#6F7255] uppercase block">
                           PAKET VE KAHVALTI TERCİHİ
                         </span>
-                        <span className="text-[10px] text-[#555555] font-light">
-                          ElektraWeb Canlı Fiyat
-                        </span>
+                        <div className="flex items-center gap-2">
+                          {activeOffer?.discountPercent > 0 && (
+                            <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
+                              🔥 %{activeOffer.discountPercent} İndirimli
+                            </span>
+                          )}
+                          <span className="text-[10px] text-[#555555] font-light">
+                            ElektraWeb Canlı Fiyat
+                          </span>
+                        </div>
                       </div>
 
                       {/* Single-line Compact Segmented Switch Pill Bar */}
@@ -1008,9 +1015,16 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                               <Coffee className="w-3.5 h-3.5 text-[#6F7255] shrink-0" />
                               Kahvaltılı
                             </span>
-                            <span className="font-serif text-xs font-bold text-[#6F7255] shrink-0">
-                              {currSymbol}{Math.round(bbOffer.pricePerNight).toLocaleString('tr-TR')}
-                            </span>
+                            <div className="text-right shrink-0 leading-none">
+                              {bbOffer.originalPricePerNight && bbOffer.originalPricePerNight > bbOffer.pricePerNight && (
+                                <span className="text-[9px] text-stone-400 line-through block font-normal leading-none mb-0.5">
+                                  {currSymbol}{Math.round(bbOffer.originalPricePerNight).toLocaleString('tr-TR')}
+                                </span>
+                              )}
+                              <span className="font-serif text-xs font-bold text-[#6F7255]">
+                                {currSymbol}{Math.round(bbOffer.pricePerNight).toLocaleString('tr-TR')}
+                              </span>
+                            </div>
                           </button>
                         )}
 
@@ -1029,9 +1043,16 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                               <Building className="w-3.5 h-3.5 text-[#6F7255] shrink-0" />
                               Kahvaltısız
                             </span>
-                            <span className="font-serif text-xs font-bold text-[#6F7255] shrink-0">
-                              {currSymbol}{Math.round(roOffer.pricePerNight).toLocaleString('tr-TR')}
-                            </span>
+                            <div className="text-right shrink-0 leading-none">
+                              {roOffer.originalPricePerNight && roOffer.originalPricePerNight > roOffer.pricePerNight && (
+                                <span className="text-[9px] text-stone-400 line-through block font-normal leading-none mb-0.5">
+                                  {currSymbol}{Math.round(roOffer.originalPricePerNight).toLocaleString('tr-TR')}
+                                </span>
+                              )}
+                              <span className="font-serif text-xs font-bold text-[#6F7255]">
+                                {currSymbol}{Math.round(roOffer.pricePerNight).toLocaleString('tr-TR')}
+                              </span>
+                            </div>
                           </button>
                         )}
                       </div>

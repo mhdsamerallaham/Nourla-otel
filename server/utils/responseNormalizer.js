@@ -240,10 +240,18 @@ function extractPriceOffers(raw) {
     const rateTypeId = offer['rate-type-id'] || offer.rateTypeId;
     const rateName = offer['rate-type'] || offer.rateType;
     const totalPrice = offer.price || offer.totalPrice || 0;
+
+    // Parse ElektraWeb PMS Discount fields if defined
+    const rawOriginalPrice = offer['original-price'] || offer['list-price'] || offer['rack-rate'] || offer['base-price'] || offer.originalPrice;
+    const originalPrice = rawOriginalPrice && Number(rawOriginalPrice) > totalPrice ? Number(rawOriginalPrice) : null;
+    const discountAmount = offer['discount-amount'] || offer.discountAmount || (originalPrice ? originalPrice - totalPrice : 0);
+    const discountPercent = offer['discount-percent'] || offer.discountPercent || (originalPrice ? Math.round(((originalPrice - totalPrice) / originalPrice) * 100) : 0);
+
     const daysCount = offer['days-count'] || 1;
     const priceArr = offer['price-arr'] || offer.priceArr || [];
     const availabilityArr = offer['availability-arr'] || offer.availabilityArr || [];
     const pricePerNight = priceArr[0] || (daysCount ? Math.round((totalPrice / daysCount) * 100) / 100 : 0);
+    const originalPricePerNight = originalPrice ? Math.round((originalPrice / daysCount) * 100) / 100 : null;
     const availableRooms = offer['room-to-sell'] ?? offer.availableRooms ?? 0;
     const currency = offer.currency || 'TRY';
 
@@ -261,7 +269,12 @@ function extractPriceOffers(raw) {
       rateTypeId,
       rateName,
       totalPrice,
+      originalPrice,
+      discountAmount,
+      discountPercent: discountPercent > 0 ? discountPercent : 0,
+      hasDiscount: Boolean(originalPrice && originalPrice > totalPrice || discountPercent > 0),
       pricePerNight,
+      originalPricePerNight,
       daysCount,
       priceArr,
       availabilityArr,

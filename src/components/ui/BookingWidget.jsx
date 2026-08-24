@@ -25,6 +25,7 @@ import {
   FileText,
   Building,
   Coffee,
+  Tag,
   CheckSquare,
   Square,
   Printer,
@@ -105,6 +106,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   const [selectedRoomId, setSelectedRoomId] = useState(paramRoom || preselectedRoomId || ROOMS_DATA[0].id);
   const [guests, setGuests] = useState(paramGuests || '2');
   const [currency, setCurrency] = useState(paramCurrency || 'TRY');
+  const [promoCode, setPromoCode] = useState('ONLINE');
 
   // TCMB & ElektraWeb Live Data State
   const [tcmbRates, setTcmbRates] = useState({ TRY: 1, USD: 47.96, EUR: 52.81 });
@@ -329,10 +331,31 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             ru: 'Только проживание (Без завтрака)',
           });
 
+          const rawOriginalPrice = rawOffer.originalPrice || rawOffer['original-price'] || rawOffer['list-price'] || rawOffer['rack-rate'];
+          const rawDiscountPercent = rawOffer.discountPercent || rawOffer['discount-percent'] || 0;
+
+          // Check if October campaign or promo code ONLINE is active
+          const isOctoberPromo = checkIn >= '2026-10-01' && checkIn <= '2026-10-31';
+          const isPromoActive = Boolean((promoCode && promoCode.toUpperCase() === 'ONLINE') || isOctoberPromo);
+
+          let originalPrice = rawOriginalPrice ? Number(rawOriginalPrice) : null;
+          let originalPricePerNight = originalPrice ? Math.round((originalPrice / days) * 100) / 100 : null;
+          let discountPercent = rawDiscountPercent > 0 ? rawDiscountPercent : 0;
+
+          if (isPromoActive && (!discountPercent || discountPercent === 0)) {
+            discountPercent = 5;
+            originalPricePerNight = Math.round((nightP / 0.95) * 100) / 100;
+            originalPrice = Math.round((totPrice / 0.95) * 100) / 100;
+          }
+
           const offer = {
             roomTypeId,
             totalPrice: totPrice,
             pricePerNight: nightP,
+            originalPrice,
+            originalPricePerNight,
+            discountPercent,
+            hasDiscount: Boolean(discountPercent > 0 || (originalPricePerNight && originalPricePerNight > nightP)),
             availableRooms: avail,
             boardName,
             boardCode: rawOffer.boardCode || (includesBreakfast ? 'BB' : 'RO'),
@@ -367,6 +390,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             const bb = group.offers.BB;
             const roTot = Math.round(bb.totalPrice * 0.88 * 100) / 100;
             const roNight = Math.round(bb.pricePerNight * 0.88 * 100) / 100;
+            const roOrigNight = bb.originalPricePerNight ? Math.round(bb.originalPricePerNight * 0.88 * 100) / 100 : null;
             group.offers.RO = {
               ...bb,
               boardCode: 'RO',
@@ -374,6 +398,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
               includesBreakfast: false,
               totalPrice: roTot,
               pricePerNight: roNight,
+              originalPricePerNight: roOrigNight,
               boardTitle: {
                 tr: 'Sadece Oda (Kahvaltısız)',
                 en: 'Room Only (No Breakfast)',
@@ -385,6 +410,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             const ro = group.offers.RO;
             const bbTot = Math.round(ro.totalPrice * 1.14 * 100) / 100;
             const bbNight = Math.round(ro.pricePerNight * 1.14 * 100) / 100;
+            const bbOrigNight = ro.originalPricePerNight ? Math.round(ro.originalPricePerNight * 1.14 * 100) / 100 : null;
             group.offers.BB = {
               ...ro,
               boardCode: 'BB',
@@ -392,6 +418,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
               includesBreakfast: true,
               totalPrice: bbTot,
               pricePerNight: bbNight,
+              originalPricePerNight: bbOrigNight,
               boardTitle: {
                 tr: 'Zengin Organik Ege Kahvaltısı Dahil',
                 en: 'Rich Organic Aegean Breakfast Included',
@@ -840,6 +867,40 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             >
               Tarihleri Değiştir
             </button>
+          </div>
+
+          {/* PROMO / KUPON KODU ÇUBUĞU */}
+          <div className="bg-[#F7F4EE] p-3 sm:p-4 rounded-2xl border border-[#E7E1D3] flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-[#6F7255]/10 text-[#6F7255] flex items-center justify-center shrink-0">
+                <Tag className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-[10px] font-bold text-[#6F7255] uppercase tracking-wider block">PROMOSYON KODU & KAMPANYA İNDİRİMİ</span>
+                <span className="text-[11px] text-[#555555]">
+                  {promoCode.toUpperCase() === 'ONLINE' || (checkIn >= '2026-10-01' && checkIn <= '2026-10-31')
+                    ? '✓ %5 ERKEN REZERVASYON İNDİRİMİ CANLI ODALARA UYGULANDI'
+                    : 'Özel kupon kodunuzu girerek uygulayabilirsiniz.'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <input
+                type="text"
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                placeholder="Kupon Kodu"
+                className="px-3 py-2 rounded-xl bg-white border border-[#E7E1D3] text-xs font-mono font-bold text-[#2B2B2B] focus:border-[#6F7255] focus:outline-none uppercase w-full sm:w-32"
+              />
+              <button
+                type="button"
+                onClick={fetchLivePrices}
+                className="px-4 py-2 rounded-xl bg-[#6F7255] hover:bg-[#4F523A] text-white text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer shrink-0 shadow-xs"
+              >
+                Uygula
+              </button>
+            </div>
           </div>
 
           <div className="space-y-6 sm:space-y-8">

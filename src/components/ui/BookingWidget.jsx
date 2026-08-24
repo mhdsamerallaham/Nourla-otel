@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   Calendar,
   Users,
@@ -53,6 +53,7 @@ const FEATURE_TRANSLATIONS = {
 export default function BookingWidget({ preselectedRoomId = '' }) {
   const { i18n, t } = useTranslation();
   const { lang } = useParams();
+  const [searchParams] = useSearchParams();
   const currentLang = lang || i18n.language || 'tr';
 
   const getTodayStr = () => new Date().toISOString().split('T')[0];
@@ -67,8 +68,18 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
     return d.toISOString().split('T')[0];
   };
 
+  // Search parameters from URL if coming from Hero Quick Search
+  const paramCheckIn = searchParams.get('checkIn');
+  const paramCheckOut = searchParams.get('checkOut');
+  const paramGuests = searchParams.get('guests');
+  const paramCurrency = searchParams.get('currency');
+  const paramRoom = searchParams.get('room');
+  const paramStep = searchParams.get('step');
+
   // Step state (1: Dates, 2: Room, 3: Guest, 4: Payment, 5: Confirmation)
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(
+    paramStep === '2' || paramCheckIn ? 2 : 1
+  );
 
   // Custom Luxury Date Picker Modal State
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
@@ -79,12 +90,12 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
     setIsDatePickerOpen(true);
   };
 
-  // Search parameters (Valid future default dates)
-  const [checkIn, setCheckIn] = useState(getTomorrowStr());
-  const [checkOut, setCheckOut] = useState(getAfterTomorrowStr());
-  const [selectedRoomId, setSelectedRoomId] = useState(preselectedRoomId || ROOMS_DATA[0].id);
-  const [guests, setGuests] = useState('2');
-  const [currency, setCurrency] = useState('TRY');
+  // Search parameters state
+  const [checkIn, setCheckIn] = useState(paramCheckIn || getTomorrowStr());
+  const [checkOut, setCheckOut] = useState(paramCheckOut || getAfterTomorrowStr());
+  const [selectedRoomId, setSelectedRoomId] = useState(paramRoom || preselectedRoomId || ROOMS_DATA[0].id);
+  const [guests, setGuests] = useState(paramGuests || '2');
+  const [currency, setCurrency] = useState(paramCurrency || 'TRY');
 
   // TCMB & ElektraWeb Live Data State
   const [tcmbRates, setTcmbRates] = useState({ TRY: 1, USD: 47.96, EUR: 52.81 });

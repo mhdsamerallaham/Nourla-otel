@@ -142,7 +142,7 @@ async function createReservation(data) {
     nationality: (data.nationality || 'TR').toUpperCase(),
     'contact-first-name': firstName,
     'contact-last-name': lastName,
-    'contact-email': data.guestEmail || 'info@nourlahotel.com',
+    'contact-email': data.guestEmail || 'info@nourla.com.tr',
     'contact-phone': data.guestPhone || '+905320000000',
     'res-notes': data.specialNotes || 'Nourla Web Sitesi Üzerinden Oluşturuldu',
     'room-count': 1,

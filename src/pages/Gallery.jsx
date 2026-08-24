@@ -36,12 +36,12 @@ export default function Gallery() {
   };
 
   return (
-    <div className="pt-28 pb-24 min-h-screen bg-[#FDFBF7]">
+    <div className="pt-20 sm:pt-28 pb-14 sm:pb-24 min-h-screen bg-[#FDFBF7]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* 1. LUXURY EXHIBITION HERO BANNER */}
         <div className="relative rounded-3xl overflow-hidden mb-16 border border-[#E7E1D3] shadow-xl">
-          <div className="relative h-[280px] sm:h-[340px] w-full">
+          <div className="relative h-[180px] sm:h-[280px] lg:h-[340px] w-full">
             <img
               src="/nourla/dış cephe/WhatsApp Image 2026-07-23 at 18.42.48 (6).jpeg"
               alt="Nourla Gallery"
@@ -64,7 +64,7 @@ export default function Gallery() {
         </div>
 
         {/* 2. CATEGORY FILTER PILLS WITH COUNT BADGES */}
-        <div className="flex flex-wrap items-center justify-center gap-2.5 mb-14">
+        <div className="flex items-center gap-2.5 mb-10 sm:mb-14 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:justify-center">
           <button
             onClick={() => setActiveFilter('all')}
             className={`px-5 py-2.5 rounded-full text-xs font-semibold transition-all flex items-center gap-2 ${
@@ -137,7 +137,7 @@ export default function Gallery() {
         </div>
 
         {/* 3. EDITORIAL MASONRY GRID */}
-        <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+        <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 sm:gap-6 space-y-4 sm:space-y-6">
           {filteredItems.map((item, idx) => {
             const title = item.title[currentLang] || item.title.tr;
             const subtitle = item.subtitle[currentLang] || item.subtitle.tr;

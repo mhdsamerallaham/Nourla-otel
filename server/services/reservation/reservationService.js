@@ -177,7 +177,7 @@ async function syncReservationToPMS(reservationId) {
     totalPrice: reservation.total_price,
     adultCount: reservation.adult_count,
     guestName,
-    guestEmail: primaryGuest?.email || 'info@nourlahotel.com',
+    guestEmail: primaryGuest?.email || 'info@nourla.com.tr',
     guestPhone: primaryGuest?.phone || '+905320000000',
     specialNotes: primaryGuest?.special_notes || `Web Ödeme Ref: ${reservation.reservation_code}`,
   };

@@ -15,7 +15,7 @@ const { requestLogger } = require('./middleware/logger');
 const elektraRoutes = require('./routes/elektra');
 const bookingRoutes = require('./routes/booking');
 const paymentRoutes = require('./routes/payment');
-const adminRoutes = require('./routes/admin');
+const sitemapRoutes = require('./routes/sitemap');
 
 const app = express();
 
@@ -45,6 +45,9 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
+
+// Dynamic Sitemap Endpoint for Googlebot
+app.use('/', sitemapRoutes);
 
 // Rate limiting
 const apiLimiter = rateLimit({

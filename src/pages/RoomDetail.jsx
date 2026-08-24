@@ -6,6 +6,9 @@ import { Wifi, Wind, Coffee, Bath, Sun, Tv, Wine, Maximize2, Users, ArrowLeft, S
 import { ROOMS_DATA } from '../data/rooms';
 import MediaPlaceholder from '../components/ui/MediaPlaceholder';
 import BookingWidget from '../components/ui/BookingWidget';
+import Breadcrumb from '../components/ui/Breadcrumb';
+import StructuredData, { buildRoomSchema } from '../components/ui/StructuredData';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const AMENITY_ICONS = {
   'Free WiFi': Wifi,
@@ -35,13 +38,46 @@ export default function RoomDetail() {
   const roomDesc = room.description[currentLang] || room.description.tr;
   const roomView = room.view[currentLang] || room.view.tr;
 
+  // ── SEO meta tags ─────────────────────────────────────
+  usePageMeta({
+    title: `${roomName} | Nourla Boutique Hotel Urla İzmir`,
+    description: `${roomDesc?.slice(0, 150)}...`,
+    canonical: `/${currentLang}/rooms/${room.id}`,
+    lang: currentLang,
+  });
+
+  // ── HotelRoom JSON-LD schema
+  const roomSchema = buildRoomSchema({
+    name: roomName,
+    description: roomDesc,
+    id: room.id,
+    image: room.image,
+    size: room.size,
+    capacity: room.capacity,
+    features: room.features,
+    price: room.price,
+  });
+
+  const breadcrumbItems = [
+    { label: 'Ana Sayfa', href: `/${currentLang}` },
+    { label: 'Odalar', href: `/${currentLang}/rooms` },
+    { label: roomName },
+  ];
+
   return (
-    <div className="pt-28 pb-24 min-h-screen bg-[#FDFBF7]">
+    <div className="pt-20 sm:pt-28 pb-14 sm:pb-24 min-h-screen bg-[#FDFBF7]">
+      {/* HotelRoom JSON-LD schema */}
+      <StructuredData id="jsonld-room" schema={roomSchema} />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Breadcrumb */}
+        <Breadcrumb items={breadcrumbItems} />
+
         {/* Back Link */}
         <Link
           to={`/${currentLang}/rooms`}
           className="inline-flex items-center gap-2 text-xs font-semibold text-[#6F7255] hover:text-[#4F523A] mb-8 uppercase tracking-wider transition-colors"
+          aria-label="Tüm odalara dön"
         >
           <ArrowLeft className="w-4 h-4" />
           {t('featured_rooms.view_all')}
@@ -53,7 +89,7 @@ export default function RoomDetail() {
             <span className="text-[11px] font-semibold tracking-[0.25em] text-[#6F7255] uppercase block mb-1">
               SÜİT DETAYLARI
             </span>
-            <h1 className="font-serif text-3xl sm:text-5xl text-[#2B2B2B]">{roomName}</h1>
+            <h1 className="font-serif text-2xl sm:text-4xl lg:text-5xl text-[#2B2B2B]">{roomName}</h1>
             <p className="text-xs text-[#6F7255] italic mt-1 font-light">{roomView}</p>
           </div>
 
@@ -64,7 +100,7 @@ export default function RoomDetail() {
         </div>
 
         {/* Gallery Placeholder & Main View */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 mb-10 sm:mb-16">
           <div className="lg:col-span-8">
             {/* Main Featured Photo */}
             <MediaPlaceholder
@@ -84,8 +120,14 @@ export default function RoomDetail() {
                   className={`overflow-hidden rounded-xl border-2 transition-all ${
                     selectedImage === img ? 'border-[#6F7255] opacity-100 scale-[0.98]' : 'border-transparent opacity-70 hover:opacity-100'
                   }`}
+                  aria-label={`${roomName} görsel ${idx + 1}`}
                 >
-                  <img src={img} alt={`${roomName} gallery ${idx + 1}`} className="w-full h-24 object-cover" />
+                  <img
+                    src={img}
+                    alt={`${roomName} — Nourla Boutique Hotel Urla ${idx + 1}. süit görünümü`}
+                    className="w-full h-24 object-cover"
+                    loading="lazy"
+                  />
                 </button>
               ))}
             </div>

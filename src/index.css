@@ -20,39 +20,55 @@
   html {
     scroll-behavior: smooth;
     font-family: var(--font-sans);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
   
   body {
     background-color: #FDFBF7;
     color: #2B2B2B;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, .font-serif-title {
     font-family: var(--font-serif);
   }
+
+  /* Better tap targets on mobile */
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Prevent double-tap zoom on iOS */
+  input, select, textarea {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: #F7F4EE;
-}
-::-webkit-scrollbar-thumb {
-  background: #6F7255;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #4F523A;
+/* Custom Scrollbar - desktop only */
+@media (min-width: 1024px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #F7F4EE;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #6F7255;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #4F523A;
+  }
 }
 
 /* Glassmorphism & Micro Utilities */
 .glass-header {
-  background: rgba(253, 251, 247, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(253, 251, 247, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .glass-card {
@@ -68,3 +84,69 @@
 .luxury-border {
   border: 1px solid rgba(111, 114, 85, 0.2);
 }
+
+/* Mobile-safe bottom padding for iOS home bar */
+.safe-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+/* Mobile card improvements */
+@media (max-width: 640px) {
+  /* Tighter section spacing on mobile */
+  .section-py-mobile {
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
+  }
+  
+  /* Slightly smaller section headers on mobile */
+  .section-header-mobile h2 {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+}
+
+/* Smooth slide-in for mobile drawer */
+@keyframes slideLeft {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-slideLeft {
+  animation: slideLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+/* Touch-friendly minimum tap sizes */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Sticky Phone CTA slide-up animation */
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* iOS safe area support for sticky CTA */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .animate-slideUp > div:last-child {
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  }
+}
+

@@ -43,6 +43,23 @@ export default function BookingStatus() {
   const isSuccess = status === 'success';
 
   useEffect(() => {
+    // Google Tag Manager / GA4 conversion event (additive, safe)
+    if (!isLoading && isSuccess && reservationCode) {
+      try {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: 'purchase',
+          transaction_id: reservationCode,
+          value: undefined, // populated after loadData if res available
+          currency: 'EUR',
+          items: [{ item_name: 'Nourla Suite Reservation', item_category: 'Hotel' }],
+        });
+      } catch (_) { /* GTM may not be installed yet — safe to ignore */ }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, isSuccess, reservationCode]);
+
+  useEffect(() => {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reservationCode, payId]);
@@ -255,6 +272,23 @@ export default function BookingStatus() {
               </Link>
             </div>
 
+            {/* Cross-sell: Urla Guide */}
+            <div className="bg-[#F7F4EE] border border-[#E7E1D3] rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-4">
+              <div className="flex-1">
+                <p className="text-[10px] font-semibold tracking-[0.2em] text-[#6F7255] uppercase mb-1">URLA REHBERİ</p>
+                <h3 className="font-serif text-lg text-[#2B2B2B] mb-1">Konaklamanızdan En Fazlasını Alın</h3>
+                <p className="text-xs text-[#555555] font-light">
+                  Bağ turları, sahil köyleri ve gastronomi rotaları hakkında Urla rehberimizi inceleyin.
+                </p>
+              </div>
+              <Link
+                to="/tr/urla"
+                className="shrink-0 px-5 py-2.5 rounded-full bg-[#6F7255] text-white text-xs font-semibold uppercase tracking-wider hover:bg-[#4F523A] transition-all"
+              >
+                Urla'yı Keşfet
+              </Link>
+            </div>
+
             {/* Hotel Contact */}
             <div className="text-center py-4 border-t border-[#E7E1D3] space-y-1">
               <p className="text-xs text-[#555555] font-light">Yardıma ihtiyacınız mı var?</p>
@@ -267,11 +301,11 @@ export default function BookingStatus() {
                   +90 232 777 55 55
                 </a>
                 <a
-                  href="mailto:info@nourlahotel.com"
+                  href="mailto:info@nourla.com.tr"
                   className="flex items-center gap-1.5 text-[#6F7255] hover:underline font-medium"
                 >
                   <Mail className="w-3.5 h-3.5" />
-                  info@nourlahotel.com
+                  info@nourla.com.tr
                 </a>
               </div>
             </div>
@@ -350,8 +384,8 @@ export default function BookingStatus() {
                   +90 232 777 55 55
                 </a>{' '}
                 veya{' '}
-                <a href="mailto:info@nourlahotel.com" className="text-[#6F7255] hover:underline">
-                  info@nourlahotel.com
+                <a href="mailto:info@nourla.com.tr" className="text-[#6F7255] hover:underline">
+                  info@nourla.com.tr
                 </a>
               </p>
             </div>

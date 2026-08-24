@@ -1,88 +1,270 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { useParams, Link } from 'react-router-dom';
-import SectionHeader from '../components/ui/SectionHeader';
-import MediaPlaceholder from '../components/ui/MediaPlaceholder';
-import { ShieldCheck, Sparkles, Heart } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { ArrowRight, Wind, Leaf, Utensils } from 'lucide-react';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export default function About() {
-  const { i18n, t } = useTranslation();
+  const { i18n } = useTranslation();
   const { lang } = useParams();
   const currentLang = lang || i18n.language || 'tr';
 
-  return (
-    <div className="pt-28 pb-24 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionHeader
-          tag={t('nav.about')}
-          title={t('intro.title')}
-          subtitle={t('hero.subtitle')}
-        />
+  usePageMeta({
+    title: currentLang === 'tr'
+      ? 'Hakkımızda | Nourla Boutique Hotel — Urla İzmir\'in Lavüks Butik Oteli'
+      : currentLang === 'de'
+      ? 'Über Uns | Nourla Boutique Hotel Urla İzmir'
+      : 'About Us | Nourla Boutique Hotel — Luxury in Urla Izmir',
+    description: currentLang === 'tr'
+      ? 'Nourla Boutique Hotel, Urla\'nın tarihi taş mimarisi ve antik zeytin bahçeleri arasında restore edilmiş bir hanımdır. Hikayemizi, felsefemizi ve Ege\'nin ruhunu keşfedin.'
+      : 'Nourla Boutique Hotel was born in Urla\'s ancient olive groves. Discover our philosophy of restorative luxury, farm-to-table gastronomy and Aegean heritage.',
+    canonical: `/${currentLang}/about`,
+    lang: currentLang,
+  });
 
-        {/* Story Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center mb-24">
-          <div className="lg:col-span-6">
+  return (
+    <div className="min-h-screen bg-[#FDFBF7]">
+
+      {/* ─── HERO BANNER ─── */}
+      <section className="relative h-[55vh] sm:h-[70vh] overflow-hidden">
+        <img
+          src="/nourla/dış cephe/WhatsApp Image 2026-07-23 at 18.42.48.jpeg"
+          alt="Nourla Boutique Hotel — Urla İzmir'de restore edilmiş tarihi taş konak dış cephesi, Akdeniz mimarisi"
+          className="w-full h-full object-cover object-center"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-[#FDFBF7]" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+          <span className="text-[10px] sm:text-[11px] font-semibold tracking-[0.35em] text-[#E7E1D3]/80 uppercase mb-4">
+            Urla, İzmir
+          </span>
+          <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl text-white font-normal leading-tight drop-shadow-lg max-w-3xl">
+            Bir yer değil,<br />bir ruh hâli.
+          </h1>
+        </div>
+      </section>
+
+      {/* ─── BÖLÜM 1: RÜZGÂRın HİKÂYESİ ─── */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-20 pb-16 sm:pb-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
+          <div className="space-y-6 sm:space-y-8 order-2 lg:order-1">
+            <div className="inline-flex items-center gap-2">
+              <span className="h-px w-8 bg-[#6F7255]" />
+              <span className="text-[10px] font-semibold tracking-[0.3em] text-[#6F7255] uppercase">Biz Kimiz</span>
+            </div>
+            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#2B2B2B] leading-snug">
+              Urla'nın rüzgârı sadece esmez
+            </h2>
+            <div className="space-y-4 text-sm sm:text-base text-[#555555] font-light leading-[1.9]">
+              <p>
+                Taşın, ağacın, denizin ve zamanın içinden geçerek bir hikâye anlatır.
+              </p>
+              <p className="text-[#6F7255] font-medium italic font-serif text-base sm:text-lg">
+                "NoUrla, bu hikâyenin içinde durmayı seçenlerin markasıdır."
+              </p>
+              <p>
+                Her oda bir tasarım fikrinin sonucu değil, bir yaşam hissinin devamıdır. Doğal dokular, yalın çizgiler ve dikkatle seçilmiş detaylar; gösteriş için değil, huzur için vardır.
+              </p>
+              <p>
+                Çünkü NoUrla, konaklama deneyimi ile bir otelden fazlasıdır.
+              </p>
+            </div>
+          </div>
+
+          <div className="relative order-1 lg:order-2">
             <img
               src="/nourla/dış cephe/WhatsApp Image 2026-07-23 at 18.42.47 (5).jpeg"
-              alt="Restored Heritage Stone Structure"
-              className="w-full h-auto rounded-lg shadow-xl object-cover aspect-[4/3]"
+              alt="NoUrla — Taş Mimari"
+              className="w-full aspect-[3/4] object-cover rounded-2xl shadow-2xl"
+            />
+            <div className="absolute -bottom-4 -left-4 sm:-bottom-6 sm:-left-6 w-28 sm:w-36 h-28 sm:h-36 rounded-2xl overflow-hidden border-4 border-[#FDFBF7] shadow-xl">
+              <img
+                src="/nourla/dış cephe/WhatsApp Image 2026-07-23 at 18.42.48 (2).jpeg"
+                alt="Detay"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── FULL-WIDTH QUOTE ─── */}
+      <section className="bg-[#2B2B2B] py-16 sm:py-24 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <Wind className="w-8 h-8 text-[#6F7255] mx-auto mb-6 opacity-70" />
+          <blockquote className="font-serif text-2xl sm:text-3xl lg:text-4xl text-white font-normal leading-relaxed">
+            Kalabalığın dışında kalan, acele etmeyen,<br className="hidden sm:block" />
+            gösteriş yerine sadeliği seçen<br className="hidden sm:block" />
+            bir yaşam anlayışından doğdu.
+          </blockquote>
+          <p className="mt-6 text-sm text-[#E7E1D3]/70 font-light max-w-2xl mx-auto leading-relaxed">
+            Burada her detay bir tercih; her köşe bir duruş, her dokunuş bir niyet taşır.
+          </p>
+        </div>
+      </section>
+
+      {/* ─── BÖLÜM 2: MUTFAK ─── */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
+          <div className="relative">
+            <img
+              src="/nourla/lobi/WhatsApp Image 2026-07-23 at 18.43.57 (3).jpeg"
+              alt="NoUrla — Mutfak"
+              className="w-full aspect-[4/3] object-cover rounded-2xl shadow-2xl"
+            />
+            <div className="absolute top-4 right-4 bg-[#6F7255]/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-[10px] font-semibold tracking-widest uppercase shadow">
+              Nourla Mutfağı
+            </div>
+          </div>
+
+          <div className="space-y-5 sm:space-y-7">
+            <div className="inline-flex items-center gap-2">
+              <span className="h-px w-8 bg-[#6F7255]" />
+              <span className="text-[10px] font-semibold tracking-[0.3em] text-[#6F7255] uppercase">Gastronomi</span>
+            </div>
+            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#2B2B2B] leading-snug">
+              Bir tariften değil,<br />bir coğrafyadan doğar
+            </h2>
+            <div className="space-y-4 text-sm sm:text-base text-[#555555] font-light leading-[1.9]">
+              <p>
+                Burada sıradan bir masaya oturmaz — bir coğrafyayı hissedersiniz.
+              </p>
+              <p>
+                Burada yemek hazırlanmaz; topraktan gelenin hikâyesi tamamlanır. Toprağın verdiğine saygı duyan, mevsimin söylediğini dinleyen, fazlasını değil doğrusunu seçen bir mutfak anlayışıyla yola çıktık.
+              </p>
+              <p className="text-[#6F7255] font-medium italic font-serif text-base sm:text-lg">
+                "NoUrla'da lezzet, gösterişten değil sadelikten gelir."
+              </p>
+              <p className="text-xs sm:text-sm text-[#888] leading-relaxed">
+                Her tabakta Urla'nın rüzgârı, zeytin ağaçlarının gölgesi, baharın tazeliği, Urla bağlarının sabrı ve Ege'nin dinginliği vardır.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── BÖLÜM 3: 3'lü DEĞER BLOK ─── */}
+      <section className="bg-[#F7F4EE] border-y border-[#E7E1D3] py-14 sm:py-20 px-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10">
+
+            <div className="text-center space-y-3 p-6 sm:p-8 rounded-2xl bg-[#FDFBF7] border border-[#E7E1D3]">
+              <div className="w-10 h-10 rounded-full bg-[#6F7255]/10 flex items-center justify-center mx-auto">
+                <Leaf className="w-5 h-5 text-[#6F7255]" />
+              </div>
+              <h3 className="font-serif text-lg text-[#2B2B2B]">Azın Değeri</h3>
+              <p className="text-xs text-[#555555] leading-relaxed font-light">
+                Az ile yetinmeden sadeleşmenin mümkün olduğunu hatırlatan bir deneyim.
+              </p>
+            </div>
+
+            <div className="text-center space-y-3 p-6 sm:p-8 rounded-2xl bg-[#FDFBF7] border border-[#E7E1D3]">
+              <div className="w-10 h-10 rounded-full bg-[#6F7255]/10 flex items-center justify-center mx-auto">
+                <Wind className="w-5 h-5 text-[#6F7255]" />
+              </div>
+              <h3 className="font-serif text-lg text-[#2B2B2B]">Sessizliğin Sesi</h3>
+              <p className="text-xs text-[#555555] leading-relaxed font-light">
+                Şehirden uzaklaşmadan sakinleşmenin, doğaya yaklaşmadan derinleşmenin yeri.
+              </p>
+            </div>
+
+            <div className="text-center space-y-3 p-6 sm:p-8 rounded-2xl bg-[#FDFBF7] border border-[#E7E1D3]">
+              <div className="w-10 h-10 rounded-full bg-[#6F7255]/10 flex items-center justify-center mx-auto">
+                <Utensils className="w-5 h-5 text-[#6F7255]" />
+              </div>
+              <h3 className="font-serif text-lg text-[#2B2B2B]">Topraktan Sofraya</h3>
+              <p className="text-xs text-[#555555] leading-relaxed font-light">
+                İsmini aldığı toprakların karakterini taşır. Samimi ama mesafeli, zarif ama iddialı.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ─── BÖLÜM 4: DENEYIM + FOTOĞRAF GRİD ─── */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
+          <div className="space-y-5 sm:space-y-7">
+            <div className="inline-flex items-center gap-2">
+              <span className="h-px w-8 bg-[#6F7255]" />
+              <span className="text-[10px] font-semibold tracking-[0.3em] text-[#6F7255] uppercase">Deneyim</span>
+            </div>
+            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#2B2B2B] leading-snug">
+              Yalnızca bir mekân değil
+            </h2>
+            <div className="space-y-4 text-sm sm:text-base text-[#555555] font-light leading-[1.9]">
+              <p>
+                NoUrla, şehirden uzaklaşmadan sakinleşmenin, doğaya yaklaşmadan derinleşmenin, az ile yetinmeden sadeleşmenin mümkün olduğunu hatırlatan bir deneyimdir.
+              </p>
+              <p>
+                İsmini aldığı toprakların karakterini taşır. Samimi ama mesafeli, zarif ama iddialı, sakin ama güçlü.
+              </p>
+              <p className="text-[#6F7255] font-medium italic font-serif text-base sm:text-lg">
+                "Buraya gelen herkes biraz yavaşlar. Biraz daha dikkatli bakar. Biraz daha gerçek hisseder."
+              </p>
+            </div>
+          </div>
+
+          {/* 2x2 Fotoğraf Grid */}
+          <div className="grid grid-cols-2 gap-3">
+            <img
+              src="/nourla/dış cephe/WhatsApp Image 2026-07-23 at 18.42.48 (1).jpeg"
+              alt="NoUrla detay 1"
+              className="rounded-xl aspect-square object-cover shadow-md"
+            />
+            <img
+              src="/nourla/lobi/WhatsApp Image 2026-07-23 at 18.43.57 (1).jpeg"
+              alt="NoUrla detay 2"
+              className="rounded-xl aspect-square object-cover shadow-md mt-6"
+            />
+            <img
+              src="/nourla/lobi/WhatsApp Image 2026-07-23 at 18.43.57 (4).jpeg"
+              alt="NoUrla detay 3"
+              className="rounded-xl aspect-square object-cover shadow-md -mt-6"
+            />
+            <img
+              src="/nourla/dış cephe/WhatsApp Image 2026-07-23 at 18.42.48 (3).jpeg"
+              alt="NoUrla detay 4"
+              className="rounded-xl aspect-square object-cover shadow-md"
             />
           </div>
+        </div>
+      </section>
 
-          <div className="lg:col-span-6 space-y-6">
-            <h3 className="font-serif text-3xl text-[#2B2B2B]">
-              Hikayemiz & Restorasyon Mirasımız
-            </h3>
-            <p className="text-sm text-[#555555] leading-relaxed font-light">
-              Nourla Boutique Hotel, Urla'nın tarihi dokusunu koruyarak 150 yıllıkRum konaklarının ve taş işçiliğinin aslına sadık kalınarak restore edilmesiyle kurulmuştur. Kadim zeytin ağaçları arasında yükselen otelimiz, doğanın ritmine saygı duyan bir mimari anlayışı temsil eder.
+      {/* ─── SON KAPANIŞ QUOTE ─── */}
+      <section className="relative py-20 sm:py-32 overflow-hidden">
+        <img
+          src="/nourla/dış cephe/WhatsApp Image 2026-07-23 at 18.42.48 (5).jpeg"
+          alt="NoUrla arka plan"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#2B2B2B]/80 to-[#2B2B2B]/90" />
+        <div className="relative z-10 max-w-3xl mx-auto px-4 text-center space-y-6">
+          <p className="text-[#E7E1D3]/70 text-xs font-semibold tracking-[0.3em] uppercase">Çünkü NoUrla bir yer değil</p>
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-white font-normal leading-relaxed">
+            Azın değerli olduğu,<br />
+            Sessizliğin duyulduğu,<br />
+            Kendinizi değerli bulacağınız,<br />
+            Zamanın acele etmediği bir yer…
+          </h2>
+          <div className="pt-4">
+            <p className="font-serif text-xl sm:text-2xl text-[#6F7255] italic">
+              NoUrla. Burada her şey olması gerektiği kadar.
             </p>
-            <p className="text-sm text-[#555555] leading-relaxed font-light">
-              Geleneksel Ege taş mimarisini çağdaş minimalizm ve rafine detaylarla buluşturarak misafirlerimize ev sıcaklığında bir lüks sunuyoruz.
-            </p>
+          </div>
+          <div className="pt-6">
+            <Link
+              to={`/${currentLang}/reservation`}
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#6F7255] hover:bg-[#4F523A] text-white text-xs font-semibold uppercase tracking-widest transition-all shadow-xl active:scale-95"
+            >
+              Rezervasyon Yap
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
+      </section>
 
-        {/* Boutique Positioning Grid (10 Exclusive Suites) */}
-        <div className="bg-[#F7F4EE] rounded-3xl p-8 md:p-14 border border-[#E7E1D3] mb-24">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-[11px] font-semibold tracking-[0.25em] text-[#6F7255] uppercase">
-              BUTİK KONUMLANDIRMA
-            </span>
-            <h3 className="font-serif text-3xl text-[#2B2B2B] mt-2">
-              Sadece 10 Özel Süit ile Maksimum Mahremiyet
-            </h3>
-            <p className="text-xs text-[#555555] mt-2 font-light">
-              Kitle turizminden uzak, kişiselleştirilmiş ve sakin konaklama felsefesi.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-[#FDFBF7] p-8 rounded-2xl border border-[#E7E1D3]">
-              <ShieldCheck className="w-8 h-8 text-[#6F7255] mb-4" />
-              <h4 className="font-serif text-xl text-[#2B2B2B] mb-2">Ayrıcalıklı Mahremiyet</h4>
-              <p className="text-xs text-[#555555] leading-relaxed font-light">
-                Her odamız bağımsız havalandırmaya, özel verandaya ve doğayla doğrudan temasa sahiptir.
-              </p>
-            </div>
-
-            <div className="bg-[#FDFBF7] p-8 rounded-2xl border border-[#E7E1D3]">
-              <Sparkles className="w-8 h-8 text-[#6F7255] mb-4" />
-              <h4 className="font-serif text-xl text-[#2B2B2B] mb-2">Bespoke Servis</h4>
-              <p className="text-xs text-[#555555] leading-relaxed font-light">
-                Kişiye özel kahvaltı saatleri, sommelier rehberliği ve özel transfer konforu.
-              </p>
-            </div>
-
-            <div className="bg-[#FDFBF7] p-8 rounded-2xl border border-[#E7E1D3]">
-              <Heart className="w-8 h-8 text-[#6F7255] mb-4" />
-              <h4 className="font-serif text-xl text-[#2B2B2B] mb-2">Doğa ile Uyum</h4>
-              <p className="text-xs text-[#555555] leading-relaxed font-light">
-                Zeytin bahçelerimiz ve organik seramız ile sürdürülebilir yaşam tarzı.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

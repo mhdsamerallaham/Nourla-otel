@@ -15,7 +15,11 @@ import Contact from './pages/Contact';
 import Reservation from './pages/Reservation';
 import BookingStatus from './pages/BookingStatus';
 import TestScrollVideo from './pages/TestScrollVideo';
-import BackgroundMusic from './components/ui/BackgroundMusic';
+import NotFound from './pages/NotFound';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+
+import StickyPhoneCTA from './components/ui/StickyPhoneCTA';
+import StructuredData, { HOTEL_SCHEMA } from './components/ui/StructuredData';
 
 // Synchronize i18n language with URL path parameter
 function LanguageSyncWrapper({ children }) {
@@ -48,6 +52,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      {/* Global LodgingBusiness JSON-LD schema — present on every page */}
+      <StructuredData id="jsonld-hotel-global" schema={HOTEL_SCHEMA} />
       <div className="flex flex-col min-h-screen bg-[#FDFBF7] text-[#2B2B2B]">
         <Header />
         <main className="flex-grow">
@@ -77,18 +83,21 @@ export default function App() {
                     <Route path="reservation" element={<Reservation />} />
                     <Route path="booking-status" element={<BookingStatus />} />
                     <Route path="test-scroll-video" element={<TestScrollVideo />} />
-                    <Route path="*" element={<Navigate to="/tr" replace />} />
+                    <Route path="privacy-policy" element={<PrivacyPolicy />} />
+                    {/* 404 — branded not-found page */}
+                    <Route path="*" element={<NotFound />} />
                   </Routes>
                 </LanguageSyncWrapper>
               }
             />
 
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/tr" replace />} />
+            {/* Fallback — also shows branded 404 */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
         <Footer />
-        <BackgroundMusic />
+        {/* Mobile-first sticky phone CTA — renders only on mobile (lg:hidden) */}
+        <StickyPhoneCTA />
       </div>
     </BrowserRouter>
   );

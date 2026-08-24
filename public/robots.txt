@@ -1,0 +1,35 @@
+# Nourla Boutique Hotel — robots.txt
+# Domain: https://www.nourla.com.tr/
+
+User-agent: *
+Allow: /
+
+# Block payment gateway callbacks & internal tool pages
+Disallow: /booking-status
+Disallow: /tr/booking-status
+Disallow: /en/booking-status
+Disallow: /de/booking-status
+Disallow: /ru/booking-status
+Disallow: /tr/test-scroll-video
+Disallow: /en/test-scroll-video
+Disallow: /de/test-scroll-video
+Disallow: /ru/test-scroll-video
+
+# Block server API routes
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://www.nourla.com.tr/sitemap.xml
+
+# Allow key AI crawlers explicitly
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /

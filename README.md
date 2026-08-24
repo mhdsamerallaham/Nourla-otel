@@ -192,13 +192,129 @@ PAYMENT_PROVIDER=mock
 
 ---
 
-## 🔮 Yarın Devam Edilecek Konular & Yol Haritası
+---
 
-1. **Ziraat Sanal POS Canlı/Test Bilgilerinin Girilmesi:**
-   - Banka Sanal POS üye işyeri bilgileri (`ZIRAAT_MERCHANT_ID`, `ZIRAAT_TERMINAL_ID`, `ZIRAAT_STORE_KEY`) ulaştığında `server/.env` dosyasına girilerek gerçek kart ile testlerin yapılması.
-2. **Admin Paneli & Rezervasyon Sorgulama:**
-   - Resepsiyon veya yöneticilerin web üzerinden SQLite/ElektraWeb senkronizasyon durumunu takip edebileceği yönetim paneli ekranlarının tamamlanması.
+## 🎨 2026-08-22 — Frontend & Mobil UX Geliştirmeleri (Bu Oturum)
+
+Aşağıdaki değişiklikler bu geliştirme oturumunda tamamlanmış ve `npm run build` ile doğrulanmıştır.
 
 ---
 
-*Son Güncelleme: 2026-08-21 — Tüm Servisler %100 Canlı ve Vercel Üzerinde Aktif*
+### ✅ 1. Hero Bölümü — Animasyon Kaldırıldı, Fotoğraf Eklendi
+
+**Dosya:** `src/pages/Home.jsx`
+
+- Eski `canvas` tabanlı ağır animasyon (`HeroCanvas`) kaldırıldı.
+- Yerine `/nourla/dış cephe/WhatsApp Image 2026-07-23 at 18.42.48.jpeg` görseli konuldu.
+- Çok katmanlı gradient overlay (`luxury-gradient-overlay`) eklendi: hem okunabilirlik hem estetik için.
+- Hero yüksekliği `min-h-[100svh]` (iOS Safari uyumlu `svh` birimi) olarak ayarlandı — taşma sorunu giderildi.
+
+---
+
+### ✅ 2. Arka Plan Müziği Kaldırıldı
+
+**Dosya:** `src/App.jsx`
+
+- `BackgroundMusic` bileşeni `App.jsx`'ten tamamen çıkarıldı.
+
+---
+
+### ✅ 3. Navbar (Header) Optimizasyonu
+
+**Dosya:** `src/components/layout/Header.jsx`
+
+- Menü linkleri `whitespace-nowrap` ile taşma engellendi.
+- Responsif boşluklar: `gap-2 lg:gap-2.5 xl:gap-5 2xl:gap-7` kademeli yapıya alındı.
+- **Şeffaf Hero Modu:** Scroll konumu 0 iken (hero üzerindeyken) navbar tamamen şeffaf, logo ve linkler beyaz (`text-white`) görünür.
+- Scroll başlayınca: `glass-header` (backdrop blur + krem arka plan) devreye girer.
+- Mobil hamburger butonu da scroll durumuna göre iki farklı stil alır (şeffaf cam veya solid bej).
+
+---
+
+### ✅ 4. Hero Quick Search Widget — "Lüks Konaklamanızı Planlayın"
+
+**Dosya:** `src/pages/Home.jsx`
+
+- Hero bölümünün altına "Lüks Konaklamanızı Planlayın" başlıklı rezervasyon arama widget'ı eklendi.
+- **Giriş / Çıkış Tarihi:** `LuxuryDatePickerModal` entegrasyonuyla canlı takvim açılır.
+- **Misafir Sayısı & Para Birimi:** Açılır menüler (TRY / EUR / USD).
+- **"Müsait Odalar" Butonu:** Kullanıcıyı `/{lang}/reservation?checkIn=...&checkOut=...&guests=...&currency=...&step=2` URL'sine yönlendirir — `BookingWidget` 2. aşamaya (oda seçimi) doğrudan açılır.
+- Mobil grid: **2 sütun** (Giriş | Çıkış, Misafir | Para), tam genişlik Ara butonu.
+- Masaüstü grid: **12 sütun** orantılı düzen.
+
+---
+
+### ✅ 5. BookingWidget — URL Parametre Desteği
+
+**Dosya:** `src/components/ui/BookingWidget.jsx`
+
+- `useSearchParams` ile `checkIn`, `checkOut`, `guests`, `currency`, `step` parametreleri URL'den okunur.
+- Ana sayfadaki Quick Search Widget'tan gelen seçimler otomatik olarak BookingWidget'a aktarılır.
+
+---
+
+### ✅ 6. Kapsamlı Mobil UX İyileştirmeleri
+
+#### `src/index.css`
+- `-webkit-text-size-adjust: 100%` — iOS metin büyütme engeli.
+- `input, select, textarea { font-size: 16px }` — iOS çift-dokunma zoom önleme.
+- `-webkit-tap-highlight-color: transparent` — Dokunma rengi gizlendi.
+- `-webkit-font-smoothing: antialiased` — Keskin metin render.
+- Scrollbar yalnızca `@media (min-width: 1024px)` içinde gösterilir (mobil ekranı kirletmez).
+- `glass-header` blur değeri `12px → 16px` artırıldı, opaklık `0.85 → 0.92`.
+- iOS Home Bar için `.safe-bottom` yardımcı class eklendi (`env(safe-area-inset-bottom)`).
+- `.animate-fadeIn` ve `.animate-slideLeft` keyframe animasyonları tanımlandı.
+- `.touch-target` — `min 44x44px` dokunma hedefi yardımcı class.
+
+#### `src/components/ui/SectionHeader.jsx`
+- Başlık font boyutu kademelendi: `text-2xl sm:text-3xl md:text-4xl lg:text-5xl`.
+- Alt boşluk: `mb-8 sm:mb-12 md:mb-16` (mobilde daha sıkı).
+- Alt yazı font boyutu: `text-xs sm:text-sm md:text-base`.
+
+#### `src/components/ui/RoomCard.jsx` ⭐ Önemli
+- **`compact` prop eklendi** (varsayılan: `false`).
+- **`compact={true}` modu:** Yatay kart — sol tarafta 120px sabit fotoğraf, sağda isim + manzara + butonlar. Yükseklik sabit `130px`. Özellik badge'leri ve uzun açıklama gizlenir. Mobilde 3 kart tek ekranda görünür.
+- **`compact={false}` (varsayılan):** Orijinal dikey kart — Rooms sayfası ve Tablet/Desktop için değişmez.
+
+#### `src/pages/Home.jsx`
+- **Mobil (`md:hidden`):** 3 süit kartı `compact` modda dikey liste olarak gösterilir.
+- **Tablet/Masaüstü (`hidden md:grid`):** Normal 2-col / 3-col grid.
+- Tüm bölüm dikey padding'leri küçültüldü: `py-24 md:py-32 → py-14 sm:py-20 md:py-28`.
+
+#### `src/pages/About.jsx`
+- Üst padding: `pt-28 → pt-20 sm:pt-28`.
+- Story grid gap: `gap-12 → gap-8 sm:gap-12`.
+- Kart grid: `md:grid-cols-3 → sm:grid-cols-3` (daha erken responsive kırılır).
+
+#### `src/pages/Rooms.jsx`
+- Üst padding: `pt-28 → pt-20 sm:pt-28`.
+- Filtre butonları yatay scroll: `overflow-x-auto -mx-4 px-4` ile mobilde taşmadan kayar.
+
+#### `src/pages/Gallery.jsx`
+- Üst padding: `pt-28 → pt-20 sm:pt-28`.
+- Hero banner yüksekliği: `h-[280px] → h-[180px] sm:h-[280px] lg:h-[340px]`.
+- Filtre butonları yatay scroll (Rooms.jsx ile aynı pattern).
+- Masonry gap: `gap-6 → gap-4 sm:gap-6`.
+
+#### `src/pages/RoomDetail.jsx`
+- Üst padding: `pt-28 → pt-20 sm:pt-28`.
+- H1 başlık: `text-3xl sm:text-5xl → text-2xl sm:text-4xl lg:text-5xl`.
+- Gallery/BookingWidget gap: `gap-8 → gap-6 sm:gap-8`.
+
+#### `src/components/layout/Footer.jsx`
+- Üst padding: `pt-16 → pt-10 sm:pt-16`.
+- Footer grid: `grid-cols-1 md:grid-cols-2 → grid-cols-2 lg:grid-cols-4` (mobilde 2 sütun).
+
+---
+
+### 🔮 Sonraki Adımlar / Yapılacaklar
+
+1. **Ziraat Sanal POS Canlı Entegrasyonu** — Merchant/Terminal bilgileri gelince `server/.env`'e girilecek.
+2. **Admin Paneli** — Rezervasyon ve senkronizasyon takip ekranı.
+3. **Mobil Menü (`MobileNav.jsx`) İncelemesi** — Mevcut mobil drawer menünün UX'i değerlendirilebilir.
+4. **Rezervasyon sonrası E-posta Bildirimi** — Misafire onay maili.
+5. **SEO Meta Tag'leri** — Her sayfa için özel `<title>` ve `<meta description>` tamamlanabilir.
+
+---
+
+*Son Güncelleme: 2026-08-22 — Frontend & Mobil UX Sprint tamamlandı. Build: ✅ PASS*

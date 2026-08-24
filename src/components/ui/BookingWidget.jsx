@@ -770,7 +770,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             </button>
           </div>
 
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             {displayRooms.map((room) => {
               const isSelected = selectedRoomId === room.id;
               const roomName = room.name[currentLang] || room.name.tr;
@@ -785,41 +785,55 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
               const activeOffer = (currentBoardChoice === 'RO' ? roOffer : bbOffer) || bestOffer;
 
               const isRoomAvailable = Boolean(hasSearched && activeOffer && activeOffer.totalPrice > 0 && activeOffer.availableRooms > 0);
-              const pmsDef = elektraDefinitions[room.elektraRoomTypeId];
-              const roomSize = pmsDef?.area || room.size;
+              
+              // ElektraWeb PMS Definitions Mapping
+              const pmsDef = elektraDefinitions[room.elektraRoomTypeId] || elektraDefinitions[String(room.elektraRoomTypeId)];
+              const roomSize = pmsDef?.area ? `${pmsDef.area} m²` : room.size;
+              const roomCapacity = pmsDef?.maxAdults ? `${pmsDef.maxAdults} Misafir` : room.capacity;
+
+              // Extract PMS live features dynamically
+              const pmsFeatures = [];
+              if (pmsDef) {
+                if (pmsDef.hasWifi) pmsFeatures.push('Yüksek Hızlı Wi-Fi');
+                if (pmsDef.hasSafe) pmsFeatures.push('Emanet Kasası');
+                if (pmsDef.hasPrivateBath) pmsFeatures.push('Özel Mermer Banyo');
+                if (pmsDef.hasBalcony) pmsFeatures.push('Özel Veranda / Balkon');
+                if (pmsDef.hasHairdryer) pmsFeatures.push('Saç Kurutma Makinesi');
+              }
+              const displayedFeatures = Array.from(new Set([...pmsFeatures, ...(room.features || [])]));
 
               const activePhoto = activePhotoMap[room.id] || room.image;
 
               return (
                 <div
                   key={room.id}
-                  className={`rounded-3xl border transition-all p-6 sm:p-8 space-y-6 ${
+                  className={`rounded-2xl sm:rounded-3xl border transition-all p-4 sm:p-7 space-y-4 sm:space-y-6 ${
                     !isRoomAvailable
                       ? 'border-stone-200 bg-stone-50/60 opacity-70'
                       : isSelected
-                      ? 'border-[#6F7255] bg-[#FDFBF7] shadow-xl ring-1 ring-[#6F7255]/30'
+                      ? 'border-[#6F7255] bg-[#FDFBF7] shadow-lg ring-1 ring-[#6F7255]/30'
                       : 'border-[#E7E1D3] bg-[#FDFBF7] hover:border-[#6F7255]/50 shadow-xs'
                   }`}
                 >
-                  {/* Upper Section: Photo Gallery & Suite Specification */}
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+                  {/* Upper Section: Photo Gallery & Specification */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 items-start">
                     
                     {/* Photo Gallery Column */}
-                    <div className="md:col-span-5 space-y-3">
-                      <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-sm relative border border-[#E7E1D3]">
+                    <div className="md:col-span-5 space-y-2">
+                      <div className="aspect-[16/10] md:aspect-[4/3] rounded-xl sm:rounded-2xl overflow-hidden shadow-xs relative border border-[#E7E1D3]">
                         <img src={activePhoto} alt={roomName} className={`w-full h-full object-cover ${!isRoomAvailable ? 'grayscale' : ''}`} />
-                        <span className="absolute bottom-3 left-3 bg-[#2B2B2B]/85 text-white text-[10px] font-medium tracking-wider px-3 py-1 rounded-full backdrop-blur-xs">
+                        <span className="absolute bottom-2 left-2 bg-[#2B2B2B]/85 text-white text-[10px] font-medium tracking-wider px-2.5 py-0.5 rounded-full backdrop-blur-xs">
                           {roomSize}
                         </span>
                       </div>
 
                       {/* Photo Thumbnails */}
                       {room.gallery && room.gallery.length > 0 && (
-                        <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-none">
+                        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
                           <button
                             type="button"
                             onClick={() => setActivePhotoMap((prev) => ({ ...prev, [room.id]: room.image }))}
-                            className={`w-16 h-11 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${
+                            className={`w-12 h-9 sm:w-14 sm:h-10 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${
                               activePhoto === room.image ? 'border-[#6F7255] scale-105' : 'border-transparent opacity-60 hover:opacity-100'
                             }`}
                           >
@@ -830,7 +844,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                               key={gIdx}
                               type="button"
                               onClick={() => setActivePhotoMap((prev) => ({ ...prev, [room.id]: img }))}
-                              className={`w-16 h-11 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${
+                              className={`w-12 h-9 sm:w-14 sm:h-10 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${
                                 activePhoto === img ? 'border-[#6F7255] scale-105' : 'border-transparent opacity-60 hover:opacity-100'
                               }`}
                             >
@@ -841,47 +855,47 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                       )}
                     </div>
 
-                    {/* Room Details & Attributes Column */}
-                    <div className="md:col-span-7 space-y-4">
-                      <div className="flex flex-wrap items-start justify-between gap-3 pb-3 border-b border-[#E7E1D3]/80">
+                    {/* Room Details Column */}
+                    <div className="md:col-span-7 space-y-3">
+                      <div className="flex flex-wrap items-start justify-between gap-2 pb-2 border-b border-[#E7E1D3]/80">
                         <div>
-                          <div className="flex items-center gap-3 flex-wrap">
-                            <h4 className="font-serif text-2xl sm:text-3xl text-[#2B2B2B]">{roomName}</h4>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="font-serif text-xl sm:text-2xl text-[#2B2B2B]">{roomName}</h4>
                             {isRoomAvailable ? (
-                              <span className="text-[10px] font-semibold text-[#6F7255] bg-[#6F7255]/10 px-3 py-1 rounded-full border border-[#6F7255]/20 uppercase tracking-wider">
+                              <span className="text-[10px] font-semibold text-[#6F7255] bg-[#6F7255]/10 px-2.5 py-0.5 rounded-full border border-[#6F7255]/20 uppercase tracking-wider">
                                 Müsait ({activeOffer.availableRooms} Oda)
                               </span>
                             ) : (
-                              <span className="text-[10px] font-semibold text-stone-500 bg-stone-100 px-3 py-1 rounded-full border border-stone-200 uppercase tracking-wider">
+                              <span className="text-[10px] font-semibold text-stone-500 bg-stone-100 px-2.5 py-0.5 rounded-full border border-stone-200 uppercase tracking-wider">
                                 Dolu / Kapalı
                               </span>
                             )}
                           </div>
-                          <span className="text-xs text-[#6F7255] italic block mt-1 font-serif">{room.view[currentLang] || room.view.tr}</span>
+                          <span className="text-[11px] text-[#6F7255] italic block mt-0.5 font-serif">{room.view[currentLang] || room.view.tr}</span>
                         </div>
 
-                        <div className="flex items-center gap-3 text-xs text-[#555555]">
-                          <span className="flex items-center gap-1.5 font-light bg-[#F7F4EE] px-3 py-1.5 rounded-full border border-[#E7E1D3]">
-                            <Maximize2 className="w-3.5 h-3.5 text-[#6F7255]" /> {roomSize}
+                        <div className="flex items-center gap-2 text-xs text-[#555555]">
+                          <span className="flex items-center gap-1 font-light bg-[#F7F4EE] px-2.5 py-1 rounded-full border border-[#E7E1D3] text-[11px]">
+                            <Maximize2 className="w-3 h-3 text-[#6F7255]" /> {roomSize}
                           </span>
-                          <span className="flex items-center gap-1.5 font-light bg-[#F7F4EE] px-3 py-1.5 rounded-full border border-[#E7E1D3]">
-                            <Users className="w-3.5 h-3.5 text-[#6F7255]" /> {room.capacity}
+                          <span className="flex items-center gap-1 font-light bg-[#F7F4EE] px-2.5 py-1 rounded-full border border-[#E7E1D3] text-[11px]">
+                            <Users className="w-3 h-3 text-[#6F7255]" /> {roomCapacity}
                           </span>
                         </div>
                       </div>
 
-                      <p className="text-xs text-[#555555] font-light leading-relaxed">{roomDesc}</p>
+                      <p className="text-xs text-[#555555] font-light leading-relaxed line-clamp-3 sm:line-clamp-none">{roomDesc}</p>
 
-                      {/* Full Features & Amenities Badges */}
-                      <div className="pt-2">
-                        <span className="text-[10px] font-semibold tracking-[0.2em] text-[#6F7255] uppercase block mb-2">
-                          SÜİT DONANIMI VE İMKANLAR
+                      {/* Full Features & Amenities Badges (Scrollable on mobile) */}
+                      <div className="pt-1">
+                        <span className="text-[10px] font-semibold tracking-[0.15em] text-[#6F7255] uppercase block mb-1.5">
+                          ELEKTRAWEB CANLI ODA ÖZELLİKLERİ
                         </span>
-                        <div className="flex flex-wrap gap-2">
-                          {(room.features || []).map((feat, fIdx) => (
+                        <div className="flex gap-1.5 overflow-x-auto pb-1 sm:flex-wrap scrollbar-none">
+                          {displayedFeatures.map((feat, fIdx) => (
                             <span
                               key={fIdx}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F7F4EE] border border-[#E7E1D3] text-xs text-[#2B2B2B] font-light"
+                              className="inline-flex items-center gap-1 shrink-0 px-2.5 py-1 rounded-full bg-[#F7F4EE] border border-[#E7E1D3] text-[11px] text-[#2B2B2B] font-light"
                             >
                               <Sparkles className="w-3 h-3 text-[#6F7255]" />
                               {feat}
@@ -892,53 +906,53 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                     </div>
                   </div>
 
-                  {/* Lower Section: Elegant Board & Breakfast Package Selection */}
+                  {/* Lower Section: Board & Breakfast Package Selection */}
                   {isRoomAvailable ? (
-                    <div className="pt-5 border-t border-[#E7E1D3] space-y-4">
+                    <div className="pt-3 sm:pt-4 border-t border-[#E7E1D3] space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-semibold tracking-[0.2em] text-[#6F7255] uppercase block">
-                          PAKET VE PANSIYON TERCİHİNİZİ SEÇİNİZ
+                        <span className="text-[10px] font-semibold tracking-[0.15em] text-[#6F7255] uppercase block">
+                          PAKET VE PANSIYON TERCİHİ
                         </span>
-                        <span className="text-[10px] text-[#555555] font-light">
-                          ElektraWeb Canlı Fiyatlandırma
+                        <span className="text-[10px] text-[#555555] font-light hidden sm:inline">
+                          ElektraWeb Canlı Fiyat
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         
                         {/* OPTION 1: Kahvaltı Dahil (BB) */}
                         {bbOffer && (
                           <div
                             onClick={() => setSelectedBoardChoice((prev) => ({ ...prev, [room.id]: 'BB' }))}
-                            className={`p-5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
+                            className={`p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
                               currentBoardChoice === 'BB'
-                                ? 'border-[#6F7255] bg-[#F7F4EE] shadow-md ring-1 ring-[#6F7255]/40'
+                                ? 'border-[#6F7255] bg-[#F7F4EE] shadow-sm ring-1 ring-[#6F7255]/40'
                                 : 'border-[#E7E1D3] bg-white hover:border-[#6F7255]/40'
                             }`}
                           >
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="space-y-1">
-                                <div className="flex items-center gap-2">
-                                  <Coffee className="w-4 h-4 text-[#6F7255]" />
-                                  <h5 className="font-serif text-lg font-semibold text-[#2B2B2B]">
-                                    Organik Ege Kahvaltısı Dahil
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="space-y-0.5">
+                                <div className="flex items-center gap-1.5">
+                                  <Coffee className="w-3.5 h-3.5 text-[#6F7255]" />
+                                  <h5 className="font-serif text-base font-semibold text-[#2B2B2B]">
+                                    Organik Kahvaltı Dahil
                                   </h5>
                                 </div>
-                                <p className="text-xs text-[#555555] font-light leading-relaxed">
-                                  Bahçeden taze toplanan zeytinler, yerel peynirler & serpme Ege kahvaltısı.
+                                <p className="text-[11px] text-[#555555] font-light leading-snug">
+                                  Bahçeden taze ürünler & serpme Ege kahvaltısı.
                                 </p>
                               </div>
-                              <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-1 transition-all ${
+                              <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-all ${
                                 currentBoardChoice === 'BB' ? 'border-[#6F7255] bg-[#6F7255]' : 'border-[#D5CEBE]'
                               }`}>
                                 {currentBoardChoice === 'BB' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                               </div>
                             </div>
 
-                            <div className="pt-3 border-t border-[#E7E1D3] flex items-center justify-between">
+                            <div className="pt-2 border-t border-[#E7E1D3] flex items-center justify-between gap-2">
                               <div>
-                                <span className="text-[10px] text-[#555555] font-light block uppercase tracking-wider">Gecelik Tutarlar</span>
-                                <span className="font-serif text-2xl font-bold text-[#6F7255]">
+                                <span className="text-[9px] text-[#555555] font-light block uppercase tracking-wider">Gecelik</span>
+                                <span className="font-serif text-xl sm:text-2xl font-bold text-[#6F7255]">
                                   {currSymbol}{Math.round(bbOffer.pricePerNight).toLocaleString('tr-TR')}
                                 </span>
                               </div>
@@ -950,9 +964,9 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                                   setSelectedRoomId(room.id);
                                   setCurrentStep(3);
                                 }}
-                                className={`px-5 py-2.5 rounded-full text-xs font-semibold uppercase tracking-widest transition-all cursor-pointer active:scale-95 ${
+                                className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer active:scale-95 ${
                                   currentBoardChoice === 'BB'
-                                    ? 'bg-[#6F7255] text-white shadow-md hover:bg-[#4F523A]'
+                                    ? 'bg-[#6F7255] text-white shadow-xs hover:bg-[#4F523A]'
                                     : 'bg-[#F7F4EE] border border-[#E7E1D3] text-[#2B2B2B] hover:bg-[#6F7255] hover:text-white'
                                 }`}
                               >
@@ -966,35 +980,35 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                         {roOffer && (
                           <div
                             onClick={() => setSelectedBoardChoice((prev) => ({ ...prev, [room.id]: 'RO' }))}
-                            className={`p-5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
+                            className={`p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
                               currentBoardChoice === 'RO'
-                                ? 'border-[#6F7255] bg-[#F7F4EE] shadow-md ring-1 ring-[#6F7255]/40'
+                                ? 'border-[#6F7255] bg-[#F7F4EE] shadow-sm ring-1 ring-[#6F7255]/40'
                                 : 'border-[#E7E1D3] bg-white hover:border-[#6F7255]/40'
                             }`}
                           >
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="space-y-1">
-                                <div className="flex items-center gap-2">
-                                  <Building className="w-4 h-4 text-[#6F7255]" />
-                                  <h5 className="font-serif text-lg font-semibold text-[#2B2B2B]">
-                                    Sadece Konaklama (Kahvaltısız)
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="space-y-0.5">
+                                <div className="flex items-center gap-1.5">
+                                  <Building className="w-3.5 h-3.5 text-[#6F7255]" />
+                                  <h5 className="font-serif text-base font-semibold text-[#2B2B2B]">
+                                    Sadece Konaklama
                                   </h5>
                                 </div>
-                                <p className="text-xs text-[#555555] font-light leading-relaxed">
-                                  Sadece oda konaklama paketidir. Kahvaltı dahil değildir.
+                                <p className="text-[11px] text-[#555555] font-light leading-snug">
+                                  Kahvaltısız oda konaklama paketidir.
                                 </p>
                               </div>
-                              <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-1 transition-all ${
+                              <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-all ${
                                 currentBoardChoice === 'RO' ? 'border-[#6F7255] bg-[#6F7255]' : 'border-[#D5CEBE]'
                               }`}>
                                 {currentBoardChoice === 'RO' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                               </div>
                             </div>
 
-                            <div className="pt-3 border-t border-[#E7E1D3] flex items-center justify-between">
+                            <div className="pt-2 border-t border-[#E7E1D3] flex items-center justify-between gap-2">
                               <div>
-                                <span className="text-[10px] text-[#555555] font-light block uppercase tracking-wider">Gecelik Tutarlar</span>
-                                <span className="font-serif text-2xl font-bold text-[#6F7255]">
+                                <span className="text-[9px] text-[#555555] font-light block uppercase tracking-wider">Gecelik</span>
+                                <span className="font-serif text-xl sm:text-2xl font-bold text-[#6F7255]">
                                   {currSymbol}{Math.round(roOffer.pricePerNight).toLocaleString('tr-TR')}
                                 </span>
                               </div>
@@ -1006,9 +1020,9 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                                   setSelectedRoomId(room.id);
                                   setCurrentStep(3);
                                 }}
-                                className={`px-5 py-2.5 rounded-full text-xs font-semibold uppercase tracking-widest transition-all cursor-pointer active:scale-95 ${
+                                className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer active:scale-95 ${
                                   currentBoardChoice === 'RO'
-                                    ? 'bg-[#6F7255] text-white shadow-md hover:bg-[#4F523A]'
+                                    ? 'bg-[#6F7255] text-white shadow-xs hover:bg-[#4F523A]'
                                     : 'bg-[#F7F4EE] border border-[#E7E1D3] text-[#2B2B2B] hover:bg-[#6F7255] hover:text-white'
                                 }`}
                               >
@@ -1021,14 +1035,14 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                       </div>
                     </div>
                   ) : (
-                    <div className="pt-5 border-t border-[#E7E1D3] flex items-center justify-between">
+                    <div className="pt-3 border-t border-[#E7E1D3] flex items-center justify-between">
                       <span className="text-xs text-stone-500 font-light italic">
                         Seçilen tarihlerde ElektraWeb sisteminde dolu veya kapalıdır.
                       </span>
                       <button
                         type="button"
                         disabled
-                        className="px-6 py-2.5 rounded-full text-xs font-semibold uppercase tracking-widest bg-stone-100 text-stone-400 cursor-not-allowed border border-stone-200"
+                        className="px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-widest bg-stone-100 text-stone-400 cursor-not-allowed border border-stone-200"
                       >
                         Müsaitlik Yok
                       </button>

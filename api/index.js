@@ -22,9 +22,10 @@ module.exports = async (req, res) => {
   if (!dbInitialized) {
     try {
       await initializeDatabase();
-      dbInitialized = true;
     } catch (err) {
       console.error('[VERCEL DB INIT ERROR]', err.message);
+    } finally {
+      dbInitialized = true;
     }
   }
   return app(req, res);

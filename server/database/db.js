@@ -70,7 +70,82 @@ function runQuery(sql, params = []) {
   const connection = getDbConnection();
   if (!connection) {
     memStore.nextId += 1;
-    return Promise.resolve({ lastID: memStore.nextId, changes: 1 });
+    const newId = memStore.nextId;
+    const uppercaseSql = sql.toUpperCase();
+
+    if (uppercaseSql.includes('INSERT INTO RESERVATIONS')) {
+      const [
+        reservation_code, reservation_uuid, hotel_id, room_id, pms_room_type_id,
+        room_name, rate_plan, board_type_id, rate_type_id, rate_code_id, price_agency_id,
+        check_in, check_out, night_count, adult_count, child_count,
+        base_price, discount_amount, tax_amount, total_price, currency,
+        status, payment_status, sync_status
+      ] = params;
+      const rec = {
+        id: newId,
+        reservation_code,
+        reservation_uuid,
+        hotel_id,
+        room_id,
+        pms_room_type_id,
+        room_name,
+        rate_plan,
+        board_type_id,
+        rate_type_id,
+        rate_code_id,
+        price_agency_id,
+        check_in,
+        check_out,
+        night_count,
+        adult_count,
+        child_count,
+        base_price,
+        discount_amount,
+        tax_amount,
+        total_price,
+        currency,
+        status,
+        payment_status,
+        sync_status,
+        created_at: new Date().toISOString(),
+      };
+      memStore.reservations.push(rec);
+      return Promise.resolve({ lastID: newId, changes: 1 });
+    }
+
+    if (uppercaseSql.includes('INSERT INTO RESERVATION_GUESTS')) {
+      const [reservation_id, first_name, last_name, email, phone, is_primary, country, special_notes] = params;
+      memStore.guests.push({
+        id: newId,
+        reservation_id,
+        first_name,
+        last_name,
+        email,
+        phone,
+        is_primary,
+        country,
+        special_notes,
+      });
+      return Promise.resolve({ lastID: newId, changes: 1 });
+    }
+
+    if (uppercaseSql.includes('UPDATE RESERVATIONS')) {
+      if (params.length > 0) {
+        const lastParam = params[params.length - 1];
+        const res = memStore.reservations.find(
+          (r) => String(r.id) === String(lastParam) || String(r.reservation_code) === String(lastParam)
+        );
+        if (res) {
+          if (uppercaseSql.includes('STATUS')) res.status = params[0];
+          if (uppercaseSql.includes('PAYMENT_STATUS')) res.payment_status = params[0];
+          if (uppercaseSql.includes('SYNC_STATUS')) res.sync_status = params[0];
+          if (uppercaseSql.includes('PMS_RESERVATION_ID')) res.pms_reservation_id = params[0];
+        }
+      }
+      return Promise.resolve({ lastID: newId, changes: 1 });
+    }
+
+    return Promise.resolve({ lastID: newId, changes: 1 });
   }
   return new Promise((resolve, reject) => {
     connection.run(sql, params, function (err) {
@@ -90,6 +165,18 @@ function getQuery(sql, params = []) {
       const match = memStore.rooms.find((r) => String(r.pms_room_type_id) === String(pmsId));
       return Promise.resolve(match || memStore.rooms[0]);
     }
+    if (uppercaseSql.includes('FROM RESERVATIONS')) {
+      const paramVal = params[0];
+      const match = memStore.reservations.find(
+        (r) => String(r.id) === String(paramVal) || String(r.reservation_code) === String(paramVal)
+      );
+      return Promise.resolve(match || null);
+    }
+    if (uppercaseSql.includes('FROM RESERVATION_GUESTS')) {
+      const paramVal = params[0];
+      const match = memStore.guests.find((g) => String(g.reservation_id) === String(paramVal));
+      return Promise.resolve(match || null);
+    }
     return Promise.resolve(null);
   }
   return new Promise((resolve, reject) => {
@@ -106,6 +193,14 @@ function allQuery(sql, params = []) {
     const uppercaseSql = sql.toUpperCase();
     if (uppercaseSql.includes('FROM ROOMS')) return Promise.resolve(memStore.rooms);
     if (uppercaseSql.includes('FROM HOTELS')) return Promise.resolve(memStore.hotels);
+    if (uppercaseSql.includes('FROM RESERVATION_GUESTS')) {
+      const paramVal = params[0];
+      const matches = memStore.guests.filter((g) => String(g.reservation_id) === String(paramVal));
+      return Promise.resolve(matches);
+    }
+    if (uppercaseSql.includes('FROM RESERVATIONS')) {
+      return Promise.resolve(memStore.reservations);
+    }
     return Promise.resolve([]);
   }
   return new Promise((resolve, reject) => {

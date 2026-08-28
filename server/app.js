@@ -20,6 +20,9 @@ const sitemapRoutes = require('./routes/sitemap');
 
 const app = express();
 
+// Trust proxy for Vercel / reverse proxy deployment
+app.set('trust proxy', 1);
+
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 // ─── CORS Setup (Vercel & Local Support) ──────────────────────────────────────
@@ -56,6 +59,7 @@ const apiLimiter = rateLimit({
   max: 150,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   message: {
     success: false,
     error: {

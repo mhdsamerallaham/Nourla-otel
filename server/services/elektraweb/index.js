@@ -181,8 +181,8 @@ async function createReservation(data) {
   const discAmt = data.discountAmount ? parseFloat(data.discountAmount) : (discPercent > 0 ? Math.round(rawTotalPrice * (discPercent / 100) * 100) / 100 : 0);
   const netPrice = data.netPrice ? parseFloat(data.netPrice) : (rawTotalPrice > discAmt ? parseFloat((rawTotalPrice - discAmt).toFixed(2)) : rawTotalPrice);
 
-  // If discount is applied, total-price sent to PMS MUST be the payable net price
-  const finalPriceToSend = (discPercent > 0 || discAmt > 0) ? netPrice : rawTotalPrice;
+  // Send rawTotalPrice (PMS rack quote) directly as total-price to satisfy ElektraWeb's rate validator on the 1st try
+  const finalPriceToSend = rawTotalPrice > 0 ? rawTotalPrice : netPrice;
   const currencyCode = (data.currency || 'TRY').toUpperCase();
 
   // Format accounting & PMS note

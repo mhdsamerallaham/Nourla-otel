@@ -154,9 +154,9 @@ async function createReservation(data) {
     'guest-list': guestList,
   };
 
-  if (data.discountPercent || data.paymentType === 3) {
-    const discPercent = parseFloat(data.discountPercent || 5);
-    
+  const discPercent = parseFloat(data.discountPercent || (data.paymentType === 3 ? 5 : 0));
+  
+  if (discPercent > 0) {
     // Explicitly activate "İndirim Aktif" toggle button in ElektraWeb PMS UI & API
     payload['is-discount-active'] = true;
     payload['discount-active'] = true;
@@ -177,7 +177,7 @@ async function createReservation(data) {
     if (data.discountAmount) {
       payload['discount-amount'] = parseFloat(data.discountAmount);
       payload['discount-value'] = parseFloat(data.discountAmount);
-    } else if (data.totalPrice && discPercent > 0) {
+    } else if (data.totalPrice) {
       const origP = parseFloat(data.totalPrice);
       const discAmt = Math.round(origP * (discPercent / 100) * 100) / 100;
       payload['discount-amount'] = discAmt;

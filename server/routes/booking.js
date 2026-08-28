@@ -215,8 +215,8 @@ router.post('/reservation/:id/confirm-transfer', async (req, res) => {
           nationality:   body.nationality || 'TR',
           specialNotes:  transferNotes,
           paymentType:   body.paymentType !== undefined ? body.paymentType : 3, // 3 = Banka Havalesi / EFT
-          discountPercent: 5,
-          discountAmount:  havaleDiscountAmount,
+          discountPercent: (body.paymentType === 3 || body.paymentType === undefined) ? 5 : (body.discountPercent || 0),
+          discountAmount:  (body.paymentType === 3 || body.paymentType === undefined) ? havaleDiscountAmount : (body.discountAmount || 0),
         });
 
         const pId = pmsRes?.['reservation-id'] || pmsRes?.reservationId || pmsRes?.id || null;

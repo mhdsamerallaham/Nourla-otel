@@ -1740,7 +1740,16 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                     required
                   />
                   <span>
-                    <strong>KVKK Aydınlatma Metnini</strong> ve kişisel verilerimin işlenmesine ilişkin hususları okudum, kabul ediyorum.
+                    <Link
+                      to={`/${currentLang}/kvkk`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-[#6F7255] hover:underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      KVKK Aydınlatma Metnini
+                    </Link>{' '}
+                    ve kişisel verilerimin işlenmesine ilişkin hususları okudum, kabul ediyorum.
                   </span>
                 </label>
 
@@ -1753,7 +1762,16 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                     required
                   />
                   <span>
-                    <strong>Mesafeli Satış Sözleşmesi</strong> ve İptal/İade Koşullarını kabul ediyorum.
+                    <Link
+                      to={`/${currentLang}/mesafeli-satis-sozlesmesi`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-[#6F7255] hover:underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Mesafeli Satış Sözleşmesi
+                    </Link>{' '}
+                    ve İptal/İade Koşullarını kabul ediyorum.
                   </span>
                 </label>
               </div>

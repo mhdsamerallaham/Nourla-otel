@@ -17,6 +17,8 @@ import BookingStatus from './pages/BookingStatus';
 import TestScrollVideo from './pages/TestScrollVideo';
 import NotFound from './pages/NotFound';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import KVKK from './pages/KVKK';
+import DistanceSalesAgreement from './pages/DistanceSalesAgreement';
 
 import StickyPhoneCTA from './components/ui/StickyPhoneCTA';
 import StructuredData, { HOTEL_SCHEMA } from './components/ui/StructuredData';
@@ -84,6 +86,10 @@ export default function App() {
                     <Route path="booking-status" element={<BookingStatus />} />
                     <Route path="test-scroll-video" element={<TestScrollVideo />} />
                     <Route path="privacy-policy" element={<PrivacyPolicy />} />
+                    <Route path="kvkk" element={<KVKK />} />
+                    <Route path="kvkk-aydinlatma-metni" element={<KVKK />} />
+                    <Route path="mesafeli-satis-sozlesmesi" element={<DistanceSalesAgreement />} />
+                    <Route path="distance-sales-agreement" element={<DistanceSalesAgreement />} />
                     {/* 404 — branded not-found page */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>

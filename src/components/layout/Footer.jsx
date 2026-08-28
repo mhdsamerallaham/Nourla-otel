@@ -105,7 +105,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-[#E7E1D3]/50 font-light gap-4">
           <p>© {new Date().getFullYear()} Nourla Boutique Hotel. {t('footer.rights')}</p>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             <Link
               to={`/${currentLang}/privacy-policy`}
               className="hover:text-[#6F7255] transition-colors"
@@ -113,10 +113,22 @@ export default function Footer() {
             >
               Gizlilik Politikası
             </Link>
-            <p className="flex items-center gap-1">
-              <Compass className="w-3.5 h-3.5 text-[#6F7255]" />
-              {t('footer.tagline')}
-            </p>
+            <span className="text-[#E7E1D3]/20">•</span>
+            <Link
+              to={`/${currentLang}/kvkk`}
+              className="hover:text-[#6F7255] transition-colors"
+              aria-label="KVKK Aydınlatma Metni"
+            >
+              KVKK Aydınlatma Metni
+            </Link>
+            <span className="text-[#E7E1D3]/20">•</span>
+            <Link
+              to={`/${currentLang}/mesafeli-satis-sozlesmesi`}
+              className="hover:text-[#6F7255] transition-colors"
+              aria-label="Mesafeli Satış Sözleşmesi"
+            >
+              Mesafeli Satış Sözleşmesi
+            </Link>
           </div>
         </div>
       </div>

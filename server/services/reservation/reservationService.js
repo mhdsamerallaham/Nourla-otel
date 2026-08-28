@@ -168,7 +168,7 @@ async function createPendingReservation(data) {
     night_count: nightCount,
     adult_count: adultCount,
     child_count: childCount,
-    base_price: basePriceTotal,
+    base_price: displayBasePrice,
     discount_amount: discountAmount,
     tax_amount: taxAmount,
     total_price: totalPrice,

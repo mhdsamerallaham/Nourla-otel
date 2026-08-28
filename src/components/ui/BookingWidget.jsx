@@ -507,17 +507,17 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   // Price breakdown for multi-room cart (strictly zero if cart empty)
   // NOTE: ElektraWeb API returns KDV-INCLUDED prices. We extract KDV breakdown without adding extra tax.
   const isSelectedRoomLiveAvailable = totalSelectedRoomsCount > 0;
-  const totalCartPriceKdvIncluded = cartItems.reduce((sum, item) => sum + (item.offer ? Math.round(item.offer.totalPrice * item.quantity) : 0), 0);
+  const totalCartPriceKdvIncluded = cartItems.reduce((sum, item) => sum + (item.offer ? parseFloat((item.offer.totalPrice * item.quantity).toFixed(2)) : 0), 0);
   
   // Extract 10% KDV included portion for breakdown display
-  const subtotalPrice = Math.round(totalCartPriceKdvIncluded / 1.10); // KDV Hariç Matrah
-  const taxAmount = totalCartPriceKdvIncluded - subtotalPrice; // %10 KDV Tutarı
+  const subtotalPrice = parseFloat((totalCartPriceKdvIncluded / 1.10).toFixed(2)); // KDV Hariç Matrah
+  const taxAmount = parseFloat((totalCartPriceKdvIncluded - subtotalPrice).toFixed(2)); // %10 KDV Tutarı
   
-  const finalTotalPrice = totalCartPriceKdvIncluded; // Actual KDV-Included Price from ElektraWeb offer
-  const havaleDiscount = Math.round(finalTotalPrice * 0.05); // %5 Havale/EFT discount
-  const havaleFinalPrice = finalTotalPrice - havaleDiscount;
+  const finalTotalPrice = parseFloat(totalCartPriceKdvIncluded.toFixed(2)); // Actual KDV-Included Price from ElektraWeb offer
+  const havaleDiscount = parseFloat((finalTotalPrice * 0.05).toFixed(2)); // %5 Havale/EFT discount
+  const havaleFinalPrice = parseFloat((finalTotalPrice - havaleDiscount).toFixed(2));
   const currentPayablePrice = paymentMethod === 'HAVALE' ? havaleFinalPrice : finalTotalPrice;
-  const roomPricePerNight = totalSelectedRoomsCount > 0 ? Math.round(finalTotalPrice / (nights || 1)) : 0;
+  const roomPricePerNight = totalSelectedRoomsCount > 0 ? parseFloat((finalTotalPrice / (nights || 1)).toFixed(2)) : 0;
 
   // Format card number with spaces
   const handleCardNumberChange = (e) => {
@@ -720,7 +720,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
           rateCodeId: item.offer?.rateCodeId || 6844,
           priceAgencyId: item.offer?.priceAgencyId || 44573,
           pricePerNight: item.offer?.pricePerNight || 0,
-          totalPrice: (item.offer?.totalPrice || 0) * item.quantity,
+          totalPrice: parseFloat(((item.offer?.totalPrice || 0) * item.quantity).toFixed(2)),
           roomIndex: qIdx + 1,
         }))
       );

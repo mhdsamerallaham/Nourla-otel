@@ -172,13 +172,18 @@ async function createReservation(data) {
     payload['discount-enabled'] = true;
     payload['discount_enabled'] = true;
 
-    // Deactivate "Manuel Fiyat Aktif" toggle so ElektraWeb applies discount rules
+    // Deactivate "Manuel Fiyat Aktif" & "Sabit Fiyat" toggle so ElektraWeb applies discount rules
     payload['is-manual-price'] = false;
     payload['is_manual_price'] = false;
     payload['manual-price'] = false;
     payload['manual_price'] = false;
     payload['manual-price-active'] = false;
     payload['manual_price_active'] = false;
+
+    payload['is-fixed-price'] = false;
+    payload['is_fixed_price'] = false;
+    payload['fixed-price'] = false;
+    payload['fixed_price'] = false;
 
     payload['discount-percent'] = discPercent;
     payload['discount_percent'] = discPercent;

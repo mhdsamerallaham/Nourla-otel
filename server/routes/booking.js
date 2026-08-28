@@ -183,8 +183,8 @@ router.post('/reservation/:id/confirm-transfer', async (req, res) => {
         ? Math.round((itemPrice / cartTotalPriceSum) * finalTotalHavalePrice * 100) / 100
         : Math.round((finalTotalHavalePrice / totalCartRooms) * 100) / 100;
 
-      const originalCartTotal = body.totalPrice || cartTotalPriceSum;
-      const havaleDiscountAmount = Math.round(originalCartTotal * 0.05);
+      const originalCartTotal = parseFloat((body.totalPrice || cartTotalPriceSum || 0).toFixed(2));
+      const havaleDiscountAmount = parseFloat((originalCartTotal * 0.05).toFixed(2));
 
       const transferNotes = [
         'ÖDEME YÖNTEMİ: BANKA HAVALESİ / EFT (%5 İNDİRİMLİ)',

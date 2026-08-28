@@ -183,7 +183,6 @@ router.post('/reservation/:id/confirm-transfer', async (req, res) => {
         ? Math.round((itemPrice / cartTotalPriceSum) * finalTotalHavalePrice * 100) / 100
         : Math.round((finalTotalHavalePrice / totalCartRooms) * 100) / 100;
 
-      const itemPrice = parseFloat(item.totalPrice) || 0;
       const originalCartTotal = body.totalPrice || cartTotalPriceSum;
       const havaleDiscountAmount = Math.round(originalCartTotal * 0.05);
 

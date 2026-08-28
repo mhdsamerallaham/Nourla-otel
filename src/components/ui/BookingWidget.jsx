@@ -30,18 +30,21 @@ import {
   Square,
   Printer,
   ChevronDown,
+  Landmark,
+  Copy,
 } from 'lucide-react';
 import { ROOMS_DATA } from '../../data/rooms';
 import LuxuryDatePickerModal from './LuxuryDatePickerModal';
 import {
   getPrices,
   createReservation,
+  confirmTransferReservation,
   createPaymentSession,
   process3DSecureVerification,
   getTcmbRates,
   getHotelDefinitions,
 } from '../../services/api';
-import { saveGuestLead } from '../../services/supabaseService';
+import { saveGuestLead, updateGuestLeadReservationCode } from '../../services/supabaseService';
 
 // ─── PHONE COUNTRY CODES ─────────────────────────────────────────────────────
 const PHONE_COUNTRIES = [
@@ -232,6 +235,12 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   // Legal Checkboxes
   const [acceptedKvkk, setAcceptedKvkk] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  // Havale Payment State
+  const [paymentMethod, setPaymentMethod] = useState('HAVALE'); // 'HAVALE' | 'CREDIT_CARD'
+  const [showHavaleModal, setShowHavaleModal] = useState(false);
+  const [pmsReservationResult, setPmsReservationResult] = useState(null);
+  const [ibanCopied, setIbanCopied] = useState(false);
 
   // Processing & Confirmation State
   const [isProcessing, setIsProcessing] = useState(false);
@@ -500,6 +509,9 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   const subtotalPrice = cartItems.reduce((sum, item) => sum + (item.offer ? Math.round(item.offer.totalPrice * item.quantity) : 0), 0);
   const taxAmount = Math.round(subtotalPrice * 0.10); // 10% VAT
   const finalTotalPrice = subtotalPrice + taxAmount;
+  const havaleDiscount = Math.round(finalTotalPrice * 0.05); // %5 Havale/EFT discount
+  const havaleFinalPrice = finalTotalPrice - havaleDiscount;
+  const currentPayablePrice = paymentMethod === 'HAVALE' ? havaleFinalPrice : finalTotalPrice;
   const roomPricePerNight = totalSelectedRoomsCount > 0 ? Math.round(subtotalPrice / (nights || 1)) : 0;
 
   // Format card number with spaces
@@ -675,6 +687,78 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  // Step 4: Confirm Havale / EFT — Create real ElektraWeb PMS reservation
+  const handleConfirmTransfer = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!acceptedKvkk || !acceptedTerms) {
+      setApiError('Lütfen KVKK Aydınlatma Metnini ve Mesafeli Satış Sözleşmesini onaylayınız.');
+      return;
+    }
+
+    setIsProcessing(true);
+    setApiError(null);
+
+    try {
+      const primaryItem = cartItems[0];
+      const offer = primaryItem?.offer;
+
+      const result = await confirmTransferReservation(
+        createdReservation?.reservationId || 0,
+        {
+          // Reservation reference
+          reservationCode: createdReservation?.reservationCode,
+          // Guest info
+          guestName,
+          guestEmail,
+          guestPhone,
+          // Room + dates
+          pmsRoomTypeId: selectedRoom?.elektraRoomTypeId,
+          checkIn,
+          checkOut,
+          adultCount: parseInt(guests, 10),
+          nationality: 'TR',
+          // Offer IDs from ElektraWeb price response
+          boardTypeId:   offer?.boardTypeId   || 893,
+          rateTypeId:    offer?.rateTypeId    || 792,
+          rateCodeId:    offer?.rateCodeId    || 6844,
+          priceAgencyId: offer?.priceAgencyId || 44573,
+          // Pricing
+          currency,
+          totalPrice:      finalTotalPrice,
+          havaleFinalPrice: havaleFinalPrice,
+          // Notes
+          specialNotes: specialNotes || '',
+        }
+      );
+
+      if (result && result.success) {
+        setPmsReservationResult(result);
+      } else {
+        console.warn('[CONFIRM TRANSFER] PMS yanıtı tam başarı dönesi yerine:', result);
+      }
+
+      // Update Supabase lead reservation code & status to CONFIRMED
+      const resCodeToSave = result?.reservationCode || createdReservation?.reservationCode || 'NOURLA-REC';
+      updateGuestLeadReservationCode(guestEmail, resCodeToSave).catch(() => {});
+
+      setShowHavaleModal(true);
+    } catch (err) {
+      console.warn('[CONFIRM TRANSFER FALLBACK - OPTION A]', err.message);
+      // Option A: User experience priority — show popup even if PMS API call fails, team will handle fallback
+      const fallbackCode = createdReservation?.reservationCode || 'NOURLA-REC';
+      updateGuestLeadReservationCode(guestEmail, fallbackCode).catch(() => {});
+      setShowHavaleModal(true);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleCopyIban = () => {
+    navigator.clipboard.writeText('TR390001002468983854175001');
+    setIbanCopied(true);
+    setTimeout(() => setIbanCopied(false), 3000);
   };
 
   const displayRooms = ROOMS_DATA.filter((r) => r.maxAdults >= parseInt(guests, 10));
@@ -1493,7 +1577,16 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
 
       {/* STEP 4: PAYMENT FORM & LEGAL APPROVALS */}
       {currentStep === 4 && (
-        <form onSubmit={handleExecutePayment} className="bg-[#FDFBF7] p-6 sm:p-8 rounded-3xl border border-[#E7E1D3] shadow-lg space-y-6">
+        <form
+          onSubmit={(e) => {
+            if (paymentMethod === 'HAVALE') {
+              handleConfirmTransfer(e);
+            } else {
+              handleExecutePayment(e);
+            }
+          }}
+          className="bg-[#FDFBF7] p-6 sm:p-8 rounded-3xl border border-[#E7E1D3] shadow-lg space-y-6"
+        >
           <div className="flex items-center justify-between pb-4 border-b border-[#E7E1D3]">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[#6F7255]/10 text-[#6F7255] flex items-center justify-center">
@@ -1501,87 +1594,101 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
               </div>
               <div>
                 <span className="text-[10px] font-semibold tracking-[0.2em] text-[#6F7255] uppercase block">ADIM 4</span>
-                <h3 className="font-serif text-2xl text-[#2B2B2B]">Güvenli Ödeme Altyapısı (256-Bit SSL)</h3>
+                <h3 className="font-serif text-2xl text-[#2B2B2B]">Ödeme Yöntemi Seçimi</h3>
               </div>
             </div>
             <div className="flex items-center gap-2 text-xs text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-300">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" /> Ziraat Sanal POS Uyumlu
+              <ShieldCheck className="w-4 h-4 text-emerald-600" /> 256-Bit SSL Güvenli Altyapı
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Card Inputs */}
-            <div className="lg:col-span-7 space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5 flex items-center gap-1">
-                  <User className="w-3.5 h-3.5 text-[#6F7255]" /> Kart Üzerindeki İsim
-                </label>
-                <input
-                  type="text"
-                  value={cardHolderName}
-                  onChange={(e) => setCardHolderName(e.target.value)}
-                  placeholder="AHMET YILMAZ"
-                  className="w-full px-4 py-3 rounded-xl border border-[#E7E1D3] bg-[#F7F4EE] text-xs text-[#2B2B2B] focus:border-[#6F7255] focus:outline-none uppercase"
-                  required
-                />
-              </div>
+            {/* Left Panel: Payment Method Selection */}
+            <div className="lg:col-span-7 space-y-5">
+              
+              {/* Payment Method Cards Selection */}
+              <div className="space-y-3">
+                <span className="text-[11px] font-semibold tracking-wider text-[#6F7255] uppercase block">
+                  ÖDEME YÖNTEMİNİZİ SEÇİN
+                </span>
 
-              <div>
-                <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5 flex items-center gap-1">
-                  <CreditCard className="w-3.5 h-3.5 text-[#6F7255]" /> Kart Numarası
-                </label>
-                <input
-                  type="text"
-                  value={cardNumber}
-                  onChange={handleCardNumberChange}
-                  placeholder="4242 4242 4242 4242"
-                  className="w-full px-4 py-3 rounded-xl border border-[#E7E1D3] bg-[#F7F4EE] text-xs font-mono text-[#2B2B2B] focus:border-[#6F7255] focus:outline-none"
-                  required
-                />
-              </div>
+                {/* Option 1: Havale / EFT (%5 İndirimli) — ACTIVE */}
+                <div
+                  onClick={() => setPaymentMethod('HAVALE')}
+                  className={`p-5 rounded-2xl border transition-all cursor-pointer relative ${
+                    paymentMethod === 'HAVALE'
+                      ? 'border-[#6F7255] bg-white shadow-md ring-2 ring-[#6F7255]/30'
+                      : 'border-[#E7E1D3] bg-[#F7F4EE] hover:border-[#6F7255]/60'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                        paymentMethod === 'HAVALE' ? 'border-[#6F7255] bg-[#6F7255]' : 'border-stone-400'
+                      }`}>
+                        {paymentMethod === 'HAVALE' && <Check className="w-3.5 h-3.5 text-white" />}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <Landmark className="w-4 h-4 text-[#6F7255]" />
+                          <h4 className="font-serif font-bold text-[#2B2B2B] text-base">Banka Havalesi / EFT</h4>
+                          <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
+                            %5 Ekstra İndirim
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#555555] font-light mt-0.5">
+                          Ziraat Bankası hesabımıza yapacağınız ödemelerde %5 anında indirim kazanın.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5">Ay</label>
-                  <select
-                    value={expMonth}
-                    onChange={(e) => setExpMonth(e.target.value)}
-                    className="w-full px-3 py-3 rounded-xl border border-[#E7E1D3] bg-[#F7F4EE] text-xs text-[#2B2B2B]"
-                  >
-                    {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')).map((m) => (
-                      <option key={m} value={m}>{m}</option>
-                    ))}
-                  </select>
+                  {paymentMethod === 'HAVALE' && (
+                    <div className="mt-4 pt-3 border-t border-[#E7E1D3] space-y-2 text-xs text-[#555555] bg-[#F7F4EE] p-3 rounded-xl">
+                      <div className="flex items-center justify-between font-semibold text-[#2B2B2B]">
+                        <span>Banka: Ziraat Bankası</span>
+                        <span className="text-[#6F7255]">NOURLA TURİZM OTELCİLİK A.Ş.</span>
+                      </div>
+                      <div className="font-mono text-[11px] text-[#2B2B2B] bg-white p-2 rounded-lg border border-[#E7E1D3] flex items-center justify-between">
+                        <span>IBAN: TR39 0001 0024 6898 3854 1750 01</span>
+                      </div>
+                      <p className="text-[11px] text-[#6F7255] italic">
+                        ✓ "Rezervasyonu Tamamla" butonuna bastığınızda detaylar ve rezervasyon kodunuz gösterilecektir.
+                      </p>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5">Yıl</label>
-                  <select
-                    value={expYear}
-                    onChange={(e) => setExpYear(e.target.value)}
-                    className="w-full px-3 py-3 rounded-xl border border-[#E7E1D3] bg-[#F7F4EE] text-xs text-[#2B2B2B]"
-                  >
-                    {['26', '27', '28', '29', '30', '31', '32'].map((y) => (
-                      <option key={y} value={y}>20{y}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5">CVV</label>
-                  <input
-                    type="password"
-                    maxLength="4"
-                    value={cvv}
-                    onChange={(e) => setCvv(e.target.value.replace(/\D/g, ''))}
-                    placeholder="123"
-                    className="w-full px-4 py-3 rounded-xl border border-[#E7E1D3] bg-[#F7F4EE] text-xs font-mono text-[#2B2B2B] focus:border-[#6F7255] focus:outline-none"
-                    required
-                  />
-                </div>
-              </div>
 
+                {/* Option 2: Kredi Kartı — PASİF / DISABLED */}
+                <div
+                  className="p-5 rounded-2xl border border-stone-200 bg-stone-100/70 opacity-60 cursor-not-allowed relative"
+                  title="Sanal POS altyapımız hazırlanmaktadır. Şu an yalnızca Havale/EFT aktiftir."
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 h-6 rounded-full border-2 border-stone-300 bg-stone-200 flex items-center justify-center">
+                        <Lock className="w-3 h-3 text-stone-400" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="w-4 h-4 text-stone-400" />
+                          <h4 className="font-serif font-bold text-stone-500 text-base">Kredi Kartı / Banka Kartı</h4>
+                          <span className="text-[10px] font-semibold text-stone-500 bg-stone-200 px-2.5 py-0.5 rounded-full border border-stone-300 uppercase tracking-wider">
+                            Yakında Aktif
+                          </span>
+                        </div>
+                        <p className="text-xs text-stone-500 font-light mt-0.5">
+                          Sanal POS entegrasyonumuz hazırlanıyor. Lütfen yukarıdaki %5 indirimli Havale/EFT seçeneğini kullanınız.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
 
               {/* Developer Test Scenario Switcher — only visible in development */}
-              {import.meta.env.DEV && (
+              {import.meta.env.DEV && paymentMethod === 'CREDIT_CARD' && (
                 <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200 space-y-2 text-xs">
                   <span className="font-semibold text-amber-900 block">
                     🛠 Geliştirici — Ödeme Senaryosu Seçimi:
@@ -1595,41 +1702,21 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                         checked={testScenario === 'SUCCESS'}
                         onChange={() => setTestScenario('SUCCESS')}
                       />
-                      <span>Başarılı Ödeme (Direct Success)</span>
-                    </label>
-                    <label className="flex items-center gap-1.5 cursor-pointer text-amber-900">
-                      <input
-                        type="radio"
-                        name="scenario"
-                        value="3DS"
-                        checked={testScenario === '3DS'}
-                        onChange={() => setTestScenario('3DS')}
-                      />
-                      <span>3D Secure Doğrulaması</span>
-                    </label>
-                    <label className="flex items-center gap-1.5 cursor-pointer text-amber-900">
-                      <input
-                        type="radio"
-                        name="scenario"
-                        value="FAIL"
-                        checked={testScenario === 'FAIL'}
-                        onChange={() => setTestScenario('FAIL')}
-                      />
-                      <span>Başarısız Ödeme (Bakiye Yetersiz)</span>
+                      <span>Başarılı Ödeme</span>
                     </label>
                   </div>
                 </div>
               )}
 
-
               {/* Legal Checkboxes */}
-              <div className="space-y-2 pt-2 text-xs text-[#555555]">
+              <div className="space-y-2.5 pt-3 text-xs text-[#555555] border-t border-[#E7E1D3]">
                 <label className="flex items-start gap-2.5 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={acceptedKvkk}
                     onChange={(e) => setAcceptedKvkk(e.target.checked)}
                     className="mt-0.5 rounded text-[#6F7255]"
+                    required
                   />
                   <span>
                     <strong>KVKK Aydınlatma Metnini</strong> ve kişisel verilerimin işlenmesine ilişkin hususları okudum, kabul ediyorum.
@@ -1642,6 +1729,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                     checked={acceptedTerms}
                     onChange={(e) => setAcceptedTerms(e.target.checked)}
                     className="mt-0.5 rounded text-[#6F7255]"
+                    required
                   />
                   <span>
                     <strong>Mesafeli Satış Sözleşmesi</strong> ve İptal/İade Koşullarını kabul ediyorum.
@@ -1651,7 +1739,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             </div>
 
             {/* Summary & Price Breakdown Panel */}
-            <div className="lg:col-span-5 bg-[#2B2B2B] text-white p-6 rounded-2xl space-y-4 flex flex-col justify-between">
+            <div className="lg:col-span-5 bg-[#2B2B2B] text-white p-6 rounded-2xl space-y-4 flex flex-col justify-between shadow-xl">
               <div className="space-y-3">
                 <span className="text-[10px] font-semibold tracking-[0.2em] text-[#E7E1D3]/70 uppercase block">
                   ÖDEME ÖZETİ ({totalSelectedRoomsCount || 1} ODA)
@@ -1681,9 +1769,24 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                     <span>Vergiler (%10 KDV):</span>
                     <span>{currSymbol}{taxAmount.toLocaleString('tr-TR')}</span>
                   </div>
+
+                  <div className="flex justify-between text-[#E7E1D3]/80 pt-1 border-t border-white/10">
+                    <span>Normal Tutar:</span>
+                    <span className="line-through">{currSymbol}{finalTotalPrice.toLocaleString('tr-TR')}</span>
+                  </div>
+
+                  {paymentMethod === 'HAVALE' && (
+                    <div className="flex justify-between text-emerald-400 font-semibold bg-emerald-950/40 p-2 rounded-lg border border-emerald-800/40">
+                      <span className="flex items-center gap-1">
+                        <Tag className="w-3.5 h-3.5" /> Havale/EFT %5 İndirim:
+                      </span>
+                      <span>-{currSymbol}{havaleDiscount.toLocaleString('tr-TR')}</span>
+                    </div>
+                  )}
+
                   <div className="flex justify-between text-white font-serif text-xl pt-2 border-t border-white/10 font-bold">
-                    <span>TOPLAM TUTAR:</span>
-                    <span className="text-[#E7E1D3]">{currSymbol}{finalTotalPrice.toLocaleString('tr-TR')}</span>
+                    <span>ÖDENECEK TUTAR:</span>
+                    <span className="text-[#E7E1D3]">{currSymbol}{currentPayablePrice.toLocaleString('tr-TR')}</span>
                   </div>
                 </div>
               </div>
@@ -1696,7 +1799,11 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                 >
                   {isProcessing ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin text-white" /> Ödeme İşleniyor...
+                      <Loader2 className="w-4 h-4 animate-spin text-white" /> Rezervasyon İşleniyor...
+                    </>
+                  ) : paymentMethod === 'HAVALE' ? (
+                    <>
+                      <Landmark className="w-4 h-4" /> Rezervasyonu Tamamla ({currSymbol}{havaleFinalPrice.toLocaleString('tr-TR')})
                     </>
                   ) : (
                     <>
@@ -1710,7 +1817,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                   onClick={() => setCurrentStep(3)}
                   className="w-full text-center text-xs text-[#E7E1D3]/70 hover:underline cursor-pointer"
                 >
-                  Bilgileri Düzenle
+                  Misafir Bilgilerini Düzenle
                 </button>
               </div>
             </div>
@@ -1760,6 +1867,133 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
       )}
 
 
+
+      {/* HAVALE / EFT DETAILS CONFIRMATION MODAL */}
+      {showHavaleModal && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#FDFBF7] p-6 sm:p-8 rounded-3xl max-w-xl w-full text-center space-y-6 border border-[#6F7255] shadow-2xl animate-scaleUp my-8">
+            <div className="w-16 h-16 rounded-full bg-[#6F7255]/10 text-[#6F7255] flex items-center justify-center mx-auto border border-[#6F7255]">
+              <CheckCircle2 className="w-10 h-10" />
+            </div>
+
+            <div>
+              <span className="text-[10px] font-bold tracking-[0.3em] text-[#6F7255] uppercase block bg-[#6F7255]/10 px-3 py-1 rounded-full w-max mx-auto mb-2">
+                REZERVASYONUNUZ BAŞARIYLA ALINDI
+              </span>
+              <h3 className="font-serif text-2xl sm:text-3xl text-[#2B2B2B] mt-1">
+                Tebrikler, Talebiniz Kaydedildi
+              </h3>
+              <p className="text-xs text-[#555555] font-light mt-1 max-w-md mx-auto">
+                Rezervasyon kaydınız ve misafir detaylarınız sistemlerimize aktarılmıştır. Lütfen konaklamanızı kesinleştirmek için aşağıdaki banka bilgilerine transfer yapınız.
+              </p>
+            </div>
+
+            {/* Reservation Reference Code Banner */}
+            <div className="bg-[#2B2B2B] text-white p-3.5 rounded-2xl flex items-center justify-between text-xs font-mono">
+              <span className="text-[#E7E1D3] font-sans font-light">Rezervasyon Kodu:</span>
+              <span className="font-bold text-lg text-emerald-400 tracking-wider">
+                {pmsReservationResult?.reservationCode || createdReservation?.reservationCode || 'NOURLA-884920'}
+              </span>
+            </div>
+
+            {/* Bank Transfer Details Card */}
+            <div className="bg-[#F7F4EE] p-5 rounded-2xl border border-[#E7E1D3] text-left space-y-3.5 text-xs">
+              <div className="flex items-center justify-between border-b border-[#E7E1D3] pb-2">
+                <span className="font-bold text-[#6F7255] uppercase text-[11px]">Banka Bilgileri</span>
+                <span className="text-[10px] text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full font-semibold">
+                  %5 İndirim Uygulandı
+                </span>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-[#555555] text-[11px] block font-light">Banka Adı:</span>
+                <span className="font-semibold text-[#2B2B2B] text-sm flex items-center gap-1.5">
+                  <Landmark className="w-4 h-4 text-[#6F7255]" /> Ziraat Bankası
+                </span>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-[#555555] text-[11px] block font-light">Hesap Sahibi (Unvan):</span>
+                <span className="font-semibold text-[#2B2B2B] text-xs sm:text-sm block">
+                  NOURLA TURİZM OTELCİLİK TİCARET ANONİM ŞİRKETİ
+                </span>
+              </div>
+
+              {/* IBAN box with Copy button */}
+              <div className="space-y-1.5 pt-1">
+                <span className="text-[#555555] text-[11px] block font-light">IBAN Numarası:</span>
+                <div className="bg-white p-3 rounded-xl border border-[#6F7255]/40 flex items-center justify-between gap-2 shadow-2xs">
+                  <span className="font-mono text-sm sm:text-base font-bold text-[#2B2B2B] tracking-wider select-all">
+                    TR39 0001 0024 6898 3854 1750 01
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCopyIban}
+                    className="px-3 py-1.5 rounded-lg bg-[#6F7255] hover:bg-[#4F523A] text-white text-[11px] font-semibold transition-all flex items-center gap-1 shrink-0 cursor-pointer shadow-xs"
+                  >
+                    {ibanCopied ? (
+                      <>
+                        <Check className="w-3.5 h-3.5" /> Kopyalandı
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5" /> IBAN Kopyala
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-[#E7E1D3]">
+                <span className="text-[#555555] font-light">Ödenecek Tutar (%5 İndirimli):</span>
+                <span className="font-serif text-xl font-bold text-[#6F7255]">
+                  {currSymbol}{havaleFinalPrice.toLocaleString('tr-TR')}
+                </span>
+              </div>
+            </div>
+
+            {/* Information & Instructions Card */}
+            <div className="bg-amber-50/80 border border-amber-200/80 p-4 rounded-2xl text-left text-xs text-amber-900 space-y-2">
+              <div className="flex items-start gap-2">
+                <span className="text-base shrink-0">📸</span>
+                <div>
+                  <strong>Lütfen bu ekranın ekran görüntüsünü (SS) alınız.</strong>
+                  <p className="text-[11px] text-amber-800 mt-0.5">
+                    Havale açıklamasına rezervasyon kodunuzu (
+                    <strong>{pmsReservationResult?.reservationCode || createdReservation?.reservationCode || 'NOURLA-884920'}</strong>
+                    ) yazmayı unutmayınız.
+                  </p>
+                </div>
+              </div>
+              <div className="pt-2 border-t border-amber-200/60 text-[11px] text-amber-800">
+                ✓ Havale işleminiz ulaştıktan sonra 1 iş günü içinde onay e-postanız iletilecek ve ekibimiz sizinle iletişime geçecektir. Teşekkür ederiz!
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="px-5 py-3 rounded-xl bg-[#E7E1D3] text-[#2B2B2B] text-xs font-semibold uppercase tracking-wider hover:bg-[#D7D1C3] transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <Printer className="w-4 h-4" /> Sayfayı Yazdır / SS Yardımcısı
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowHavaleModal(false);
+                  setCurrentStep(1);
+                  setCreatedReservation(null);
+                }}
+                className="px-6 py-3 rounded-xl bg-[#6F7255] text-white text-xs font-semibold uppercase tracking-widest hover:bg-[#4F523A] transition-all shadow-md cursor-pointer"
+              >
+                Tamam, Ana Sayfaya Dön
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* LUXURY DATE PICKER MODAL */}
       <LuxuryDatePickerModal

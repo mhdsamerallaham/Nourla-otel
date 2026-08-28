@@ -103,6 +103,18 @@ export async function getReservationByCode(code) {
   return apiFetch(BOOKING_API_BASE, `/reservation/${code}`);
 }
 
+/**
+ * Havale onayı — ElektraWeb'de gerçek rezervasyon oluşturur.
+ * @param {string|number} reservationId - Local DB reservation ID (may be memory-store ID)
+ * @param {Object} payload - Tüm misafir + oda + fiyat bilgileri
+ */
+export async function confirmTransferReservation(reservationId, payload) {
+  return apiFetch(BOOKING_API_BASE, `/reservation/${reservationId}/confirm-transfer`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
 // ─── PAYMENT API ─────────────────────────────────────────────────────────────
 
 export async function createPaymentSession({ reservationId, card, callbackUrl, idempotencyKey }) {
@@ -130,6 +142,7 @@ const hotelApi = {
   getPrices,
   createReservation,
   getReservationByCode,
+  confirmTransferReservation,
   createPaymentSession,
   process3DSecureVerification,
   getPaymentStatus,

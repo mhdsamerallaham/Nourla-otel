@@ -140,6 +140,91 @@ router.post('/reservation', async (req, res) => {
   }
 });
 
+// ─── Confirm Havale / EFT — Creates Real PMS Reservation ─────────────────────
+// Called when customer clicks "Rezervasyonu Tamamla" on the havale payment page.
+// All reservation data is passed from frontend since the DB may be in memory mode.
+router.post('/reservation/:id/confirm-transfer', async (req, res) => {
+  try {
+    const body = req.body;
+
+    if (!body.guestName || !body.checkIn || !body.checkOut || !body.pmsRoomTypeId) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'MISSING_FIELDS', message: 'Eksik alan: guestName, checkIn, checkOut, pmsRoomTypeId zorunludur.' },
+      });
+    }
+
+    const transferNotes = [
+      'HAVALE/EFT \u00d6deme',
+      body.reservationCode ? `Ref: ${body.reservationCode}` : '',
+      body.specialNotes || '',
+    ].filter(Boolean).join(' | ');
+
+    // Call ElektraWeb PMS to create the actual reservation
+    const pmsResult = await elektra.createReservation({
+      roomTypeId:    body.pmsRoomTypeId,
+      checkIn:       body.checkIn,
+      checkOut:      body.checkOut,
+      adultCount:    body.adultCount || 2,
+      guestName:     body.guestName,
+      guestEmail:    body.guestEmail || 'info@nourla.com.tr',
+      guestPhone:    body.guestPhone || '+905320000000',
+      boardTypeId:   body.boardTypeId   || 893,
+      rateTypeId:    body.rateTypeId    || 792,
+      rateCodeId:    body.rateCodeId    || 6844,
+      priceAgencyId: body.priceAgencyId || 44573,
+      currency:      (body.currency || 'TRY').toUpperCase(),
+      totalPrice:    body.havaleFinalPrice || body.totalPrice,
+      nationality:   body.nationality || 'TR',
+      specialNotes:  transferNotes,
+    });
+
+    const pmsId   = pmsResult?.['reservation-id'] || pmsResult?.reservationId || pmsResult?.id || null;
+    const pmsUuid = pmsResult?.['reservation-uuid'] || pmsResult?.reservationUuid || null;
+
+    console.log(`[CONFIRM-TRANSFER] ElektraWeb PMS rezervasyon olu\u015fturuldu. PMS ID: ${pmsId}`);
+
+    // Best-effort: update local DB record (may fail in serverless/memory mode — non-blocking)
+    try {
+      const { runQuery } = require('../database/db');
+      const reservationId = parseInt(req.params.id, 10);
+      if (reservationId && pmsId) {
+        await runQuery(
+          `UPDATE RESERVATIONS SET
+             status = 'CONFIRMED',
+             sync_status = 'SYNC_SUCCESS',
+             pms_reservation_id = ?,
+             payment_status = 'PENDING_HAVALE',
+             updated_at = CURRENT_TIMESTAMP
+           WHERE id = ?`,
+          [String(pmsId), reservationId]
+        );
+      }
+    } catch (_dbErr) {
+      console.warn('[confirm-transfer] DB g\u00fcncellemesi ba\u015far\u0131s\u0131z (memory-store modu):', _dbErr.message);
+    }
+
+    return res.json({
+      success: true,
+      pmsReservationId:   pmsId,
+      pmsReservationUuid: pmsUuid,
+      reservationCode:    body.reservationCode,
+      havaleFinalPrice:   body.havaleFinalPrice,
+      currency:           body.currency || 'TRY',
+      message: 'ElektraWeb rezervasyonu ba\u015far\u0131yla olu\u015fturuldu.',
+    });
+  } catch (err) {
+    console.error('[/reservation/:id/confirm-transfer ERROR]', err.message);
+    return res.status(502).json({
+      success: false,
+      error: {
+        code: 'PMS_RESERVATION_FAILED',
+        message: `ElektraWeb rezervasyonu olu\u015fturulamad\u0131: ${err.message}`,
+      },
+    });
+  }
+});
+
 // ─── Get Reservation Details ─────────────────────────────────────────────────
 router.get('/reservation/:code', async (req, res) => {
   try {

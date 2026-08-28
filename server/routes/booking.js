@@ -23,6 +23,7 @@ router.get('/definitions', async (req, res) => {
     const language = req.query.language || 'TR';
     const raw = await elektra.getHotelDefinitions(language);
     const normalized = normalizeHotelDefinitions(raw);
+    res.set('Cache-Control', 'public, max-age=3600');
     return res.json(normalized);
   } catch (err) {
     return res.status(err.httpStatus || 500).json(normalizeError(err));
@@ -34,6 +35,7 @@ router.get('/exchange-rates', async (req, res) => {
   try {
     const { getTcmbExchangeRates } = require('../services/currency/tcmbService');
     const rates = await getTcmbExchangeRates();
+    res.set('Cache-Control', 'public, max-age=1800');
     return res.json(rates);
   } catch (err) {
     return res.status(500).json(normalizeError(err));
@@ -46,6 +48,7 @@ router.get('/availability', validateAvailabilityDates, async (req, res) => {
     const { fromdate, todate } = req.validatedDates;
     const raw = await elektra.getAvailability(fromdate, todate);
     const normalized = normalizeAvailability(raw, fromdate, todate);
+    res.set('Cache-Control', 'public, max-age=60');
     return res.json(normalized);
   } catch (err) {
     return res.status(err.httpStatus || 500).json(normalizeError(err));
@@ -97,6 +100,7 @@ router.get('/price', validatePriceParams, async (req, res) => {
     }
 
     const normalized = normalizePrice(raw, { ...params, nights: params.nights });
+    res.set('Cache-Control', 'public, max-age=60');
     return res.json(normalized);
   } catch (err) {
     return res.status(err.httpStatus || 500).json(normalizeError(err));
@@ -171,8 +175,10 @@ router.post('/reservation/:id/confirm-transfer', async (req, res) => {
         }];
 
     const totalCartRooms = roomItems.length;
-    const finalTotalHavalePrice = body.havaleFinalPrice || body.totalPrice || 0;
+    const finalTotalHavalePrice = parseFloat(body.havaleFinalPrice || body.totalPrice || 0);
     const cartTotalPriceSum = roomItems.reduce((sum, r) => sum + (parseFloat(r.totalPrice) || 0), 0);
+    const overallCartTotal = parseFloat((body.totalPrice || cartTotalPriceSum || 0).toFixed(2));
+    const overallHavaleDiscountAmount = parseFloat((overallCartTotal * 0.05).toFixed(2));
 
     const pmsResults = [];
     const pmsIds = [];
@@ -180,7 +186,7 @@ router.post('/reservation/:id/confirm-transfer', async (req, res) => {
     // Create a PMS reservation for each room item in the cart
     for (let i = 0; i < roomItems.length; i++) {
       const item = roomItems[i];
-      const itemOriginalPrice = parseFloat(item.totalPrice) || (totalCartRooms > 0 ? originalCartTotal / totalCartRooms : 0);
+      const itemOriginalPrice = parseFloat(item.totalPrice) || (totalCartRooms > 0 ? parseFloat((overallCartTotal / totalCartRooms).toFixed(2)) : 0);
       
       const roomNetHavalePrice = cartTotalPriceSum > 0
         ? Math.round((itemOriginalPrice / cartTotalPriceSum) * finalTotalHavalePrice * 100) / 100
@@ -192,7 +198,7 @@ router.post('/reservation/:id/confirm-transfer', async (req, res) => {
         'ÖDEME YÖNTEMİ: BANKA HAVALESİ / EFT (%5 İNDİRİMLİ)',
         body.reservationCode ? `Ref: ${body.reservationCode}` : '',
         `Liste Fiyatı: ${itemOriginalPrice} ${body.currency || 'TRY'}`,
-        `%5 Havale İndirimi: -${roomDiscountAmount > 0 ? roomDiscountAmount : havaleDiscountAmount} ${body.currency || 'TRY'}`,
+        `%5 Havale İndirimi: -${roomDiscountAmount > 0 ? roomDiscountAmount : overallHavaleDiscountAmount} ${body.currency || 'TRY'}`,
         `NET ÖDENECEK TUTAR: ${roomNetHavalePrice} ${body.currency || 'TRY'}`,
         `Misafir: ${body.guestName} (${body.guestEmail || ''} | ${body.guestPhone || ''})`,
         totalCartRooms > 1 ? `Sepet: Oda ${i + 1}/${totalCartRooms} (${item.roomName || 'Oda'})` : '',
@@ -219,7 +225,7 @@ router.post('/reservation/:id/confirm-transfer', async (req, res) => {
           specialNotes:  transferNotes,
           paymentType:   body.paymentType !== undefined ? body.paymentType : 3, // 3 = Banka Havalesi / EFT
           discountPercent: (body.paymentType === 3 || body.paymentType === undefined) ? 5 : (body.discountPercent || 0),
-          discountAmount:  roomDiscountAmount > 0 ? roomDiscountAmount : havaleDiscountAmount,
+          discountAmount:  roomDiscountAmount > 0 ? roomDiscountAmount : overallHavaleDiscountAmount,
           discountTypeId:  1,
         });
 

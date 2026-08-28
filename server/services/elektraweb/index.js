@@ -157,32 +157,49 @@ async function createReservation(data) {
   const discPercent = parseFloat(data.discountPercent || (data.paymentType === 3 ? 5 : 0));
   
   if (discPercent > 0) {
-    // Explicitly activate "İndirim Aktif" toggle button in ElektraWeb PMS UI & API
+    // Explicitly activate "İndirim Aktif" toggle button in ElektraWeb PMS UI & API (snake_case + kebab-case)
     payload['is-discount-active'] = true;
+    payload['is_discount_active'] = true;
     payload['discount-active'] = true;
+    payload['discount_active'] = true;
     payload['is-discount'] = true;
+    payload['is_discount'] = true;
     payload['has-discount'] = true;
+    payload['has_discount'] = true;
     payload['discount-enabled'] = true;
+    payload['discount_enabled'] = true;
 
     // Deactivate "Manuel Fiyat Aktif" toggle so ElektraWeb applies discount rules
     payload['is-manual-price'] = false;
+    payload['is_manual_price'] = false;
     payload['manual-price'] = false;
+    payload['manual_price'] = false;
     payload['manual-price-active'] = false;
+    payload['manual_price_active'] = false;
 
     payload['discount-percent'] = discPercent;
+    payload['discount_percent'] = discPercent;
     payload['discount-ratio'] = discPercent;
+    payload['discount_ratio'] = discPercent;
     payload['discount-rate'] = discPercent;
+    payload['discount_rate'] = discPercent;
     payload['promotion-percent'] = discPercent;
+    payload['promotion_percent'] = discPercent;
 
-    if (data.discountAmount) {
-      payload['discount-amount'] = parseFloat(data.discountAmount);
-      payload['discount-value'] = parseFloat(data.discountAmount);
-    } else if (data.totalPrice) {
-      const origP = parseFloat(data.totalPrice);
-      const discAmt = Math.round(origP * (discPercent / 100) * 100) / 100;
-      payload['discount-amount'] = discAmt;
-      payload['discount-value'] = discAmt;
-    }
+    const totP = parseFloat(data.totalPrice || 0);
+    const discAmt = data.discountAmount ? parseFloat(data.discountAmount) : Math.round(totP * (discPercent / 100) * 100) / 100;
+    
+    payload['discount-amount'] = discAmt;
+    payload['discount_amount'] = discAmt;
+    payload['discount-value'] = discAmt;
+    payload['discount_value'] = discAmt;
+
+    // Pass net_price / channel_price as per Elektraweb documentation
+    const netPrice = totP > discAmt ? totP - discAmt : totP;
+    payload['net-price'] = netPrice;
+    payload['net_price'] = netPrice;
+    payload['channel-price'] = netPrice;
+    payload['channel_price'] = netPrice;
   }
 
   if (process.env.TEST_SUITE_MOCK_PMS === 'true') {
@@ -212,6 +229,19 @@ async function createReservation(data) {
       const pmsPrice = parseFloat(quoteMatch[1]);
       console.log(`[ELEKTRA RESERVATION AUTO-QUOTE FIX] Price quote adjusted from ${payload['total-price']} to ${pmsPrice} TRY. Retrying PMS creation...`);
       payload['total-price'] = pmsPrice;
+      payload['total_price'] = pmsPrice;
+
+      if (discPercent > 0) {
+        const calculatedDiscAmt = Math.round(pmsPrice * (discPercent / 100) * 100) / 100;
+        const netCalculatedPrice = Math.round((pmsPrice - calculatedDiscAmt) * 100) / 100;
+
+        payload['net-price'] = netCalculatedPrice;
+        payload['net_price'] = netCalculatedPrice;
+        payload['discount-amount'] = calculatedDiscAmt;
+        payload['discount_amount'] = calculatedDiscAmt;
+        payload['discount-value'] = calculatedDiscAmt;
+        payload['discount_value'] = calculatedDiscAmt;
+      }
       try {
         return await elektraPost(`/hotel/${HOTEL_ID}/createReservation`, payload);
       } catch (retryErr) {

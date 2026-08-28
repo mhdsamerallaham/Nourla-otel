@@ -138,7 +138,36 @@ async function createPendingReservation(data) {
     [reservationId, firstName, lastName, guestEmail, guestPhone, 1, nationality, specialNotes]
   );
 
-  return getReservationById(reservationId);
+  // getReservationById may return null when running in memory-store mode (e.g. Vercel serverless
+  // where sqlite3 native module is unavailable). In that case, build a synthetic response
+  // from the data we already have so the flow doesn't crash.
+  const saved = await getReservationById(reservationId);
+  if (saved) return saved;
+
+  console.warn('[RESERVATION SERVICE] getReservationById returned null — using synthetic fallback (memory-store mode)');
+  return {
+    id: reservationId,
+    reservation_code: reservationCode,
+    reservation_uuid: reservationUuid,
+    hotel_id: hotelId,
+    room_id: roomId,
+    pms_room_type_id: pmsRoomTypeId,
+    room_name: roomName,
+    check_in: checkIn,
+    check_out: checkOut,
+    night_count: nightCount,
+    adult_count: adultCount,
+    child_count: childCount,
+    base_price: basePriceTotal,
+    discount_amount: discountAmount,
+    tax_amount: taxAmount,
+    total_price: totalPrice,
+    currency: currency.toUpperCase(),
+    status: 'PENDING_PAYMENT',
+    payment_status: 'PENDING',
+    sync_status: 'SYNC_PENDING',
+    guests: [],
+  };
 }
 
 async function getReservationById(id) {

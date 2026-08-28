@@ -122,16 +122,12 @@ async function createReservation(data) {
   // Build guest list matching adult-count requirement
   const guestList = [];
   for (let i = 0; i < adultCount; i++) {
-    const isPrimary = i === 0;
     guestList.push({
-      'title-id': isPrimary ? 0 : 1,
-      gender: isPrimary ? 0 : 1,
+      'title-id': i === 0 ? 0 : 1,
+      gender: i === 0 ? 0 : 1,
       country: (data.nationality || 'TR').toUpperCase(),
-      name: isPrimary ? firstName : `${firstName}_Misafir_${i + 1}`,
+      name: i === 0 ? firstName : `${firstName}_Misafir_${i + 1}`,
       surname: lastName,
-      email: data.guestEmail || '',
-      phone: data.guestPhone || '',
-      'mobile-phone': data.guestPhone || '',
     });
   }
 
@@ -150,14 +146,11 @@ async function createReservation(data) {
     nationality: (data.nationality || 'TR').toUpperCase(),
     'contact-first-name': firstName,
     'contact-last-name': lastName,
-    'contact-email': data.guestEmail || '',
-    'contact-phone': data.guestPhone || '',
-    email: data.guestEmail || '',
-    phone: data.guestPhone || '',
-    'mobile-phone': data.guestPhone || '',
+    'contact-email': data.guestEmail || 'info@nourla.com.tr',
+    'contact-phone': data.guestPhone || '+905320000000',
     'res-notes': data.specialNotes || 'Nourla Web Sitesi Üzerinden Oluşturuldu',
     'room-count': 1,
-    'payment-type': data.paymentType !== undefined ? parseInt(data.paymentType, 10) : 3, // 3 = Banka Havalesi / EFT (Wire Transfer)
+    'payment-type': data.paymentType !== undefined ? parseInt(data.paymentType, 10) : 3, // 3 = Banka Havalesi / EFT
     'guest-list': guestList,
   };
 

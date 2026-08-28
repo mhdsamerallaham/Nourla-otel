@@ -29,6 +29,7 @@ import {
   CheckSquare,
   Square,
   Printer,
+  ChevronDown,
 } from 'lucide-react';
 import { ROOMS_DATA } from '../../data/rooms';
 import LuxuryDatePickerModal from './LuxuryDatePickerModal';
@@ -40,6 +41,39 @@ import {
   getTcmbRates,
   getHotelDefinitions,
 } from '../../services/api';
+import { saveGuestLead } from '../../services/supabaseService';
+
+// ─── PHONE COUNTRY CODES ─────────────────────────────────────────────────────
+const PHONE_COUNTRIES = [
+  { code: '+90', flag: '🇹🇷', name: 'Türkiye', iso: 'TR' },
+  { code: '+49', flag: '🇩🇪', name: 'Almanya', iso: 'DE' },
+  { code: '+7',  flag: '🇷🇺', name: 'Rusya', iso: 'RU' },
+  { code: '+44', flag: '🇬🇧', name: 'Birleşik Krallık', iso: 'GB' },
+  { code: '+1',  flag: '🇺🇸', name: 'ABD', iso: 'US' },
+  { code: '+33', flag: '🇫🇷', name: 'Fransa', iso: 'FR' },
+  { code: '+31', flag: '🇳🇱', name: 'Hollanda', iso: 'NL' },
+  { code: '+994',flag: '🇦🇿', name: 'Azerbaycan', iso: 'AZ' },
+  { code: '+7',  flag: '🇰🇿', name: 'Kazakistan', iso: 'KZ' },
+  { code: '+380',flag: '🇺🇦', name: 'Ukrayna', iso: 'UA' },
+  { code: '+995',flag: '🇬🇪', name: 'Gürcistan', iso: 'GE' },
+  { code: '+374',flag: '🇦🇲', name: 'Ermenistan', iso: 'AM' },
+  { code: '+966',flag: '🇸🇦', name: 'Suudi Arabistan', iso: 'SA' },
+  { code: '+971',flag: '🇦🇪', name: 'BAE', iso: 'AE' },
+  { code: '+974',flag: '🇶🇦', name: 'Katar', iso: 'QA' },
+  { code: '+965',flag: '🇰🇼', name: 'Kuveyt', iso: 'KW' },
+  { code: '+973',flag: '🇧🇭', name: 'Bahreyn', iso: 'BH' },
+  { code: '+970',flag: '🇵🇸', name: 'Filistin', iso: 'PS' },
+  { code: '+48', flag: '🇵🇱', name: 'Polonya', iso: 'PL' },
+  { code: '+32', flag: '🇧🇪', name: 'Belçika', iso: 'BE' },
+  { code: '+43', flag: '🇦🇹', name: 'Avusturya', iso: 'AT' },
+  { code: '+41', flag: '🇨🇭', name: 'İsviçre', iso: 'CH' },
+  { code: '+39', flag: '🇮🇹', name: 'İtalya', iso: 'IT' },
+  { code: '+34', flag: '🇪🇸', name: 'İspanya', iso: 'ES' },
+  { code: '+30', flag: '🇬🇷', name: 'Yunanistan', iso: 'GR' },
+  { code: '+998',flag: '🇺🇿', name: 'Özbekistan', iso: 'UZ' },
+  { code: '+998',flag: '🇹🇯', name: 'Tacikistan', iso: 'TJ' },
+  { code: '+993',flag: '🇹🇲', name: 'Türkmenistan', iso: 'TM' },
+];
 
 const FEATURE_TRANSLATIONS = {
   'Free WiFi': { tr: 'Ücretsiz WiFi', en: 'Free WiFi', de: 'Kostenloses WLAN', ru: 'Бесплатный Wi-Fi' },
@@ -172,11 +206,20 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   const cartItems = Object.values(roomCart);
   const totalSelectedRoomsCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Guest Details
+  // Guest Details — Primary Contact
   const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
-  const [guestPhone, setGuestPhone] = useState('');
   const [specialNotes, setSpecialNotes] = useState('');
+
+  // Phone Country Code Picker
+  const [phoneCountry, setPhoneCountry] = useState({ code: '+90', flag: '🇹🇷', name: 'Türkiye', iso: 'TR' });
+  const [phoneLocal, setPhoneLocal] = useState('');
+  const [isPhoneDropdownOpen, setIsPhoneDropdownOpen] = useState(false);
+  // Full phone number derived from country code + local number
+  const guestPhone = phoneLocal ? `${phoneCountry.code} ${phoneLocal}` : '';
+
+  // Multi-Room Guest Assignment: one slot per room in cart
+  const [roomGuests, setRoomGuests] = useState([]);
 
   // Payment Details
   const [cardHolderName, setCardHolderName] = useState('');
@@ -217,6 +260,25 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   useEffect(() => {
     fetchLivePrices();
   }, [checkIn, checkOut, guests, currency]);
+
+  // Sync roomGuests slots whenever the cart changes
+  useEffect(() => {
+    setRoomGuests((prev) => {
+      const newSlots = cartItems.flatMap((item) =>
+        Array.from({ length: item.quantity }, (_, qi) => {
+          const key = `${item.cartKey}_${qi}`;
+          const existing = prev.find((g) => g.key === key);
+          return existing || {
+            key,
+            roomLabel: `${item.room.name.tr} — ${item.boardChoice === 'BB' ? 'Kahvaltılı' : 'Kahvaltısız'} (Oda ${qi + 1})`,
+            guestName: '',
+            guestNote: '',
+          };
+        })
+      );
+      return newSlots;
+    });
+  }, [roomCart]);
 
   const fetchTcmbRates = async () => {
     try {
@@ -447,10 +509,10 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
     setCardNumber(formatted);
   };
 
-  // Step 3 -> 4: Create Pending Reservation in Backend DB Snapshot
+  // Step 3 -> 4: Create Pending Reservation in Backend DB Snapshot + Supabase Lead
   const handleProceedToPayment = async (e) => {
     e.preventDefault();
-    if (!guestName || !guestEmail || !guestPhone) {
+    if (!guestName || !guestEmail || !phoneLocal) {
       setApiError('Lütfen misafir ad, e-posta ve telefon alanlarını doldurunuz.');
       return;
     }
@@ -489,6 +551,38 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
       if (pendingRes && pendingRes.success) {
         setCreatedReservation(pendingRes);
         setCurrentStep(4);
+
+        // Supabase'e misafir verilerini kaydet (fire-and-forget, rezervasyonu bloklamaz)
+        saveGuestLead({
+          guest_name: guestName,
+          guest_email: guestEmail,
+          guest_phone: guestPhone,
+          phone_country_code: phoneCountry.code,
+          phone_country_iso: phoneCountry.iso,
+          special_notes: specialNotes || null,
+          check_in: checkIn,
+          check_out: checkOut,
+          nights: nights,
+          guest_count: parseInt(guests, 10),
+          currency,
+          cart_items: cartItems.map((item) => ({
+            roomId: item.room.id,
+            roomName: item.room.name.tr,
+            boardChoice: item.boardChoice,
+            quantity: item.quantity,
+            pricePerNight: Math.round(item.offer?.pricePerNight || 0),
+            totalPrice: Math.round((item.offer?.totalPrice || 0) * item.quantity),
+          })),
+          room_guests: roomGuests
+            .filter((g) => g.guestName)
+            .map((g) => ({ roomLabel: g.roomLabel, guestName: g.guestName, guestNote: g.guestNote })),
+          subtotal_price: subtotalPrice,
+          tax_amount: taxAmount,
+          final_total_price: finalTotalPrice,
+          reservation_code: pendingRes?.reservationCode || null,
+          status: 'PENDING',
+          source: 'web',
+        }).catch(() => {});
       } else {
         throw new Error(pendingRes?.error?.message || 'Rezervasyon kaydı oluşturulamadı.');
       }
@@ -1256,15 +1350,52 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5">Telefon Numarası</label>
-              <input
-                type="tel"
-                value={guestPhone}
-                onChange={(e) => setGuestPhone(e.target.value)}
-                placeholder="+90 532 000 00 00"
-                className="w-full px-4 py-3 rounded-xl border border-[#E7E1D3] bg-[#F7F4EE] text-xs text-[#2B2B2B] focus:border-[#6F7255] focus:outline-none"
-                required
-              />
+              <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5 flex items-center gap-1.5">
+                <Phone className="w-3.5 h-3.5 text-[#6F7255]" /> Telefon Numarası
+              </label>
+              <div className="flex gap-2">
+                {/* Ülke Kodu Seçici */}
+                <div className="relative shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsPhoneDropdownOpen((v) => !v)}
+                    className="h-full px-3 py-3 rounded-xl border border-[#E7E1D3] bg-[#F7F4EE] text-xs flex items-center gap-1.5 whitespace-nowrap hover:border-[#6F7255] transition-all focus:outline-none focus:border-[#6F7255] min-w-[90px]"
+                  >
+                    <span className="text-base leading-none">{phoneCountry.flag}</span>
+                    <span className="font-semibold text-[#2B2B2B]">{phoneCountry.code}</span>
+                    <ChevronDown className={`w-3 h-3 text-[#6F7255] transition-transform ${isPhoneDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {isPhoneDropdownOpen && (
+                    <div className="absolute top-full left-0 mt-1 z-50 bg-white border border-[#E7E1D3] rounded-xl shadow-2xl overflow-y-auto max-h-60 w-56">
+                      {PHONE_COUNTRIES.map((c) => (
+                        <button
+                          key={`${c.iso}-${c.code}`}
+                          type="button"
+                          onClick={() => { setPhoneCountry(c); setIsPhoneDropdownOpen(false); }}
+                          className={`w-full flex items-center gap-2.5 px-3 py-2 text-[11px] hover:bg-[#F7F4EE] transition-all text-left ${
+                            phoneCountry.iso === c.iso && phoneCountry.code === c.code
+                              ? 'bg-[#6F7255]/10 font-semibold text-[#6F7255]'
+                              : 'text-[#2B2B2B]'
+                          }`}
+                        >
+                          <span className="text-base shrink-0">{c.flag}</span>
+                          <span className="font-semibold shrink-0 w-10">{c.code}</span>
+                          <span className="text-[#555555] truncate">{c.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {/* Yerel Numara */}
+                <input
+                  type="tel"
+                  value={phoneLocal}
+                  onChange={(e) => setPhoneLocal(e.target.value.replace(/[^\d\s\-]/g, ''))}
+                  placeholder="532 000 00 00"
+                  className="flex-1 px-4 py-3 rounded-xl border border-[#E7E1D3] bg-[#F7F4EE] text-xs text-[#2B2B2B] focus:border-[#6F7255] focus:outline-none"
+                  required
+                />
+              </div>
             </div>
           </div>
 
@@ -1278,6 +1409,59 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
               className="w-full px-4 py-3 rounded-xl border border-[#E7E1D3] bg-[#F7F4EE] text-xs text-[#2B2B2B] focus:border-[#6F7255] focus:outline-none"
             />
           </div>
+
+          {/* ÇOKLU ODA MİSAFİR AYRIMI — Sadece 1'den fazla oda seçiliyse göster */}
+          {totalSelectedRoomsCount > 1 && roomGuests.length > 0 && (
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center gap-2 pb-1 border-b border-[#E7E1D3]">
+                <div className="w-7 h-7 rounded-full bg-[#6F7255]/10 text-[#6F7255] flex items-center justify-center">
+                  <Users className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-[#2B2B2B] uppercase tracking-wider block">
+                    Oda Misafir Ayrımı
+                  </span>
+                  <span className="text-[10px] text-[#555555] font-light">
+                    {totalSelectedRoomsCount} oda seçildi — her oda için misafir adı belirtebilirsiniz (opsiyonel)
+                  </span>
+                </div>
+              </div>
+              <div className="space-y-3">
+                {roomGuests.map((guest, idx) => (
+                  <div key={guest.key} className="bg-[#F7F4EE] p-4 rounded-2xl border border-[#E7E1D3] space-y-3">
+                    <span className="text-[10px] font-bold text-[#6F7255] uppercase tracking-wider flex items-center gap-1.5">
+                      <BedDouble className="w-3.5 h-3.5 shrink-0" />
+                      {guest.roomLabel}
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <input
+                        type="text"
+                        value={guest.guestName}
+                        onChange={(e) =>
+                          setRoomGuests((prev) =>
+                            prev.map((g, i) => (i === idx ? { ...g, guestName: e.target.value } : g))
+                          )
+                        }
+                        placeholder="Misafir Ad Soyad"
+                        className="w-full px-4 py-2.5 rounded-xl border border-[#E7E1D3] bg-white text-xs text-[#2B2B2B] focus:border-[#6F7255] focus:outline-none"
+                      />
+                      <input
+                        type="text"
+                        value={guest.guestNote}
+                        onChange={(e) =>
+                          setRoomGuests((prev) =>
+                            prev.map((g, i) => (i === idx ? { ...g, guestNote: e.target.value } : g))
+                          )
+                        }
+                        placeholder="Özel istek (opsiyonel)"
+                        className="w-full px-4 py-2.5 rounded-xl border border-[#E7E1D3] bg-white text-xs text-[#2B2B2B] focus:border-[#6F7255] focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center justify-between pt-4 border-t border-[#E7E1D3]">
             <button

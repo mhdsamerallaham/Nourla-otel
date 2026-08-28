@@ -156,10 +156,32 @@ async function createReservation(data) {
 
   if (data.discountPercent || data.paymentType === 3) {
     const discPercent = parseFloat(data.discountPercent || 5);
+    
+    // Explicitly activate "İndirim Aktif" toggle button in ElektraWeb PMS UI & API
+    payload['is-discount-active'] = true;
+    payload['discount-active'] = true;
+    payload['is-discount'] = true;
+    payload['has-discount'] = true;
+    payload['discount-enabled'] = true;
+
+    // Deactivate "Manuel Fiyat Aktif" toggle so ElektraWeb applies discount rules
+    payload['is-manual-price'] = false;
+    payload['manual-price'] = false;
+    payload['manual-price-active'] = false;
+
     payload['discount-percent'] = discPercent;
+    payload['discount-ratio'] = discPercent;
+    payload['discount-rate'] = discPercent;
     payload['promotion-percent'] = discPercent;
+
     if (data.discountAmount) {
       payload['discount-amount'] = parseFloat(data.discountAmount);
+      payload['discount-value'] = parseFloat(data.discountAmount);
+    } else if (data.totalPrice && discPercent > 0) {
+      const origP = parseFloat(data.totalPrice);
+      const discAmt = Math.round(origP * (discPercent / 100) * 100) / 100;
+      payload['discount-amount'] = discAmt;
+      payload['discount-value'] = discAmt;
     }
   }
 

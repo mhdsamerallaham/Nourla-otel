@@ -7,10 +7,13 @@
 const path = require('path');
 const fs = require('fs');
 let sqlite3 = null;
-try {
-  sqlite3 = require('sqlite3').verbose();
-} catch (err) {
-  console.warn('[DATABASE WARNING] Native sqlite3 module not available:', err.message);
+// Do not require native sqlite3 binding on Vercel serverless platform
+if (!process.env.VERCEL && !process.env.NOW_REGION) {
+  try {
+    sqlite3 = require('sqlite3').verbose();
+  } catch (err) {
+    console.warn('[DATABASE WARNING] Native sqlite3 module not available:', err.message);
+  }
 }
 
 const isVercel = Boolean(process.env.VERCEL || process.env.NOW_REGION);

@@ -211,7 +211,8 @@ router.post('/reservation/:id/confirm-transfer', async (req, res) => {
           rateCodeId:    item.rateCodeId    || body.rateCodeId    || 6844,
           priceAgencyId: item.priceAgencyId || body.priceAgencyId || 44573,
           currency:      (body.currency || 'TRY').toUpperCase(),
-          totalPrice:    roomHavaleShare > 0 ? roomHavaleShare : (body.havaleFinalPrice || body.totalPrice),
+          totalPrice:    itemPrice > 0 ? itemPrice : (body.totalPrice || originalCartTotal),
+          netPrice:      roomHavaleShare > 0 ? roomHavaleShare : (body.havaleFinalPrice || body.totalPrice),
           nationality:   body.nationality || 'TR',
           specialNotes:  transferNotes,
           paymentType:   body.paymentType !== undefined ? body.paymentType : 3, // 3 = Banka Havalesi / EFT

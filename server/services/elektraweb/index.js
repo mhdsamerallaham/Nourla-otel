@@ -195,7 +195,7 @@ async function createReservation(data) {
     payload['discount_value'] = discAmt;
 
     // Pass net_price / channel_price as per Elektraweb documentation
-    const netPrice = totP > discAmt ? totP - discAmt : totP;
+    const netPrice = data.netPrice ? parseFloat(data.netPrice) : (totP > discAmt ? totP - discAmt : totP);
     payload['net-price'] = netPrice;
     payload['net_price'] = netPrice;
     payload['channel-price'] = netPrice;

@@ -131,6 +131,24 @@ async function createReservation(data) {
     });
   }
 
+  const rawTotalPrice = parseFloat(data.totalPrice || data.netPrice || 0);
+  const discPercent = parseFloat(data.discountPercent || (data.paymentType === 3 ? 5 : 0));
+  const discAmt = data.discountAmount ? parseFloat(data.discountAmount) : (discPercent > 0 ? Math.round(rawTotalPrice * (discPercent / 100) * 100) / 100 : 0);
+  const netPrice = data.netPrice ? parseFloat(data.netPrice) : (rawTotalPrice > discAmt ? parseFloat((rawTotalPrice - discAmt).toFixed(2)) : rawTotalPrice);
+
+  // If discount is applied, total-price sent to PMS MUST be the payable net price
+  const finalPriceToSend = (discPercent > 0 || discAmt > 0) ? netPrice : rawTotalPrice;
+  const currencyCode = (data.currency || 'TRY').toUpperCase();
+
+  // Format accounting & PMS note
+  let detailedNotes = data.specialNotes || 'Nourla Web Sitesi Üzerinden Oluşturuldu';
+  if (discPercent > 0 || discAmt > 0) {
+    const discountSummary = `[İNDİRİM: %${discPercent} | Liste: ${rawTotalPrice} ${currencyCode} | İndirim Tutarı: -${discAmt} ${currencyCode} | Tahsil Edilen Net Tutar: ${netPrice} ${currencyCode}]`;
+    if (!detailedNotes.includes('İNDİRİM:')) {
+      detailedNotes = `${detailedNotes} | ${discountSummary}`;
+    }
+  }
+
   const payload = {
     'hotel-id': parseInt(HOTEL_ID, 10),
     'check-in': data.checkIn,
@@ -140,27 +158,26 @@ async function createReservation(data) {
     'rate-type-id': parseInt(data.rateTypeId || 792, 10),
     'rate-code-id': parseInt(data.rateCodeId || 6844, 10),
     'price-agency-id': parseInt(data.priceAgencyId || 44573, 10),
-    'currency-code': (data.currency || 'TRY').toUpperCase(),
-    'total-price': parseFloat(data.totalPrice || 0),
+    'currency-code': currencyCode,
+    'total-price': finalPriceToSend,
+    'total_price': finalPriceToSend,
     'adult-count': adultCount,
     nationality: (data.nationality || 'TR').toUpperCase(),
     'contact-first-name': firstName,
     'contact-last-name': lastName,
     'contact-email': data.guestEmail || 'info@nourla.com.tr',
     'contact-phone': data.guestPhone || '+905320000000',
-    'res-notes': data.specialNotes || 'Nourla Web Sitesi Üzerinden Oluşturuldu',
+    'res-notes': detailedNotes,
     'room-count': 1,
     'payment-type': data.paymentType !== undefined ? parseInt(data.paymentType, 10) : 3, // 3 = Banka Havalesi / EFT
     'guest-list': guestList,
   };
 
-  const discPercent = parseFloat(data.discountPercent || (data.paymentType === 3 ? 5 : 0));
-  
-  if (discPercent > 0) {
+  if (discPercent > 0 || discAmt > 0) {
     payload['discount-type-id'] = parseInt(data.discountTypeId || 1, 10);
     payload['discount_type_id'] = parseInt(data.discountTypeId || 1, 10);
 
-    // Explicitly activate "İndirim Aktif" toggle button in ElektraWeb PMS UI & API (snake_case + kebab-case)
+    // Explicitly activate "İndirim Aktif" toggle button in ElektraWeb PMS UI & API
     payload['is-discount-active'] = true;
     payload['is_discount_active'] = true;
     payload['discount-active'] = true;
@@ -172,18 +189,18 @@ async function createReservation(data) {
     payload['discount-enabled'] = true;
     payload['discount_enabled'] = true;
 
-    // Deactivate "Manuel Fiyat Aktif" & "Sabit Fiyat" toggle so ElektraWeb applies discount rules
-    payload['is-manual-price'] = false;
-    payload['is_manual_price'] = false;
-    payload['manual-price'] = false;
-    payload['manual_price'] = false;
-    payload['manual-price-active'] = false;
-    payload['manual_price_active'] = false;
+    // Apply manual price & fixed price matching net discounted price so PMS enforces discount
+    payload['is-manual-price'] = true;
+    payload['is_manual_price'] = true;
+    payload['manual-price'] = netPrice;
+    payload['manual_price'] = netPrice;
+    payload['manual-price-active'] = true;
+    payload['manual_price_active'] = true;
 
-    payload['is-fixed-price'] = false;
-    payload['is_fixed_price'] = false;
-    payload['fixed-price'] = false;
-    payload['fixed_price'] = false;
+    payload['is-fixed-price'] = true;
+    payload['is_fixed_price'] = true;
+    payload['fixed-price'] = true;
+    payload['fixed_price'] = true;
 
     payload['discount-percent'] = discPercent;
     payload['discount_percent'] = discPercent;
@@ -194,20 +211,21 @@ async function createReservation(data) {
     payload['promotion-percent'] = discPercent;
     payload['promotion_percent'] = discPercent;
 
-    const totP = parseFloat(data.totalPrice || 0);
-    const discAmt = data.discountAmount ? parseFloat(data.discountAmount) : Math.round(totP * (discPercent / 100) * 100) / 100;
-    
+    payload['discount'] = discAmt;
     payload['discount-amount'] = discAmt;
     payload['discount_amount'] = discAmt;
     payload['discount-value'] = discAmt;
     payload['discount_value'] = discAmt;
+    payload['manual-discount'] = discAmt;
+    payload['manual_discount'] = discAmt;
 
     // Pass net_price / channel_price as per Elektraweb documentation
-    const netPrice = data.netPrice ? parseFloat(data.netPrice) : (totP > discAmt ? totP - discAmt : totP);
     payload['net-price'] = netPrice;
     payload['net_price'] = netPrice;
     payload['channel-price'] = netPrice;
     payload['channel_price'] = netPrice;
+    payload['original-price'] = rawTotalPrice;
+    payload['original_price'] = rawTotalPrice;
   }
 
   if (process.env.TEST_SUITE_MOCK_PMS === 'true') {
@@ -222,7 +240,7 @@ async function createReservation(data) {
     };
   }
 
-  console.log(`[ELEKTRA RESERVATION] Sending createReservation request for roomType: ${data.roomTypeId}...`);
+  console.log(`[ELEKTRA RESERVATION] Sending createReservation request for roomType: ${data.roomTypeId}, finalPrice: ${finalPriceToSend} ${currencyCode}...`);
 
   if (String(data.roomTypeId) === '999999') {
     throw new Error('Geçersiz oda tipi ID (Test PMS Sync Failure).');
@@ -231,41 +249,49 @@ async function createReservation(data) {
   try {
     return await elektraPost(`/hotel/${HOTEL_ID}/createReservation`, payload);
   } catch (err) {
-    // If ElektraWeb PMS requests exact price quote matching, extract quote and auto-retry!
+    // If ElektraWeb PMS requests exact price quote matching, calculate net price and retry
     const quoteMatch = err.message && err.message.match(/must be ([0-9.]+)\s*([A-Z]+)?/i);
     if (quoteMatch && quoteMatch[1]) {
       const pmsPrice = parseFloat(quoteMatch[1]);
-      console.log(`[ELEKTRA RESERVATION AUTO-QUOTE FIX] Price quote adjusted from ${payload['total-price']} to ${pmsPrice} TRY. Retrying PMS creation...`);
-      payload['total-price'] = pmsPrice;
-      payload['total_price'] = pmsPrice;
+      console.log(`[ELEKTRA RESERVATION AUTO-QUOTE FIX] PMS rack quote received: ${pmsPrice} TRY. Adjusting payload for roomType ${data.roomTypeId}...`);
 
       if (discPercent > 0) {
         const calculatedDiscAmt = parseFloat((pmsPrice * (discPercent / 100)).toFixed(2));
         const netCalculatedPrice = parseFloat((pmsPrice - calculatedDiscAmt).toFixed(2));
 
-        // Override PMS total with netCalculatedPrice via manual-price parameters
+        payload['total-price'] = netCalculatedPrice;
+        payload['total_price'] = netCalculatedPrice;
         payload['manual-price'] = netCalculatedPrice;
         payload['manual_price'] = netCalculatedPrice;
         payload['is-manual-price'] = true;
         payload['is_manual_price'] = true;
         payload['manual-price-active'] = true;
         payload['manual_price_active'] = true;
+        payload['is-fixed-price'] = true;
+        payload['is_fixed_price'] = true;
 
         payload['net-price'] = netCalculatedPrice;
         payload['net_price'] = netCalculatedPrice;
         payload['channel-price'] = netCalculatedPrice;
         payload['channel_price'] = netCalculatedPrice;
 
+        payload['discount'] = calculatedDiscAmt;
         payload['discount-amount'] = calculatedDiscAmt;
         payload['discount_amount'] = calculatedDiscAmt;
         payload['discount-value'] = calculatedDiscAmt;
         payload['discount_value'] = calculatedDiscAmt;
+        payload['manual-discount'] = calculatedDiscAmt;
+        payload['manual_discount'] = calculatedDiscAmt;
 
         payload['is-discount-active'] = true;
         payload['is_discount_active'] = true;
         payload['discount-active'] = true;
         payload['discount_active'] = true;
+      } else {
+        payload['total-price'] = pmsPrice;
+        payload['total_price'] = pmsPrice;
       }
+
       try {
         return await elektraPost(`/hotel/${HOTEL_ID}/createReservation`, payload);
       } catch (retryErr) {

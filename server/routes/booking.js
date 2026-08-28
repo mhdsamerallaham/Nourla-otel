@@ -120,6 +120,9 @@ router.post('/reservation', async (req, res) => {
       nationality: body.nationality || 'TR',
       currency: body.currency || 'TRY',
       promoCode: body.promoCode,
+      totalPrice: body.totalPrice,
+      basePrice: body.basePrice || body.originalPrice || body.totalPrice,
+      discountAmount: body.discountAmount || 0,
     });
 
     return res.json({
@@ -177,22 +180,21 @@ router.post('/reservation/:id/confirm-transfer', async (req, res) => {
     // Create a PMS reservation for each room item in the cart
     for (let i = 0; i < roomItems.length; i++) {
       const item = roomItems[i];
-      const itemPrice = parseFloat(item.totalPrice) || 0;
+      const itemOriginalPrice = parseFloat(item.totalPrice) || (totalCartRooms > 0 ? originalCartTotal / totalCartRooms : 0);
       
-      const roomHavaleShare = cartTotalPriceSum > 0
-        ? Math.round((itemPrice / cartTotalPriceSum) * finalTotalHavalePrice * 100) / 100
-        : Math.round((finalTotalHavalePrice / totalCartRooms) * 100) / 100;
+      const roomNetHavalePrice = cartTotalPriceSum > 0
+        ? Math.round((itemOriginalPrice / cartTotalPriceSum) * finalTotalHavalePrice * 100) / 100
+        : (totalCartRooms > 0 ? Math.round((finalTotalHavalePrice / totalCartRooms) * 100) / 100 : finalTotalHavalePrice);
 
-      const originalCartTotal = parseFloat((body.totalPrice || cartTotalPriceSum || 0).toFixed(2));
-      const havaleDiscountAmount = parseFloat((originalCartTotal * 0.05).toFixed(2));
+      const roomDiscountAmount = parseFloat((itemOriginalPrice - roomNetHavalePrice).toFixed(2));
 
       const transferNotes = [
         'ÖDEME YÖNTEMİ: BANKA HAVALESİ / EFT (%5 İNDİRİMLİ)',
         body.reservationCode ? `Ref: ${body.reservationCode}` : '',
-        `ElektraWeb Liste Fiyatı: ${originalCartTotal} ${body.currency || 'TRY'}`,
-        `Havale %5 İndirimi: -${havaleDiscountAmount} ${body.currency || 'TRY'}`,
-        `MÜŞTERİNİN HAVALE İLE YATIRACAĞI NET TUTAR: ${finalTotalHavalePrice} ${body.currency || 'TRY'}`,
-        `Müşteri İletişim: ${body.guestName} (${body.guestEmail || ''} | ${body.guestPhone || ''})`,
+        `Liste Fiyatı: ${itemOriginalPrice} ${body.currency || 'TRY'}`,
+        `%5 Havale İndirimi: -${roomDiscountAmount > 0 ? roomDiscountAmount : havaleDiscountAmount} ${body.currency || 'TRY'}`,
+        `NET ÖDENECEK TUTAR: ${roomNetHavalePrice} ${body.currency || 'TRY'}`,
+        `Misafir: ${body.guestName} (${body.guestEmail || ''} | ${body.guestPhone || ''})`,
         totalCartRooms > 1 ? `Sepet: Oda ${i + 1}/${totalCartRooms} (${item.roomName || 'Oda'})` : '',
         body.specialNotes || '',
       ].filter(Boolean).join(' | ');
@@ -211,13 +213,13 @@ router.post('/reservation/:id/confirm-transfer', async (req, res) => {
           rateCodeId:    item.rateCodeId    || body.rateCodeId    || 6844,
           priceAgencyId: item.priceAgencyId || body.priceAgencyId || 44573,
           currency:      (body.currency || 'TRY').toUpperCase(),
-          totalPrice:    originalCartTotal,
-          netPrice:      finalTotalHavalePrice,
+          totalPrice:    itemOriginalPrice,
+          netPrice:      roomNetHavalePrice,
           nationality:   body.nationality || 'TR',
           specialNotes:  transferNotes,
           paymentType:   body.paymentType !== undefined ? body.paymentType : 3, // 3 = Banka Havalesi / EFT
           discountPercent: (body.paymentType === 3 || body.paymentType === undefined) ? 5 : (body.discountPercent || 0),
-          discountAmount:  (body.paymentType === 3 || body.paymentType === undefined) ? havaleDiscountAmount : (body.discountAmount || 0),
+          discountAmount:  roomDiscountAmount > 0 ? roomDiscountAmount : havaleDiscountAmount,
           discountTypeId:  1,
         });
 

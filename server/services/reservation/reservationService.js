@@ -74,8 +74,8 @@ async function createPendingReservation(data) {
   const basePricePerNight = pmsOffer?.pricePerNight || pmsOffer?.price || room?.base_price || 350;
 
   // Compute immutable snapshot price values
-  const basePriceTotal = data.totalPrice ? parseFloat(data.totalPrice) : parseFloat((basePricePerNight * nightCount).toFixed(2));
-  const discountAmount = pmsOffer?.discount || 0.0;
+  const basePriceTotal = data.basePrice ? parseFloat(data.basePrice) : (data.totalPrice ? parseFloat(data.totalPrice) : parseFloat((basePricePerNight * nightCount).toFixed(2)));
+  const discountAmount = data.discountAmount !== undefined ? parseFloat(data.discountAmount) : (pmsOffer?.discount || 0.0);
   const taxAmount = parseFloat((basePriceTotal * 0.10).toFixed(2)); // 10% VAT
   const totalPrice = data.totalPrice ? parseFloat(data.totalPrice) : parseFloat((basePriceTotal - discountAmount + taxAmount).toFixed(2));
 
@@ -194,6 +194,10 @@ async function syncReservationToPMS(reservationId) {
   const primaryGuest = reservation.guests.find((g) => g.is_primary) || reservation.guests[0];
   const guestName = primaryGuest ? `${primaryGuest.first_name} ${primaryGuest.last_name}` : 'Değerli Misafir';
 
+  const discAmt = parseFloat(reservation.discount_amount || 0);
+  const baseP = parseFloat(reservation.base_price || reservation.total_price || 0);
+  const discPct = (discAmt > 0 && baseP > 0) ? Math.round((discAmt / baseP) * 100) : 0;
+
   const pmsPayload = {
     checkIn: reservation.check_in,
     checkOut: reservation.check_out,
@@ -203,12 +207,16 @@ async function syncReservationToPMS(reservationId) {
     rateCodeId: reservation.rate_code_id,
     priceAgencyId: reservation.price_agency_id,
     currency: reservation.currency,
-    totalPrice: reservation.total_price,
+    totalPrice: baseP,
+    netPrice: parseFloat(reservation.total_price || 0),
+    discountAmount: discAmt,
+    discountPercent: discPct,
     adultCount: reservation.adult_count,
     guestName,
     guestEmail: primaryGuest?.email || 'info@nourla.com.tr',
     guestPhone: primaryGuest?.phone || '+905320000000',
     specialNotes: primaryGuest?.special_notes || `Web Ödeme Ref: ${reservation.reservation_code}`,
+    paymentType: reservation.payment_status === 'PAID' ? 2 : 3, // 2 = Kredi Kartı (Online), 3 = Havale / EFT
   };
 
   const attempts = (reservation.sync_attempts || 0) + 1;

@@ -205,7 +205,6 @@ async function createReservation(data) {
     'price-agency-id': parseInt(data.priceAgencyId || 44573, 10),
     'currency-code': currencyCode,
     'total-price': finalPriceToSend,
-    'total_price': finalPriceToSend,
     'adult-count': adultCount,
     nationality: (data.nationality || 'TR').toUpperCase(),
     'contact-first-name': firstName,
@@ -219,58 +218,9 @@ async function createReservation(data) {
   };
 
   if (discPercent > 0 || discAmt > 0) {
-    payload['discount-type-id'] = parseInt(data.discountTypeId || 1, 10);
-    payload['discount_type_id'] = parseInt(data.discountTypeId || 1, 10);
-
-    // Explicitly activate "İndirim Aktif" toggle button in ElektraWeb PMS UI & API
-    payload['is-discount-active'] = true;
-    payload['is_discount_active'] = true;
-    payload['discount-active'] = true;
-    payload['discount_active'] = true;
-    payload['is-discount'] = true;
-    payload['is_discount'] = true;
-    payload['has-discount'] = true;
-    payload['has_discount'] = true;
-    payload['discount-enabled'] = true;
-    payload['discount_enabled'] = true;
-
-    // Apply manual price & fixed price matching net discounted price so PMS enforces discount
-    payload['is-manual-price'] = true;
-    payload['is_manual_price'] = true;
-    payload['manual-price'] = netPrice;
-    payload['manual_price'] = netPrice;
-    payload['manual-price-active'] = true;
-    payload['manual_price_active'] = true;
-
-    payload['is-fixed-price'] = true;
-    payload['is_fixed_price'] = true;
-    payload['fixed-price'] = true;
-    payload['fixed_price'] = true;
-
     payload['discount-percent'] = discPercent;
-    payload['discount_percent'] = discPercent;
-    payload['discount-ratio'] = discPercent;
-    payload['discount_ratio'] = discPercent;
-    payload['discount-rate'] = discPercent;
-    payload['discount_rate'] = discPercent;
-    payload['promotion-percent'] = discPercent;
-    payload['promotion_percent'] = discPercent;
-
-    payload['discount'] = discAmt;
     payload['discount-amount'] = discAmt;
-    payload['discount_amount'] = discAmt;
-    payload['discount-value'] = discAmt;
-    payload['discount_value'] = discAmt;
-    payload['manual-discount'] = discAmt;
-    payload['manual_discount'] = discAmt;
-
-    // Pass net_price / channel_price as per Elektraweb documentation
-    payload['net-price'] = netPrice;
-    payload['net_price'] = netPrice;
-    payload['channel-price'] = netPrice;
-    payload['channel_price'] = netPrice;
-    payload['original-price'] = rawTotalPrice;
-    payload['original_price'] = rawTotalPrice;
+    payload['discount-type-id'] = parseInt(data.discountTypeId || 1, 10);
   }
 
   if (process.env.TEST_SUITE_MOCK_PMS === 'true') {
@@ -285,7 +235,7 @@ async function createReservation(data) {
     };
   }
 
-  console.log(`[ELEKTRA RESERVATION] Sending createReservation request for roomType: ${data.roomTypeId}, finalPrice: ${finalPriceToSend} ${currencyCode}...`);
+  console.log(`[ELEKTRA RESERVATION] Sending createReservation request for roomType: ${data.roomTypeId}, price: ${finalPriceToSend} ${currencyCode}...`);
 
   if (String(data.roomTypeId) === '999999') {
     throw new Error('Geçersiz oda tipi ID (Test PMS Sync Failure).');
@@ -294,71 +244,20 @@ async function createReservation(data) {
   try {
     return await elektraPost(`/hotel/${HOTEL_ID}/createReservation`, payload);
   } catch (err) {
-    // If ElektraWeb PMS requests exact price quote matching, calculate net price and retry
+    // If ElektraWeb PMS requests exact price quote matching, adjust total-price to match PMS quote and retry!
     const quoteMatch = err.message && err.message.match(/must be ([0-9.]+)\s*([A-Z]+)?/i);
     if (quoteMatch && quoteMatch[1]) {
       const pmsPrice = parseFloat(quoteMatch[1]);
-      console.log(`[ELEKTRA RESERVATION AUTO-QUOTE FIX] PMS rack quote received: ${pmsPrice} TRY. Adjusting payload for roomType ${data.roomTypeId}...`);
-
+      console.log(`[ELEKTRA RESERVATION AUTO-QUOTE FIX] Adjusting total-price from ${payload['total-price']} to PMS quote ${pmsPrice} TRY...`);
+      payload['total-price'] = pmsPrice;
       if (discPercent > 0) {
-        const calculatedDiscAmt = parseFloat((pmsPrice * (discPercent / 100)).toFixed(2));
-        const netCalculatedPrice = parseFloat((pmsPrice - calculatedDiscAmt).toFixed(2));
-
-        payload['total-price'] = netCalculatedPrice;
-        payload['total_price'] = netCalculatedPrice;
-        payload['manual-price'] = netCalculatedPrice;
-        payload['manual_price'] = netCalculatedPrice;
-        payload['is-manual-price'] = true;
-        payload['is_manual_price'] = true;
-        payload['manual-price-active'] = true;
-        payload['manual_price_active'] = true;
-        payload['is-fixed-price'] = true;
-        payload['is_fixed_price'] = true;
-
-        payload['net-price'] = netCalculatedPrice;
-        payload['net_price'] = netCalculatedPrice;
-        payload['channel-price'] = netCalculatedPrice;
-        payload['channel_price'] = netCalculatedPrice;
-
-        payload['discount'] = calculatedDiscAmt;
-        payload['discount-amount'] = calculatedDiscAmt;
-        payload['discount_amount'] = calculatedDiscAmt;
-        payload['discount-value'] = calculatedDiscAmt;
-        payload['discount_value'] = calculatedDiscAmt;
-        payload['manual-discount'] = calculatedDiscAmt;
-        payload['manual_discount'] = calculatedDiscAmt;
-
-        payload['is-discount-active'] = true;
-        payload['is_discount_active'] = true;
-        payload['discount-active'] = true;
-        payload['discount_active'] = true;
-      } else {
-        payload['total-price'] = pmsPrice;
-        payload['total_price'] = pmsPrice;
+        payload['discount-amount'] = parseFloat((pmsPrice * (discPercent / 100)).toFixed(2));
+        payload['discount-percent'] = discPercent;
       }
 
       try {
         return await elektraPost(`/hotel/${HOTEL_ID}/createReservation`, payload);
       } catch (retryErr) {
-        // If PMS strictly enforces quote on total-price, set total-price to pmsPrice with net manual-price
-        if (discPercent > 0 && retryErr.message && retryErr.message.includes('must be')) {
-          console.log(`[ELEKTRA RESERVATION PMS OVERRIDE] Setting total-price to ${pmsPrice} with net manual-price ${netCalculatedPrice}...`);
-          payload['total-price'] = pmsPrice;
-          payload['total_price'] = pmsPrice;
-          try {
-            return await elektraPost(`/hotel/${HOTEL_ID}/createReservation`, payload);
-          } catch (thirdErr) {
-            if (process.env.NODE_ENV === 'test') {
-              return {
-                success: true,
-                'reservation-id': Math.floor(100000 + Math.random() * 900000),
-                'reservation-uuid': `MOCK-PMS-UUID-${Date.now()}`,
-              };
-            }
-            throw thirdErr;
-          }
-        }
-
         if (process.env.NODE_ENV === 'test') {
           console.warn(`[ELEKTRA RESERVATION TEST FALLBACK] Test mode fallback active on retry: ${retryErr.message}`);
           return {
@@ -375,7 +274,6 @@ async function createReservation(data) {
       throw err;
     }
 
-    // Fallback for automated test mode if PMS inventory is full or test mode active
     if (process.env.NODE_ENV === 'test') {
       console.warn(`[ELEKTRA RESERVATION TEST FALLBACK] Test mode fallback active: ${err.message}`);
       return {

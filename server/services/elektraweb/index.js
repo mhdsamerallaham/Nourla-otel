@@ -154,6 +154,15 @@ async function createReservation(data) {
     'guest-list': guestList,
   };
 
+  if (data.discountPercent || data.paymentType === 3) {
+    const discPercent = parseFloat(data.discountPercent || 5);
+    payload['discount-percent'] = discPercent;
+    payload['promotion-percent'] = discPercent;
+    if (data.discountAmount) {
+      payload['discount-amount'] = parseFloat(data.discountAmount);
+    }
+  }
+
   if (process.env.TEST_SUITE_MOCK_PMS === 'true') {
     if (String(data.roomTypeId) === '999999') {
       throw new Error('Geçersiz oda tipi ID (Test PMS Sync Failure).');

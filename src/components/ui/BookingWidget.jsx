@@ -1029,7 +1029,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
           >
             {isSearching ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" /> ElektraWeb Canlı Müsaitlik Sorgulanıyor...
+                <Loader2 className="w-4 h-4 animate-spin" /> Müsaitlik ve Fiyatlar Sorgulanıyor...
               </>
             ) : (
               <>
@@ -1211,7 +1211,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                       {/* Full Features & Amenities Badges (Scrollable on mobile) */}
                       <div className="pt-1">
                         <span className="text-[10px] font-semibold tracking-[0.15em] text-[#6F7255] uppercase block mb-1.5">
-                          ELEKTRAWEB CANLI ODA ÖZELLİKLERİ
+                          ODA ÖNE ÇIKAN ÖZELLİKLERİ
                         </span>
                         <div className="flex gap-1.5 overflow-x-auto pb-1 sm:flex-wrap scrollbar-none">
                           {displayedFeatures.map((feat, fIdx) => (
@@ -1358,7 +1358,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                   ) : (
                     <div className="pt-3 border-t border-[#E7E1D3] flex items-center justify-between">
                       <span className="text-xs text-stone-500 font-light italic">
-                        Seçilen tarihlerde ElektraWeb sisteminde dolu veya kapalıdır.
+                        Seçilen tarihlerde bu oda tipimiz için müsaitlik bulunmamaktadır.
                       </span>
                       <button
                         type="button"

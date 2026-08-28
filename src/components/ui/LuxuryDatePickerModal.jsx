@@ -301,7 +301,7 @@ export default function LuxuryDatePickerModal({
             </span>
             {isLoadingMonth && (
               <span className="text-[10px] text-[#6F7255] flex items-center justify-center gap-1 mt-0.5">
-                <Loader2 className="w-3 h-3 animate-spin" /> ElektraWeb kurları güncelleniyor...
+                <Loader2 className="w-3 h-3 animate-spin" /> Güncel fiyatlar yükleniyor...
               </span>
             )}
           </div>

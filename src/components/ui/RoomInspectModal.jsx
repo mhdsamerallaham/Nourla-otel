@@ -111,7 +111,7 @@ export default function RoomInspectModal({ room, isOpen, onClose, onSelectAndBoo
 
           {/* Full Amenities Grid */}
           <div>
-            <h4 className="font-serif text-xl text-[#2B2B2B] mb-4">Oda Donanımı & ElektraWeb Özellikleri</h4>
+            <h4 className="font-serif text-xl text-[#2B2B2B] mb-4">Oda Donanımı ve Konaklama Özellikleri</h4>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {[
                 { name: 'Yüksek Hızlı Wi-Fi', icon: Wifi },

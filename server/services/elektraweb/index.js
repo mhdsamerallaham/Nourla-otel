@@ -150,7 +150,7 @@ async function createReservation(data) {
     'contact-phone': data.guestPhone || '+905320000000',
     'res-notes': data.specialNotes || 'Nourla Web Sitesi Üzerinden Oluşturuldu',
     'room-count': 1,
-    'payment-type': 2, // 2 = UNPAID (Otelde ödeme/Onay Bekliyor)
+    'payment-type': data.paymentType !== undefined ? parseInt(data.paymentType, 10) : 3, // 3 = Banka Havalesi / EFT (Wire Transfer)
     'guest-list': guestList,
   };
 

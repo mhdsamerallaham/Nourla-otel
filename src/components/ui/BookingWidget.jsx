@@ -704,32 +704,44 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
       const primaryItem = cartItems[0];
       const offer = primaryItem?.offer;
 
+      // Build cart items array containing all selected rooms for multi-room PMS creation
+      const roomsPayload = cartItems.flatMap((item) =>
+        Array.from({ length: item.quantity }, (_, qIdx) => ({
+          pmsRoomTypeId: item.room.elektraRoomTypeId,
+          roomName: item.room.name.tr,
+          boardChoice: item.boardChoice,
+          boardTypeId: item.offer?.boardTypeId || 893,
+          rateTypeId: item.offer?.rateTypeId || 792,
+          rateCodeId: item.offer?.rateCodeId || 6844,
+          priceAgencyId: item.offer?.priceAgencyId || 44573,
+          pricePerNight: item.offer?.pricePerNight || 0,
+          totalPrice: (item.offer?.totalPrice || 0) * item.quantity,
+          roomIndex: qIdx + 1,
+        }))
+      );
+
       const result = await confirmTransferReservation(
         createdReservation?.reservationId || 0,
         {
-          // Reservation reference
           reservationCode: createdReservation?.reservationCode,
-          // Guest info
           guestName,
           guestEmail,
           guestPhone,
-          // Room + dates
+          cartItems: roomsPayload,
           pmsRoomTypeId: selectedRoom?.elektraRoomTypeId,
           checkIn,
           checkOut,
           adultCount: parseInt(guests, 10),
           nationality: 'TR',
-          // Offer IDs from ElektraWeb price response
-          boardTypeId:   offer?.boardTypeId   || 893,
-          rateTypeId:    offer?.rateTypeId    || 792,
-          rateCodeId:    offer?.rateCodeId    || 6844,
+          boardTypeId: offer?.boardTypeId || 893,
+          rateTypeId: offer?.rateTypeId || 792,
+          rateCodeId: offer?.rateCodeId || 6844,
           priceAgencyId: offer?.priceAgencyId || 44573,
-          // Pricing
           currency,
-          totalPrice:      finalTotalPrice,
+          totalPrice: finalTotalPrice,
           havaleFinalPrice: havaleFinalPrice,
-          // Notes
           specialNotes: specialNotes || '',
+          paymentType: 3, // 3 = Banka Havalesi / EFT
         }
       );
 

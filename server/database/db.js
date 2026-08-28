@@ -42,6 +42,7 @@ const memStore = {
 let db = null;
 
 function getDbConnection() {
+  if (isVercel) return null; // On Vercel serverless, instantly use memory store to avoid binary binding issues
   if (!sqlite3) return null;
   if (!db) {
     try {

@@ -19,14 +19,17 @@ const { initializeDatabase } = require('../server/database/db');
 let dbInitialized = false;
 
 module.exports = async (req, res) => {
-  if (!dbInitialized) {
-    try {
-      await initializeDatabase();
-    } catch (err) {
-      console.error('[VERCEL DB INIT ERROR]', err.message);
-    } finally {
+  try {
+    if (!dbInitialized) {
       dbInitialized = true;
+      initializeDatabase().catch((err) => console.error('[VERCEL DB INIT ERROR]', err.message));
     }
+    return app(req, res);
+  } catch (err) {
+    console.error('[VERCEL HANDLER ERROR]', err);
+    return res.status(500).json({
+      success: false,
+      error: { code: 'SERVER_ERROR', message: err.message || 'Vercel Serverless Function Error' },
+    });
   }
-  return app(req, res);
 };

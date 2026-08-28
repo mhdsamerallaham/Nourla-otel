@@ -505,14 +505,19 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   const currSymbol = currency === 'EUR' ? '€' : (currency === 'USD' ? '$' : '₺');
   
   // Price breakdown for multi-room cart (strictly zero if cart empty)
+  // NOTE: ElektraWeb API returns KDV-INCLUDED prices. We extract KDV breakdown without adding extra tax.
   const isSelectedRoomLiveAvailable = totalSelectedRoomsCount > 0;
-  const subtotalPrice = cartItems.reduce((sum, item) => sum + (item.offer ? Math.round(item.offer.totalPrice * item.quantity) : 0), 0);
-  const taxAmount = Math.round(subtotalPrice * 0.10); // 10% VAT
-  const finalTotalPrice = subtotalPrice + taxAmount;
+  const totalCartPriceKdvIncluded = cartItems.reduce((sum, item) => sum + (item.offer ? Math.round(item.offer.totalPrice * item.quantity) : 0), 0);
+  
+  // Extract 10% KDV included portion for breakdown display
+  const subtotalPrice = Math.round(totalCartPriceKdvIncluded / 1.10); // KDV Hariç Matrah
+  const taxAmount = totalCartPriceKdvIncluded - subtotalPrice; // %10 KDV Tutarı
+  
+  const finalTotalPrice = totalCartPriceKdvIncluded; // Actual KDV-Included Price from ElektraWeb offer
   const havaleDiscount = Math.round(finalTotalPrice * 0.05); // %5 Havale/EFT discount
   const havaleFinalPrice = finalTotalPrice - havaleDiscount;
   const currentPayablePrice = paymentMethod === 'HAVALE' ? havaleFinalPrice : finalTotalPrice;
-  const roomPricePerNight = totalSelectedRoomsCount > 0 ? Math.round(subtotalPrice / (nights || 1)) : 0;
+  const roomPricePerNight = totalSelectedRoomsCount > 0 ? Math.round(finalTotalPrice / (nights || 1)) : 0;
 
   // Format card number with spaces
   const handleCardNumberChange = (e) => {

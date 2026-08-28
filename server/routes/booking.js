@@ -186,6 +186,7 @@ router.post('/reservation/:id/confirm-transfer', async (req, res) => {
       const transferNotes = [
         'ÖDEME YÖNTEMİ: BANKA HAVALESİ / EFT (%5 İndirimli)',
         body.reservationCode ? `Ref: ${body.reservationCode}` : '',
+        `Müşteri İletişim: ${body.guestName} (${body.guestEmail || ''} | ${body.guestPhone || ''})`,
         totalCartRooms > 1 ? `Sepet: Oda ${i + 1}/${totalCartRooms} (${item.roomName || 'Oda'})` : '',
         `Sepet İndirimli Toplam Tutar: ${finalTotalHavalePrice} ${body.currency || 'TRY'}`,
         body.specialNotes || '',

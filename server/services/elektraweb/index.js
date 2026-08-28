@@ -240,15 +240,31 @@ async function createReservation(data) {
       payload['total_price'] = pmsPrice;
 
       if (discPercent > 0) {
-        const calculatedDiscAmt = Math.round(pmsPrice * (discPercent / 100) * 100) / 100;
-        const netCalculatedPrice = Math.round((pmsPrice - calculatedDiscAmt) * 100) / 100;
+        const calculatedDiscAmt = parseFloat((pmsPrice * (discPercent / 100)).toFixed(2));
+        const netCalculatedPrice = parseFloat((pmsPrice - calculatedDiscAmt).toFixed(2));
+
+        // Override PMS total with netCalculatedPrice via manual-price parameters
+        payload['manual-price'] = netCalculatedPrice;
+        payload['manual_price'] = netCalculatedPrice;
+        payload['is-manual-price'] = true;
+        payload['is_manual_price'] = true;
+        payload['manual-price-active'] = true;
+        payload['manual_price_active'] = true;
 
         payload['net-price'] = netCalculatedPrice;
         payload['net_price'] = netCalculatedPrice;
+        payload['channel-price'] = netCalculatedPrice;
+        payload['channel_price'] = netCalculatedPrice;
+
         payload['discount-amount'] = calculatedDiscAmt;
         payload['discount_amount'] = calculatedDiscAmt;
         payload['discount-value'] = calculatedDiscAmt;
         payload['discount_value'] = calculatedDiscAmt;
+
+        payload['is-discount-active'] = true;
+        payload['is_discount_active'] = true;
+        payload['discount-active'] = true;
+        payload['discount_active'] = true;
       }
       try {
         return await elektraPost(`/hotel/${HOTEL_ID}/createReservation`, payload);

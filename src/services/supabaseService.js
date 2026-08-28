@@ -14,6 +14,10 @@ import { supabase } from './supabaseClient';
  */
 export async function saveGuestLead(data) {
   try {
+    if (!supabase) {
+      console.warn('[Supabase] Client mevcut değil — kayıt atlandı.');
+      return false;
+    }
     const { error } = await supabase.from('guest_leads').insert([data]);
 
     if (error) {

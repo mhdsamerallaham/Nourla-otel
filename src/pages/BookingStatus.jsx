@@ -246,8 +246,8 @@ export default function BookingStatus() {
                           <span>Standart Liste Fiyatı:</span>
                           <span className="line-through">{formatCurrency(res.base_price, res.currency)}</span>
                         </div>
-                        <div className="flex items-center justify-between text-xs text-emerald-700 font-medium">
-                          <span>Web Sitesine Özel %5 İndirim:</span>
+                        <div className="flex items-center justify-between text-xs text-[#6F7255] font-medium">
+                          <span>Havale ile %5 İndirim:</span>
                           <span>-{formatCurrency(res.discount_amount || (res.base_price - res.total_price), res.currency)}</span>
                         </div>
                       </>

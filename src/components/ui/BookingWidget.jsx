@@ -1236,8 +1236,8 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                           PAKET VE KAHVALTI TERCİHİ
                         </span>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
-                            ✨ %5 Web İndirimi
+                          <span className="text-[10px] font-semibold text-[#6F7255] bg-[#6F7255]/10 px-2.5 py-0.5 rounded-full border border-[#6F7255]/20">
+                            Havale ile %5 İndirimli
                           </span>
                           <span className="text-[10px] text-[#555555] font-light">
                             En İyi Fiyat Garantisi
@@ -1653,12 +1653,12 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                         <div className="flex items-center gap-2">
                           <Landmark className="w-4 h-4 text-[#6F7255]" />
                           <h4 className="font-serif font-bold text-[#2B2B2B] text-base">Banka Havalesi / EFT</h4>
-                          <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
-                            %5 Web İndirimli
+                          <span className="text-[10px] font-semibold text-[#6F7255] bg-[#6F7255]/10 px-2.5 py-0.5 rounded-full border border-[#6F7255]/20">
+                            Havale ile %5 İndirimli
                           </span>
                         </div>
                         <p className="text-xs text-[#555555] font-light mt-0.5">
-                          Ziraat Bankası hesabımıza yapacağınız ödemelerde %5 web indirimli avantajlı fiyattan yararlanın.
+                          Ziraat Bankası hesabımıza yapacağınız ödemelerde %5 havale indirimli avantajlı fiyattan yararlanın.
                         </p>
                       </div>
                     </div>
@@ -1814,11 +1814,11 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                     <span className="line-through">{currSymbol}{displayOldTotalPrice.toLocaleString('tr-TR')}</span>
                   </div>
 
-                  <div className="flex justify-between text-emerald-400 font-semibold bg-emerald-950/40 p-2 rounded-lg border border-emerald-800/40">
-                    <span className="flex items-center gap-1">
-                      <Tag className="w-3.5 h-3.5" /> Web Sitesine Özel %5 İndirim:
+                  <div className="flex justify-between text-[#E7E1D3] font-medium bg-white/5 p-2.5 rounded-xl border border-white/10">
+                    <span className="flex items-center gap-1.5 text-xs text-[#E7E1D3]/90">
+                      <Tag className="w-3.5 h-3.5 text-[#6F7255]" /> Havale ile %5 İndirim:
                     </span>
-                    <span>-{currSymbol}{webDiscountAmount.toLocaleString('tr-TR')}</span>
+                    <span className="text-[#E7E1D3] font-semibold">-{currSymbol}{webDiscountAmount.toLocaleString('tr-TR')}</span>
                   </div>
 
                   <div className="flex justify-between text-white font-serif text-xl pt-2 border-t border-white/10 font-bold">
@@ -1933,8 +1933,8 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             <div className="bg-[#F7F4EE] p-5 rounded-2xl border border-[#E7E1D3] text-left space-y-3.5 text-xs">
               <div className="flex items-center justify-between border-b border-[#E7E1D3] pb-2">
                 <span className="font-bold text-[#6F7255] uppercase text-[11px]">Banka Bilgileri</span>
-                <span className="text-[10px] text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full font-semibold">
-                  %5 İndirim Uygulandı
+                <span className="text-[10px] text-[#6F7255] bg-[#6F7255]/10 px-2.5 py-0.5 rounded-full font-semibold border border-[#6F7255]/20">
+                  Havale ile %5 İndirim Uygulandı
                 </span>
               </div>
 
@@ -1982,8 +1982,8 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                   <span>Standart Liste Fiyatı:</span>
                   <span className="line-through">{currSymbol}{displayOldTotalPrice.toLocaleString('tr-TR')}</span>
                 </div>
-                <div className="flex items-center justify-between text-emerald-700 font-medium">
-                  <span>Web Sitesine Özel %5 İndirim:</span>
+                <div className="flex items-center justify-between text-[#6F7255] font-medium">
+                  <span>Havale ile %5 İndirim:</span>
                   <span>-{currSymbol}{webDiscountAmount.toLocaleString('tr-TR')}</span>
                 </div>
                 <div className="flex items-center justify-between pt-1 border-t border-[#E7E1D3] font-bold text-sm">

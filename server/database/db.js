@@ -7,10 +7,11 @@
 const path = require('path');
 const fs = require('fs');
 let sqlite3 = null;
-// Do not require native sqlite3 binding on Vercel serverless platform
+// Use dynamic variable string so Vercel NFT static tracer does not bundle native C++ binary
 if (!process.env.VERCEL && !process.env.NOW_REGION) {
   try {
-    sqlite3 = require('sqlite3').verbose();
+    const sqliteMod = 'sqlite3';
+    sqlite3 = require(sqliteMod).verbose();
   } catch (err) {
     console.warn('[DATABASE WARNING] Native sqlite3 module not available:', err.message);
   }

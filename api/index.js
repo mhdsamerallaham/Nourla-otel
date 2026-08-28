@@ -13,23 +13,5 @@ process.env.ELEKTRA_API_TOKEN =
 process.env.PAYMENT_PROVIDER = process.env.PAYMENT_PROVIDER || 'mock';
 
 const app = require('../server/app');
-const { initializeDatabase } = require('../server/database/db');
 
-// Lazy initialization of database for Serverless cold starts
-let dbInitialized = false;
-
-module.exports = async (req, res) => {
-  try {
-    if (!dbInitialized) {
-      dbInitialized = true;
-      initializeDatabase().catch((err) => console.error('[VERCEL DB INIT ERROR]', err.message));
-    }
-    return app(req, res);
-  } catch (err) {
-    console.error('[VERCEL HANDLER ERROR]', err);
-    return res.status(500).json({
-      success: false,
-      error: { code: 'SERVER_ERROR', message: err.message || 'Vercel Serverless Function Error' },
-    });
-  }
-};
+module.exports = app;

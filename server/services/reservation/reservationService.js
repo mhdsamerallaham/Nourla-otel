@@ -74,10 +74,20 @@ async function createPendingReservation(data) {
   const basePricePerNight = pmsOffer?.pricePerNight || pmsOffer?.price || room?.base_price || 350;
 
   // Compute immutable snapshot price values
-  const basePriceTotal = data.basePrice ? parseFloat(data.basePrice) : (data.totalPrice ? parseFloat(data.totalPrice) : parseFloat((basePricePerNight * nightCount).toFixed(2)));
-  const discountAmount = data.discountAmount !== undefined ? parseFloat(data.discountAmount) : (pmsOffer?.discount || 0.0);
-  const taxAmount = parseFloat((basePriceTotal * 0.10).toFixed(2)); // 10% VAT
-  const totalPrice = data.totalPrice ? parseFloat(data.totalPrice) : parseFloat((basePriceTotal - discountAmount + taxAmount).toFixed(2));
+  // Real PMS quote is the true payable total price
+  const realPmsTotalPrice = pmsOffer?.totalPrice 
+    ? parseFloat(pmsOffer.totalPrice) 
+    : (data.totalPrice ? parseFloat(data.totalPrice) : parseFloat((basePricePerNight * nightCount).toFixed(2)));
+
+  // Display list price before 5% discount (DISPLAY_OLD_PRICE = ELEKTRA_PRICE / 0.95)
+  const displayBasePrice = pmsOffer?.originalPrice 
+    ? parseFloat(pmsOffer.originalPrice) 
+    : parseFloat((realPmsTotalPrice / 0.95).toFixed(2));
+
+  const discountAmount = parseFloat((displayBasePrice - realPmsTotalPrice).toFixed(2));
+  const subtotalAmount = parseFloat((realPmsTotalPrice / 1.10).toFixed(2)); // KDV Hariç Matrah
+  const taxAmount = parseFloat((realPmsTotalPrice - subtotalAmount).toFixed(2)); // %10 Dahil KDV
+  const totalPrice = realPmsTotalPrice;
 
   const reservationCode = `NOURLA-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
   const reservationUuid = crypto.randomUUID();
@@ -113,7 +123,7 @@ async function createPendingReservation(data) {
       nightCount,
       adultCount,
       childCount,
-      basePriceTotal,
+      displayBasePrice,
       discountAmount,
       taxAmount,
       totalPrice,
@@ -194,9 +204,10 @@ async function syncReservationToPMS(reservationId) {
   const primaryGuest = reservation.guests.find((g) => g.is_primary) || reservation.guests[0];
   const guestName = primaryGuest ? `${primaryGuest.first_name} ${primaryGuest.last_name}` : 'Değerli Misafir';
 
-  const discAmt = parseFloat(reservation.discount_amount || 0);
-  const baseP = parseFloat(reservation.base_price || reservation.total_price || 0);
-  const discPct = (discAmt > 0 && baseP > 0) ? Math.round((discAmt / baseP) * 100) : 0;
+  const netPayablePrice = parseFloat(reservation.total_price || 0);
+  const displayBasePrice = parseFloat(reservation.base_price || (netPayablePrice / 0.95).toFixed(2));
+  const discAmt = parseFloat(reservation.discount_amount || (displayBasePrice - netPayablePrice).toFixed(2));
+  const discPct = 5;
 
   const pmsPayload = {
     checkIn: reservation.check_in,
@@ -207,8 +218,9 @@ async function syncReservationToPMS(reservationId) {
     rateCodeId: reservation.rate_code_id,
     priceAgencyId: reservation.price_agency_id,
     currency: reservation.currency,
-    totalPrice: baseP,
-    netPrice: parseFloat(reservation.total_price || 0),
+    totalPrice: netPayablePrice,
+    netPrice: netPayablePrice,
+    displayPrice: displayBasePrice,
     discountAmount: discAmt,
     discountPercent: discPct,
     adultCount: reservation.adult_count,

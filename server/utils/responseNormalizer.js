@@ -239,21 +239,30 @@ function extractPriceOffers(raw) {
     const rawBoardName = offer['board-type'] || offer.boardName || 'BB';
     const rateTypeId = offer['rate-type-id'] || offer.rateTypeId;
     const rateName = offer['rate-type'] || offer.rateType;
-    const totalPrice = offer.price || offer.totalPrice || 0;
-
-    // Parse ElektraWeb PMS Discount fields if defined
-    const rawOriginalPrice = offer['original-price'] || offer['list-price'] || offer['rack-rate'] || offer['base-price'] || offer.originalPrice;
-    const originalPrice = rawOriginalPrice && Number(rawOriginalPrice) > totalPrice ? Number(rawOriginalPrice) : null;
-    const discountAmount = offer['discount-amount'] || offer.discountAmount || (originalPrice ? originalPrice - totalPrice : 0);
-    const discountPercent = offer['discount-percent'] || offer.discountPercent || (originalPrice ? Math.round(((originalPrice - totalPrice) / originalPrice) * 100) : 0);
-
+    const rateCodeId = offer['rate-code-id'] || offer.rateCodeId || 6844;
+    const priceAgencyId = offer['price-agency-id'] || offer.priceAgencyId || 44573;
     const daysCount = offer['days-count'] || 1;
+
+    // ElektraWeb net price (the true payable price and amount sent to PMS)
+    const rawDiscountedPrice = parseFloat(offer['discounted-price'] || offer.discountedPrice || 0);
+    const rawRackPrice = parseFloat(offer.price || offer.totalPrice || 0);
+    const rawElektraPrice = rawDiscountedPrice > 0 ? rawDiscountedPrice : rawRackPrice;
+
+    // Web 5% Discount Mathematical Formula:
+    // If ElektraWeb already provides rack price, use it; otherwise DISPLAY_OLD_PRICE = ELEKTRA_PRICE / 0.95
+    const originalPrice = rawRackPrice > rawElektraPrice 
+      ? rawRackPrice 
+      : (rawElektraPrice > 0 ? parseFloat((rawElektraPrice / 0.95).toFixed(2)) : 0);
+    const totalPrice = rawElektraPrice;
+    const discountAmount = parseFloat((originalPrice - totalPrice).toFixed(2));
+    const discountPercent = originalPrice > 0 ? Math.round(((originalPrice - totalPrice) / originalPrice) * 100) : 5;
+
     const priceArr = offer['price-arr'] || offer.priceArr || [];
     const availabilityArr = offer['availability-arr'] || offer.availabilityArr || [];
-    const pricePerNight = priceArr[0] || (daysCount ? Math.round((totalPrice / daysCount) * 100) / 100 : 0);
-    const originalPricePerNight = originalPrice ? Math.round((originalPrice / daysCount) * 100) / 100 : null;
+    const pricePerNight = priceArr[0] || (daysCount ? parseFloat((totalPrice / daysCount).toFixed(2)) : 0);
+    const originalPricePerNight = originalPrice > 0 ? parseFloat((originalPrice / daysCount).toFixed(2)) : pricePerNight;
     const availableRooms = offer['room-to-sell'] ?? offer.availableRooms ?? 0;
-    const currency = offer.currency || 'TRY';
+    const currency = (offer.currency || 'TRY').toUpperCase();
 
     // Parse board/pension type details (Kahvaltılı vs Kahvaltısız)
     const boardInfo = parseBoardType(rawBoardName, boardTypeId);
@@ -268,11 +277,14 @@ function extractPriceOffers(raw) {
       boardTitle: boardInfo.title,
       rateTypeId,
       rateName,
+      rateCodeId,
+      priceAgencyId,
       totalPrice,
       originalPrice,
+      displayPrice: originalPrice,
       discountAmount,
-      discountPercent: discountPercent > 0 ? discountPercent : 0,
-      hasDiscount: Boolean(originalPrice && originalPrice > totalPrice || discountPercent > 0),
+      discountPercent,
+      hasDiscount: true,
       pricePerNight,
       originalPricePerNight,
       daysCount,

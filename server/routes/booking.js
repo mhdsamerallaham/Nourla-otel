@@ -186,20 +186,16 @@ router.post('/reservation/:id/confirm-transfer', async (req, res) => {
     // Create a PMS reservation for each room item in the cart
     for (let i = 0; i < roomItems.length; i++) {
       const item = roomItems[i];
-      const itemOriginalPrice = parseFloat(item.totalPrice) || (totalCartRooms > 0 ? parseFloat((overallCartTotal / totalCartRooms).toFixed(2)) : 0);
-      
-      const roomNetHavalePrice = cartTotalPriceSum > 0
-        ? Math.round((itemOriginalPrice / cartTotalPriceSum) * finalTotalHavalePrice * 100) / 100
-        : (totalCartRooms > 0 ? Math.round((finalTotalHavalePrice / totalCartRooms) * 100) / 100 : finalTotalHavalePrice);
-
-      const roomDiscountAmount = parseFloat((itemOriginalPrice - roomNetHavalePrice).toFixed(2));
+      const itemPayablePrice = parseFloat(item.totalPrice) || (totalCartRooms > 0 ? parseFloat((overallCartTotal / totalCartRooms).toFixed(2)) : 0);
+      const itemDisplayPrice = item.originalPrice ? parseFloat(item.originalPrice) : parseFloat((itemPayablePrice / 0.95).toFixed(2));
+      const itemDiscountAmount = parseFloat((itemDisplayPrice - itemPayablePrice).toFixed(2));
 
       const transferNotes = [
-        'ÖDEME YÖNTEMİ: BANKA HAVALESİ / EFT (%5 İNDİRİMLİ)',
+        'ÖDEME YÖNTEMİ: BANKA HAVALESİ / EFT (%5 WEB İNDİRİMLİ)',
         body.reservationCode ? `Ref: ${body.reservationCode}` : '',
-        `Liste Fiyatı: ${itemOriginalPrice} ${body.currency || 'TRY'}`,
-        `%5 Havale İndirimi: -${roomDiscountAmount > 0 ? roomDiscountAmount : overallHavaleDiscountAmount} ${body.currency || 'TRY'}`,
-        `NET ÖDENECEK TUTAR: ${roomNetHavalePrice} ${body.currency || 'TRY'}`,
+        `Web Liste Fiyatı: ${itemDisplayPrice} ${body.currency || 'TRY'}`,
+        `%5 Web İndirimi: -${itemDiscountAmount} ${body.currency || 'TRY'}`,
+        `NET TAHSİL EDİLEN TUTAR: ${itemPayablePrice} ${body.currency || 'TRY'}`,
         `Misafir: ${body.guestName} (${body.guestEmail || ''} | ${body.guestPhone || ''})`,
         totalCartRooms > 1 ? `Sepet: Oda ${i + 1}/${totalCartRooms} (${item.roomName || 'Oda'})` : '',
         body.specialNotes || '',
@@ -219,13 +215,14 @@ router.post('/reservation/:id/confirm-transfer', async (req, res) => {
           rateCodeId:    item.rateCodeId    || body.rateCodeId    || 6844,
           priceAgencyId: item.priceAgencyId || body.priceAgencyId || 44573,
           currency:      (body.currency || 'TRY').toUpperCase(),
-          totalPrice:    itemOriginalPrice,
-          netPrice:      roomNetHavalePrice,
+          totalPrice:    itemPayablePrice,
+          netPrice:      itemPayablePrice,
+          displayPrice:  itemDisplayPrice,
           nationality:   body.nationality || 'TR',
           specialNotes:  transferNotes,
           paymentType:   body.paymentType !== undefined ? body.paymentType : 3, // 3 = Banka Havalesi / EFT
-          discountPercent: (body.paymentType === 3 || body.paymentType === undefined) ? 5 : (body.discountPercent || 0),
-          discountAmount:  roomDiscountAmount > 0 ? roomDiscountAmount : overallHavaleDiscountAmount,
+          discountPercent: 5,
+          discountAmount:  itemDiscountAmount,
           discountTypeId:  1,
         });
 

@@ -176,20 +176,18 @@ async function createReservation(data) {
     });
   }
 
-  const rawTotalPrice = parseFloat(data.totalPrice || data.netPrice || 0);
-  const discPercent = parseFloat(data.discountPercent || (data.paymentType === 3 ? 5 : 0));
-  const discAmt = data.discountAmount ? parseFloat(data.discountAmount) : (discPercent > 0 ? Math.round(rawTotalPrice * (discPercent / 100) * 100) / 100 : 0);
-  const netPrice = data.netPrice ? parseFloat(data.netPrice) : (rawTotalPrice > discAmt ? parseFloat((rawTotalPrice - discAmt).toFixed(2)) : rawTotalPrice);
-
-  // Send rawTotalPrice (PMS rack quote) directly as total-price to satisfy ElektraWeb's rate validator on the 1st try
-  const finalPriceToSend = rawTotalPrice > 0 ? rawTotalPrice : netPrice;
+  const netPayablePrice = parseFloat(data.totalPrice || data.netPrice || 0);
+  const discPercent = parseFloat(data.discountPercent !== undefined ? data.discountPercent : 5);
+  const displayListPrice = data.displayPrice ? parseFloat(data.displayPrice) : (netPayablePrice > 0 ? parseFloat((netPayablePrice / 0.95).toFixed(2)) : 0);
+  const discAmt = data.discountAmount ? parseFloat(data.discountAmount) : parseFloat((displayListPrice - netPayablePrice).toFixed(2));
+  const finalPriceToSend = netPayablePrice;
   const currencyCode = (data.currency || 'TRY').toUpperCase();
 
   // Format accounting & PMS note
   let detailedNotes = data.specialNotes || 'Nourla Web Sitesi Üzerinden Oluşturuldu';
   if (discPercent > 0 || discAmt > 0) {
-    const discountSummary = `[İNDİRİM: %${discPercent} | Liste: ${rawTotalPrice} ${currencyCode} | İndirim Tutarı: -${discAmt} ${currencyCode} | Tahsil Edilen Net Tutar: ${netPrice} ${currencyCode}]`;
-    if (!detailedNotes.includes('İNDİRİM:')) {
+    const discountSummary = `[WEB ÖZEL %${discPercent} İNDİRİMİ | Liste Fiyatı: ${displayListPrice} ${currencyCode} | İndirim: -${discAmt} ${currencyCode} | Tahsil Edilen Net Tutar: ${netPayablePrice} ${currencyCode}]`;
+    if (!detailedNotes.includes('İNDİRİM')) {
       detailedNotes = `${detailedNotes} | ${discountSummary}`;
     }
   }
@@ -236,13 +234,16 @@ async function createReservation(data) {
   }
 
   console.log(`[ELEKTRA RESERVATION] Sending createReservation request for roomType: ${data.roomTypeId}, price: ${finalPriceToSend} ${currencyCode}...`);
+  console.log('[ELEKTRA DEBUG OUTGOING PAYLOAD]:', JSON.stringify(payload, null, 2));
 
   if (String(data.roomTypeId) === '999999') {
     throw new Error('Geçersiz oda tipi ID (Test PMS Sync Failure).');
   }
 
   try {
-    return await elektraPost(`/hotel/${HOTEL_ID}/createReservation`, payload);
+    const response = await elektraPost(`/hotel/${HOTEL_ID}/createReservation`, payload);
+    console.log('[ELEKTRA DEBUG RESPONSE]:', JSON.stringify(response?.data || response, null, 2));
+    return response;
   } catch (err) {
     // If ElektraWeb PMS requests exact price quote matching, adjust total-price to match PMS quote and retry!
     const quoteMatch = err.message && err.message.match(/must be ([0-9.]+)\s*([A-Z]+)?/i);
@@ -250,10 +251,9 @@ async function createReservation(data) {
       const pmsPrice = parseFloat(quoteMatch[1]);
       console.log(`[ELEKTRA RESERVATION AUTO-QUOTE FIX] Adjusting total-price from ${payload['total-price']} to PMS quote ${pmsPrice} TRY...`);
       payload['total-price'] = pmsPrice;
-      if (discPercent > 0) {
-        payload['discount-amount'] = parseFloat((pmsPrice * (discPercent / 100)).toFixed(2));
-        payload['discount-percent'] = discPercent;
-      }
+      const retryDisplayPrice = parseFloat((pmsPrice / 0.95).toFixed(2));
+      payload['discount-amount'] = parseFloat((retryDisplayPrice - pmsPrice).toFixed(2));
+      payload['discount-percent'] = 5;
 
       try {
         return await elektraPost(`/hotel/${HOTEL_ID}/createReservation`, payload);

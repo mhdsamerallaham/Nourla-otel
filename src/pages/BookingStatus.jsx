@@ -239,9 +239,23 @@ export default function BookingStatus() {
 
                 {/* Total price */}
                 {totalDisplay && (
-                  <div className="pt-4 border-t border-[#E7E1D3] flex items-center justify-between">
-                    <span className="text-sm text-[#555555] font-light">Toplam Ödenen Tutar (KDV Dahil):</span>
-                    <span className="font-serif text-2xl font-semibold text-[#6F7255]">{totalDisplay}</span>
+                  <div className="pt-4 border-t border-[#E7E1D3] space-y-2">
+                    {res?.base_price && Number(res.base_price) > Number(res.total_price) && (
+                      <>
+                        <div className="flex items-center justify-between text-xs text-[#555555]">
+                          <span>Standart Liste Fiyatı:</span>
+                          <span className="line-through">{formatCurrency(res.base_price, res.currency)}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-emerald-700 font-medium">
+                          <span>Web Sitesine Özel %5 İndirim:</span>
+                          <span>-{formatCurrency(res.discount_amount || (res.base_price - res.total_price), res.currency)}</span>
+                        </div>
+                      </>
+                    )}
+                    <div className="flex items-center justify-between pt-1 border-t border-[#E7E1D3]">
+                      <span className="text-sm text-[#2B2B2B] font-medium">Toplam Tahsil Edilen Tutar:</span>
+                      <span className="font-serif text-2xl font-bold text-[#6F7255]">{totalDisplay}</span>
+                    </div>
                   </div>
                 )}
 

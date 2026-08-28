@@ -402,12 +402,9 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             ru: 'Только проживание (Без завтрака)',
           });
 
-          const rawOriginalPrice = rawOffer.originalPrice || rawOffer['original-price'] || rawOffer['list-price'] || rawOffer['rack-rate'];
-          const rawDiscountPercent = rawOffer.discountPercent || rawOffer['discount-percent'] || rawOffer['promotion-percent'] || 0;
-
-          const originalPrice = rawOriginalPrice && Number(rawOriginalPrice) > totPrice ? Number(rawOriginalPrice) : null;
-          const originalPricePerNight = originalPrice ? Math.round((originalPrice / days) * 100) / 100 : null;
-          const discountPercent = rawDiscountPercent > 0 ? Number(rawDiscountPercent) : 0;
+          const originalPrice = rawOffer.originalPrice ? Number(rawOffer.originalPrice) : (totPrice > 0 ? parseFloat((totPrice / 0.95).toFixed(2)) : null);
+          const originalPricePerNight = rawOffer.originalPricePerNight ? Number(rawOffer.originalPricePerNight) : (originalPrice ? parseFloat((originalPrice / days).toFixed(2)) : null);
+          const discountPercent = 5;
 
           const offer = {
             roomTypeId,
@@ -416,7 +413,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             originalPrice,
             originalPricePerNight,
             discountPercent,
-            hasDiscount: Boolean(discountPercent > 0 || (originalPricePerNight && originalPricePerNight > nightP)),
+            hasDiscount: true,
             availableRooms: avail,
             boardName,
             boardCode: rawOffer.boardCode || (includesBreakfast ? 'BB' : 'RO'),
@@ -451,7 +448,8 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             const bb = group.offers.BB;
             const roTot = Math.round(bb.totalPrice * 0.88 * 100) / 100;
             const roNight = Math.round(bb.pricePerNight * 0.88 * 100) / 100;
-            const roOrigNight = bb.originalPricePerNight ? Math.round(bb.originalPricePerNight * 0.88 * 100) / 100 : null;
+            const roOrigTot = Math.round((roTot / 0.95) * 100) / 100;
+            const roOrigNight = Math.round((roNight / 0.95) * 100) / 100;
             group.offers.RO = {
               ...bb,
               boardCode: 'RO',
@@ -459,7 +457,10 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
               includesBreakfast: false,
               totalPrice: roTot,
               pricePerNight: roNight,
+              originalPrice: roOrigTot,
               originalPricePerNight: roOrigNight,
+              discountPercent: 5,
+              hasDiscount: true,
               boardTitle: {
                 tr: 'Sadece Oda (Kahvaltısız)',
                 en: 'Room Only (No Breakfast)',
@@ -471,7 +472,8 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             const ro = group.offers.RO;
             const bbTot = Math.round(ro.totalPrice * 1.14 * 100) / 100;
             const bbNight = Math.round(ro.pricePerNight * 1.14 * 100) / 100;
-            const bbOrigNight = ro.originalPricePerNight ? Math.round(ro.originalPricePerNight * 1.14 * 100) / 100 : null;
+            const bbOrigTot = Math.round((bbTot / 0.95) * 100) / 100;
+            const bbOrigNight = Math.round((bbNight / 0.95) * 100) / 100;
             group.offers.BB = {
               ...ro,
               boardCode: 'BB',
@@ -479,7 +481,10 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
               includesBreakfast: true,
               totalPrice: bbTot,
               pricePerNight: bbNight,
+              originalPrice: bbOrigTot,
               originalPricePerNight: bbOrigNight,
+              discountPercent: 5,
+              hasDiscount: true,
               boardTitle: {
                 tr: 'Zengin Organik Ege Kahvaltısı Dahil',
                 en: 'Rich Organic Aegean Breakfast Included',
@@ -513,10 +518,10 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   const subtotalPrice = parseFloat((totalCartPriceKdvIncluded / 1.10).toFixed(2)); // KDV Hariç Matrah
   const taxAmount = parseFloat((totalCartPriceKdvIncluded - subtotalPrice).toFixed(2)); // %10 KDV Tutarı
   
-  const finalTotalPrice = parseFloat(totalCartPriceKdvIncluded.toFixed(2)); // Actual KDV-Included Price from ElektraWeb offer
-  const havaleDiscount = parseFloat((finalTotalPrice * 0.05).toFixed(2)); // %5 Havale/EFT discount
-  const havaleFinalPrice = parseFloat((finalTotalPrice - havaleDiscount).toFixed(2));
-  const currentPayablePrice = paymentMethod === 'HAVALE' ? havaleFinalPrice : finalTotalPrice;
+  const finalTotalPrice = parseFloat(totalCartPriceKdvIncluded.toFixed(2)); // Actual KDV-Included Net Price (ElektraWeb offer quote)
+  const displayOldTotalPrice = finalTotalPrice > 0 ? parseFloat((finalTotalPrice / 0.95).toFixed(2)) : 0; // Display Old Price (10.526,32 TL)
+  const webDiscountAmount = parseFloat((displayOldTotalPrice - finalTotalPrice).toFixed(2)); // %5 Web Discount (526,32 TL)
+  const currentPayablePrice = finalTotalPrice;
   const roomPricePerNight = totalSelectedRoomsCount > 0 ? parseFloat((finalTotalPrice / (nights || 1)).toFixed(2)) : 0;
 
   // Format card number with spaces
@@ -721,6 +726,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
           priceAgencyId: item.offer?.priceAgencyId || 44573,
           pricePerNight: item.offer?.pricePerNight || 0,
           totalPrice: parseFloat(((item.offer?.totalPrice || 0) * item.quantity).toFixed(2)),
+          originalPrice: parseFloat(((item.offer?.originalPrice || (item.offer?.totalPrice / 0.95) || 0) * item.quantity).toFixed(2)),
           roomIndex: qIdx + 1,
         }))
       );
@@ -744,7 +750,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
           priceAgencyId: offer?.priceAgencyId || 44573,
           currency,
           totalPrice: finalTotalPrice,
-          havaleFinalPrice: havaleFinalPrice,
+          displayPrice: displayOldTotalPrice,
           specialNotes: specialNotes || '',
           paymentType: 3, // 3 = Banka Havalesi / EFT
         }
@@ -1230,13 +1236,11 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                           PAKET VE KAHVALTI TERCİHİ
                         </span>
                         <div className="flex items-center gap-2">
-                          {activeOffer?.discountPercent > 0 && (
-                            <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
-                              🔥 %{activeOffer.discountPercent} İndirimli
-                            </span>
-                          )}
+                          <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
+                            ✨ %5 Web İndirimi
+                          </span>
                           <span className="text-[10px] text-[#555555] font-light">
-                            ElektraWeb Canlı Fiyat
+                            En İyi Fiyat Garantisi
                           </span>
                         </div>
                       </div>
@@ -1650,11 +1654,11 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                           <Landmark className="w-4 h-4 text-[#6F7255]" />
                           <h4 className="font-serif font-bold text-[#2B2B2B] text-base">Banka Havalesi / EFT</h4>
                           <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
-                            %5 Ekstra İndirim
+                            %5 Web İndirimli
                           </span>
                         </div>
                         <p className="text-xs text-[#555555] font-light mt-0.5">
-                          Ziraat Bankası hesabımıza yapacağınız ödemelerde %5 anında indirim kazanın.
+                          Ziraat Bankası hesabımıza yapacağınız ödemelerde %5 web indirimli avantajlı fiyattan yararlanın.
                         </p>
                       </div>
                     </div>
@@ -1788,22 +1792,20 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                   </div>
 
                   <div className="flex justify-between text-[#E7E1D3]/80 pt-1 border-t border-white/10">
-                    <span>Normal Tutar (KDV Dahil):</span>
-                    <span className="line-through">{currSymbol}{finalTotalPrice.toLocaleString('tr-TR')}</span>
+                    <span>Standart Liste Fiyatı:</span>
+                    <span className="line-through">{currSymbol}{displayOldTotalPrice.toLocaleString('tr-TR')}</span>
                   </div>
 
-                  {paymentMethod === 'HAVALE' && (
-                    <div className="flex justify-between text-emerald-400 font-semibold bg-emerald-950/40 p-2 rounded-lg border border-emerald-800/40">
-                      <span className="flex items-center gap-1">
-                        <Tag className="w-3.5 h-3.5" /> Havale/EFT %5 İndirim:
-                      </span>
-                      <span>-{currSymbol}{havaleDiscount.toLocaleString('tr-TR')}</span>
-                    </div>
-                  )}
+                  <div className="flex justify-between text-emerald-400 font-semibold bg-emerald-950/40 p-2 rounded-lg border border-emerald-800/40">
+                    <span className="flex items-center gap-1">
+                      <Tag className="w-3.5 h-3.5" /> Web Sitesine Özel %5 İndirim:
+                    </span>
+                    <span>-{currSymbol}{webDiscountAmount.toLocaleString('tr-TR')}</span>
+                  </div>
 
                   <div className="flex justify-between text-white font-serif text-xl pt-2 border-t border-white/10 font-bold">
-                    <span>ÖDENECEK TUTAR:</span>
-                    <span className="text-[#E7E1D3]">{currSymbol}{currentPayablePrice.toLocaleString('tr-TR')}</span>
+                    <span>ÖDENECEK TOPLAM TUTAR:</span>
+                    <span className="text-[#E7E1D3]">{currSymbol}{finalTotalPrice.toLocaleString('tr-TR')}</span>
                   </div>
                 </div>
               </div>
@@ -1818,13 +1820,9 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                     <>
                       <Loader2 className="w-4 h-4 animate-spin text-white" /> Rezervasyon İşleniyor...
                     </>
-                  ) : paymentMethod === 'HAVALE' ? (
-                    <>
-                      <Landmark className="w-4 h-4" /> Rezervasyonu Tamamla ({currSymbol}{havaleFinalPrice.toLocaleString('tr-TR')})
-                    </>
                   ) : (
                     <>
-                      <Lock className="w-4 h-4" /> Güvenli Ödemeyi Tamamla ({currSymbol}{finalTotalPrice.toLocaleString('tr-TR')})
+                      <Landmark className="w-4 h-4" /> Rezervasyonu Tamamla ({currSymbol}{finalTotalPrice.toLocaleString('tr-TR')})
                     </>
                   )}
                 </button>
@@ -1961,11 +1959,21 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-[#E7E1D3]">
-                <span className="text-[#555555] font-light">Ödenecek Tutar (%5 İndirimli):</span>
-                <span className="font-serif text-xl font-bold text-[#6F7255]">
-                  {currSymbol}{havaleFinalPrice.toLocaleString('tr-TR')}
-                </span>
+              <div className="space-y-1.5 pt-2 border-t border-[#E7E1D3] text-xs">
+                <div className="flex items-center justify-between text-[#555555]">
+                  <span>Standart Liste Fiyatı:</span>
+                  <span className="line-through">{currSymbol}{displayOldTotalPrice.toLocaleString('tr-TR')}</span>
+                </div>
+                <div className="flex items-center justify-between text-emerald-700 font-medium">
+                  <span>Web Sitesine Özel %5 İndirim:</span>
+                  <span>-{currSymbol}{webDiscountAmount.toLocaleString('tr-TR')}</span>
+                </div>
+                <div className="flex items-center justify-between pt-1 border-t border-[#E7E1D3] font-bold text-sm">
+                  <span className="text-[#2B2B2B]">Ödenecek Net Tutar:</span>
+                  <span className="font-serif text-xl text-[#6F7255]">
+                    {currSymbol}{finalTotalPrice.toLocaleString('tr-TR')}
+                  </span>
+                </div>
               </div>
             </div>
 

@@ -183,12 +183,18 @@ router.post('/reservation/:id/confirm-transfer', async (req, res) => {
         ? Math.round((itemPrice / cartTotalPriceSum) * finalTotalHavalePrice * 100) / 100
         : Math.round((finalTotalHavalePrice / totalCartRooms) * 100) / 100;
 
+      const itemPrice = parseFloat(item.totalPrice) || 0;
+      const originalCartTotal = body.totalPrice || cartTotalPriceSum;
+      const havaleDiscountAmount = Math.round(originalCartTotal * 0.05);
+
       const transferNotes = [
-        'ÖDEME YÖNTEMİ: BANKA HAVALESİ / EFT (%5 İndirimli)',
+        'ÖDEME YÖNTEMİ: BANKA HAVALESİ / EFT (%5 İNDİRİMLİ)',
         body.reservationCode ? `Ref: ${body.reservationCode}` : '',
+        `ElektraWeb Liste Fiyatı: ${originalCartTotal} ${body.currency || 'TRY'}`,
+        `Havale %5 İndirimi: -${havaleDiscountAmount} ${body.currency || 'TRY'}`,
+        `MÜŞTERİNİN HAVALE İLE YATIRACAĞI NET TUTAR: ${finalTotalHavalePrice} ${body.currency || 'TRY'}`,
         `Müşteri İletişim: ${body.guestName} (${body.guestEmail || ''} | ${body.guestPhone || ''})`,
         totalCartRooms > 1 ? `Sepet: Oda ${i + 1}/${totalCartRooms} (${item.roomName || 'Oda'})` : '',
-        `Sepet İndirimli Toplam Tutar: ${finalTotalHavalePrice} ${body.currency || 'TRY'}`,
         body.specialNotes || '',
       ].filter(Boolean).join(' | ');
 

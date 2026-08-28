@@ -157,6 +157,9 @@ async function createReservation(data) {
   const discPercent = parseFloat(data.discountPercent || (data.paymentType === 3 ? 5 : 0));
   
   if (discPercent > 0) {
+    payload['discount-type-id'] = parseInt(data.discountTypeId || 1, 10);
+    payload['discount_type_id'] = parseInt(data.discountTypeId || 1, 10);
+
     // Explicitly activate "İndirim Aktif" toggle button in ElektraWeb PMS UI & API (snake_case + kebab-case)
     payload['is-discount-active'] = true;
     payload['is_discount_active'] = true;

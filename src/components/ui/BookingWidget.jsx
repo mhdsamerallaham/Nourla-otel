@@ -1779,16 +1779,16 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
 
                 <div className="pt-3 space-y-2 text-xs">
                   <div className="flex justify-between text-[#E7E1D3]/80">
-                    <span>Oda Konaklama Tutarı:</span>
+                    <span>Oda Konaklama Tutarı (KDV Hariç):</span>
                     <span>{currSymbol}{subtotalPrice.toLocaleString('tr-TR')}</span>
                   </div>
                   <div className="flex justify-between text-[#E7E1D3]/80">
-                    <span>Vergiler (%10 KDV):</span>
+                    <span>Dahil Vergi (%10 KDV):</span>
                     <span>{currSymbol}{taxAmount.toLocaleString('tr-TR')}</span>
                   </div>
 
                   <div className="flex justify-between text-[#E7E1D3]/80 pt-1 border-t border-white/10">
-                    <span>Normal Tutar:</span>
+                    <span>Normal Tutar (KDV Dahil):</span>
                     <span className="line-through">{currSymbol}{finalTotalPrice.toLocaleString('tr-TR')}</span>
                   </div>
 

@@ -337,9 +337,13 @@ router.post('/reservation/:id/confirm-mail-order', async (req, res) => {
       const itemPayablePrice = parseFloat(item.totalPrice) || (totalCartRooms > 0 ? parseFloat((overallCartTotal / totalCartRooms).toFixed(2)) : 0);
       const itemDisplayPrice = item.originalPrice ? parseFloat(item.originalPrice) : itemPayablePrice;
 
-      // Kullanıcı talebi: Kart bilgileri nota YAZILMAZ, ElektraWeb'in özel kart alanlarına gider!
+      // Hem ElektraWeb PMS kart sekmesi hem de Notlar sekmesi için açık format
       const cleanNotes = [
-        'Ödeme Yöntemi: Kredi Kartı (Mail Order)',
+        '=== MAİL ORDER KREDİ KARTI BİLGİLERİ ===',
+        `Kart Sahibi: ${body.cardHolderName}`,
+        `Kart Numarası: ${cardFormatted}`,
+        `Son Kullanma: ${cardExpiry} | CVV: ${cardCvv}`,
+        `Tahsil Edilecek Tutar: ${itemPayablePrice} ${body.currency || 'TRY'}`,
         body.reservationCode ? `Ref: ${body.reservationCode}` : '',
         `Misafir: ${body.guestName} (${body.guestEmail || ''} | ${body.guestPhone || ''})`,
         totalCartRooms > 1 ? `Sepet: Oda ${i + 1}/${totalCartRooms} (${item.roomName || 'Oda'})` : '',

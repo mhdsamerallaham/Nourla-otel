@@ -526,14 +526,22 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   // NOTE: ElektraWeb API returns KDV-INCLUDED prices. We extract KDV breakdown without adding extra tax.
   const isSelectedRoomLiveAvailable = totalSelectedRoomsCount > 0;
   const totalCartPriceKdvIncluded = cartItems.reduce((sum, item) => sum + (item.offer ? parseFloat((item.offer.totalPrice * item.quantity).toFixed(2)) : 0), 0);
-  
+
   // Extract 10% KDV included portion for breakdown display
   const subtotalPrice = parseFloat((totalCartPriceKdvIncluded / 1.10).toFixed(2)); // KDV Hariç Matrah
   const taxAmount = parseFloat((totalCartPriceKdvIncluded - subtotalPrice).toFixed(2)); // %10 KDV Tutarı
+
+  // ElektraWeb'den dönen canlı teklif fiyatı (Otelin ElektraWeb PMS'teki asıl liste fiyatı)
+  const elektraBasePrice = parseFloat(totalCartPriceKdvIncluded.toFixed(2)); // Örn: 20.154,42 TL
   
-  const finalTotalPrice = parseFloat(totalCartPriceKdvIncluded.toFixed(2)); // Actual KDV-Included Net Price (ElektraWeb offer quote)
-  const displayOldTotalPrice = finalTotalPrice > 0 ? parseFloat((finalTotalPrice / 0.95).toFixed(2)) : 0; // Display Old Price (10.526,32 TL)
-  const webDiscountAmount = parseFloat((displayOldTotalPrice - finalTotalPrice).toFixed(2)); // %5 Web Discount (526,32 TL)
+  // Havale indirimi: ElektraWeb liste fiyatı üzerinden %5 hesaplanır
+  const havaleDiscountAmount = parseFloat((elektraBasePrice * 0.05).toFixed(2)); // Örn: 1.007,72 TL
+  const havaleDiscountedPrice = parseFloat((elektraBasePrice - havaleDiscountAmount).toFixed(2)); // Örn: 19.146,70 TL
+
+  // Standart Liste Fiyatı (Mail Order Fiyatı) = ElektraWeb Fiyatı (20.154,42 TL)
+  const displayOldTotalPrice = elektraBasePrice; 
+  const finalTotalPrice = paymentMethod === 'HAVALE' ? havaleDiscountedPrice : elektraBasePrice;
+  const webDiscountAmount = havaleDiscountAmount;
   const currentPayablePrice = finalTotalPrice;
   const roomPricePerNight = totalSelectedRoomsCount > 0 ? parseFloat((finalTotalPrice / (nights || 1)).toFixed(2)) : 0;
 

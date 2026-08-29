@@ -222,49 +222,93 @@ async function createReservation(data) {
   }
 
   // ─── Kredi Kartı / Mail Order Bilgileri ─────────────────────────────────────
-  // ElektraWeb PMS'in "Kredi Kartı Bilgileri" sekmesine aktarılır.
-  // Farklı API versiyonları ve parser'lar için tüm standart alanlar sağlanır.
+  // ElektraWeb PMS'in "Kredi Kartı Bilgileri" sekmesine ve alt tablosuna (sub-grid) aktarılır.
+  // ElektraWeb resmi Channel & Booking API standartlarına uygun tüm alan formatları sağlanır.
   if (data.paymentInfo && data.paymentInfo.ccNo) {
     const rawCcNo = String(data.paymentInfo.ccNo).replace(/\s+/g, '');
     const ccHolder = String(data.paymentInfo.ccHolder || `${firstName} ${lastName}`).toUpperCase();
-    const ccExpire = String(data.paymentInfo.ccExpire || '');
+    const rawExpire = String(data.paymentInfo.ccExpire || '').trim(); // "12/28"
     const ccCvv = String(data.paymentInfo.ccCvv || '');
 
-    // 1. payment-info nesnesi
-    payload['payment-info'] = {
-      'cc-no':     rawCcNo,
-      'cc-holder': ccHolder,
-      'cc-expire': ccExpire,
-      'cc-cvv':    ccCvv,
+    // Ay ve Yıl ayrıştırma
+    let expMonth = '12';
+    let expYear = '2028';
+    if (rawExpire.includes('/')) {
+      const parts = rawExpire.split('/');
+      expMonth = parts[0].padStart(2, '0');
+      expYear = parts[1].length === 2 ? `20${parts[1]}` : parts[1];
+    }
+
+    const cardSingleObj = {
+      ccNo:      rawCcNo,
+      ccHolder:  ccHolder,
+      ccExpire:  rawExpire,
+      ccCVV:     ccCvv,
+      expMonth:  parseInt(expMonth, 10),
+      expYear:   parseInt(expYear, 10),
+      cardType:  rawCcNo[0] === '4' ? 'VISA' : (rawCcNo[0] === '5' ? 'MASTERCARD' : 'CREDIT_CARD'),
+      amount:    finalPriceToSend,
+      currency:  currencyCode,
     };
 
-    // 2. credit-card nesnesi
+    // 1. ElektraWeb Resmi CamelCase Root Alanları
+    payload.ccNo     = rawCcNo;
+    payload.ccHolder = ccHolder;
+    payload.ccExpire = rawExpire;
+    payload.ccCVV    = ccCvv;
+    payload.expMonth = expMonth;
+    payload.expYear  = expYear;
+
+    // 2. Kredi Kartı Grid Tablosu (PMS Sub-grid listesi için Array formatları)
+    payload.creditCards      = [cardSingleObj];
+    payload['credit-cards']  = [cardSingleObj];
+    payload['credit-card-list'] = [cardSingleObj];
+
+    // 3. Tekil Nesne Formatları (creditCard & credit-card & payment-info)
+    payload.creditCard = {
+      ...cardSingleObj,
+      'card-number': rawCcNo,
+      'card-holder': ccHolder,
+      'expire-date': rawExpire,
+      cvv: ccCvv,
+    };
+
     payload['credit-card'] = {
       'card-number': rawCcNo,
       'card-holder': ccHolder,
-      'expire-date': ccExpire,
-      'cvv':         ccCvv,
-      number:        rawCcNo,
-      holder:        ccHolder,
-      expire:        ccExpire,
+      'expire-date': rawExpire,
+      'expire-month': expMonth,
+      'expire-year': expYear,
+      'cvv': ccCvv,
+      'cc-no': rawCcNo,
+      'cc-holder': ccHolder,
+      'cc-expire': rawExpire,
+      'cc-cvv': ccCvv,
+      ccNo: rawCcNo,
+      ccHolder: ccHolder,
+      ccExpire: rawExpire,
+      ccCVV: ccCvv,
     };
 
-    // 3. creditCard nesnesi
-    payload.creditCard = {
-      cardNumber: rawCcNo,
-      cardHolder: ccHolder,
-      expireDate: ccExpire,
-      cvv:        ccCvv,
+    payload['payment-info'] = {
+      'cc-no':     rawCcNo,
+      'cc-holder': ccHolder,
+      'cc-expire': rawExpire,
+      'cc-cvv':    ccCvv,
+      ccNo:        rawCcNo,
+      ccHolder:    ccHolder,
+      ccExpire:    rawExpire,
+      ccCVV:       ccCvv,
     };
 
-    // 4. Root seviyesi alanlar
+    // 4. Kebab-case root alanlar
     payload['card-number'] = rawCcNo;
     payload['card-holder'] = ccHolder;
-    payload['card-expire'] = ccExpire;
+    payload['card-expire'] = rawExpire;
     payload['card-cvv']    = ccCvv;
     payload['cc-no']       = rawCcNo;
     payload['cc-holder']   = ccHolder;
-    payload['cc-expire']   = ccExpire;
+    payload['cc-expire']   = rawExpire;
     payload['cc-cvv']      = ccCvv;
 
     console.log(`[ELEKTRA RESERVATION] Mail Order kredi kartı detayları PMS alanlarına eklendi (kart son 4: ${rawCcNo.slice(-4)})`);

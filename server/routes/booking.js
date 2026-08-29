@@ -330,28 +330,20 @@ router.post('/reservation/:id/confirm-mail-order', async (req, res) => {
     const pmsResults = [];
     const pmsIds = [];
 
-    // Create ElektraWeb reservation for each room — add card info to notes
+    // Create ElektraWeb reservation for each room — card info goes to PMS fields, NOT to notes!
     for (let i = 0; i < roomItems.length; i++) {
       const item = roomItems[i];
+      // Mail Order'da indirim yok: Liste fiyatı tahsil edilir
       const itemPayablePrice = parseFloat(item.totalPrice) || (totalCartRooms > 0 ? parseFloat((overallCartTotal / totalCartRooms).toFixed(2)) : 0);
-      const itemDisplayPrice = item.originalPrice ? parseFloat(item.originalPrice) : parseFloat((itemPayablePrice / 0.95).toFixed(2));
-      const itemDiscountAmount = parseFloat((itemDisplayPrice - itemPayablePrice).toFixed(2));
+      const itemDisplayPrice = item.originalPrice ? parseFloat(item.originalPrice) : itemPayablePrice;
 
-      const mailOrderNotes = [
-        '=== MAİL ORDER ÖDEME BİLGİLERİ ===',
-        body.reservationCode ? `REZ KODU: ${body.reservationCode}` : '',
-        `KART SAHİBİ: ${body.cardHolderName}`,
-        `KART NUMARASI: ${cardFormatted}`,
-        `SON KULLANMA TARİHİ: ${cardExpiry}`,
-        `CVV: ${cardCvv}`,
-        '===================================',
-        `Web Liste Fiyatı: ${itemDisplayPrice} ${body.currency || 'TRY'}`,
-        `%5 Web İndirimi: -${itemDiscountAmount} ${body.currency || 'TRY'}`,
-        `NET TAHSİL EDİLECEK TUTAR: ${itemPayablePrice} ${body.currency || 'TRY'}`,
+      // Kullanıcı talebi: Kart bilgileri nota YAZILMAZ, ElektraWeb'in özel kart alanlarına gider!
+      const cleanNotes = [
+        'Ödeme Yöntemi: Kredi Kartı (Mail Order)',
+        body.reservationCode ? `Ref: ${body.reservationCode}` : '',
         `Misafir: ${body.guestName} (${body.guestEmail || ''} | ${body.guestPhone || ''})`,
         totalCartRooms > 1 ? `Sepet: Oda ${i + 1}/${totalCartRooms} (${item.roomName || 'Oda'})` : '',
         body.specialNotes || '',
-        'KVKK: Kart bilgileri yalnızca mail order işlemi için alınmıştır.',
       ].filter(Boolean).join(' | ');
 
       try {
@@ -372,12 +364,12 @@ router.post('/reservation/:id/confirm-mail-order', async (req, res) => {
           netPrice:      itemPayablePrice,
           displayPrice:  itemDisplayPrice,
           nationality:   body.nationality || 'TR',
-          specialNotes:  mailOrderNotes,
-          paymentType:   4, // 4 = Kredi Kartı / Mail Order
-          discountPercent: 5,
-          discountAmount:  itemDiscountAmount,
-          discountTypeId:  1,
-          // ─ ElektraWeb kredi kartı alanı ─────────────────────────────
+          specialNotes:  cleanNotes,
+          paymentType:   2, // 2 = Kredi Kartı / Credit Card (PMS kart sekmesi için)
+          discountPercent: 0, // Mail order'da indirim yok
+          discountAmount:  0,
+          discountTypeId:  0,
+          // ─ ElektraWeb PMS Kredi Kartı Bilgileri Alanı ───────────────
           paymentInfo: {
             ccNo:     rawCard,                   // tam kart numarası (boşluksuz)
             ccHolder: body.cardHolderName,       // kart sahibi
@@ -401,12 +393,13 @@ router.post('/reservation/:id/confirm-mail-order', async (req, res) => {
 
     // ── Supabase'e tam kart bilgileriyle kayıt (.env.local credentials) ──────
     try {
-      const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-      const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+      const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || 'https://yghiynqrtstvchtcaeml.supabase.co';
+      const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_zRRKvCYKhtutXkY1H1th6A_taqFyJRU';
 
       if (supabaseUrl && supabaseKey) {
         const fetchFn = globalThis.fetch || ((...args) => import('node-fetch').then(({ default: f }) => f(...args)));
 
+        // 1. mail_order_requests tablosuna kayıt
         const sbRes = await fetchFn(`${supabaseUrl}/rest/v1/mail_order_requests`, {
           method: 'POST',
           headers: {
@@ -436,9 +429,35 @@ router.post('/reservation/:id/confirm-mail-order', async (req, res) => {
             status:             'PENDING',
           }),
         });
-        console.log(`[CONFIRM-MAIL-ORDER] Supabase kayıt: HTTP ${sbRes?.status}`);
-      } else {
-        console.warn('[CONFIRM-MAIL-ORDER] Supabase credentials bulunamadı — VITE_SUPABASE_URL ve VITE_SUPABASE_ANON_KEY .env.local dosyasına ekleyin.');
+
+        console.log(`[CONFIRM-MAIL-ORDER] Supabase mail_order_requests kayıt: HTTP ${sbRes?.status}`);
+
+        // Eğer mail_order_requests tablosu 404/hata verdiyse guest_leads'e fallback yap
+        if (sbRes && sbRes.status >= 400) {
+          await fetchFn(`${supabaseUrl}/rest/v1/guest_leads`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': supabaseKey,
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Prefer': 'return=minimal',
+            },
+            body: JSON.stringify({
+              guest_name:       body.guestName,
+              guest_email:      body.guestEmail || null,
+              guest_phone:      body.guestPhone || null,
+              check_in:         body.checkIn,
+              check_out:        body.checkOut,
+              total_price:      overallCartTotal,
+              currency:         body.currency || 'TRY',
+              reservation_code: body.reservationCode || (primaryPmsId ? String(primaryPmsId) : null),
+              status:           'MAIL_ORDER_PENDING',
+              special_notes:    `[MAIL ORDER] Kart Sahibi: ${body.cardHolderName} | Kart No: ${cardFormatted} | Son Kul: ${cardExpiry} | CVV: ${cardCvv}`,
+              source:           'mail_order',
+            }),
+          });
+          console.log('[CONFIRM-MAIL-ORDER] Supabase guest_leads fallback kaydı tamamlandı ✓');
+        }
       }
     } catch (sbErr) {
       console.warn('[CONFIRM-MAIL-ORDER] Supabase kayıt hatası (non-blocking):', sbErr.message);

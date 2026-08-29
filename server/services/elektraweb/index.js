@@ -222,17 +222,52 @@ async function createReservation(data) {
   }
 
   // ─── Kredi Kartı / Mail Order Bilgileri ─────────────────────────────────────
-  // ElektraWeb'in "Kredi Kartı Bilgileri" bölümüne gönderilir.
-  // paymentInfo: { ccNo, ccHolder, ccExpire, ccCvv } ile gönderildiğinde
-  // PMS'in kart bilgisi ekranında görünür.
+  // ElektraWeb PMS'in "Kredi Kartı Bilgileri" sekmesine aktarılır.
+  // Farklı API versiyonları ve parser'lar için tüm standart alanlar sağlanır.
   if (data.paymentInfo && data.paymentInfo.ccNo) {
+    const rawCcNo = String(data.paymentInfo.ccNo).replace(/\s+/g, '');
+    const ccHolder = String(data.paymentInfo.ccHolder || `${firstName} ${lastName}`).toUpperCase();
+    const ccExpire = String(data.paymentInfo.ccExpire || '');
+    const ccCvv = String(data.paymentInfo.ccCvv || '');
+
+    // 1. payment-info nesnesi
     payload['payment-info'] = {
-      'cc-no':     String(data.paymentInfo.ccNo).replace(/\s+/g, ''),
-      'cc-holder': String(data.paymentInfo.ccHolder || '').toUpperCase(),
-      'cc-expire': String(data.paymentInfo.ccExpire || ''),  // "MM/YY"
-      'cc-cvv':    String(data.paymentInfo.ccCvv || ''),
+      'cc-no':     rawCcNo,
+      'cc-holder': ccHolder,
+      'cc-expire': ccExpire,
+      'cc-cvv':    ccCvv,
     };
-    console.log(`[ELEKTRA RESERVATION] Mail Order kredi kartı bilgileri payload'a eklendi (card: ****${String(data.paymentInfo.ccNo).slice(-4)})`);
+
+    // 2. credit-card nesnesi
+    payload['credit-card'] = {
+      'card-number': rawCcNo,
+      'card-holder': ccHolder,
+      'expire-date': ccExpire,
+      'cvv':         ccCvv,
+      number:        rawCcNo,
+      holder:        ccHolder,
+      expire:        ccExpire,
+    };
+
+    // 3. creditCard nesnesi
+    payload.creditCard = {
+      cardNumber: rawCcNo,
+      cardHolder: ccHolder,
+      expireDate: ccExpire,
+      cvv:        ccCvv,
+    };
+
+    // 4. Root seviyesi alanlar
+    payload['card-number'] = rawCcNo;
+    payload['card-holder'] = ccHolder;
+    payload['card-expire'] = ccExpire;
+    payload['card-cvv']    = ccCvv;
+    payload['cc-no']       = rawCcNo;
+    payload['cc-holder']   = ccHolder;
+    payload['cc-expire']   = ccExpire;
+    payload['cc-cvv']      = ccCvv;
+
+    console.log(`[ELEKTRA RESERVATION] Mail Order kredi kartı detayları PMS alanlarına eklendi (kart son 4: ${rawCcNo.slice(-4)})`);
   }
 
   if (process.env.TEST_SUITE_MOCK_PMS === 'true') {

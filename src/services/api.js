@@ -135,6 +135,18 @@ export async function getPaymentStatus(paymentId) {
   return apiFetch(PAYMENT_API_BASE, `/status/${paymentId}`);
 }
 
+/**
+ * Mail Order onayı — ElektraWeb'de gerçek rezervasyon oluşturur + kart bilgilerini kaydeder.
+ * @param {string|number} reservationId - Local DB reservation ID
+ * @param {Object} payload - Tüm misafir + oda + kart + fiyat bilgileri
+ */
+export async function confirmMailOrderReservation(reservationId, payload) {
+  return apiFetch(BOOKING_API_BASE, `/reservation/${reservationId}/confirm-mail-order`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
 const hotelApi = {
   checkHealth,
   getHotelDefinitions,
@@ -143,6 +155,7 @@ const hotelApi = {
   createReservation,
   getReservationByCode,
   confirmTransferReservation,
+  confirmMailOrderReservation,
   createPaymentSession,
   process3DSecureVerification,
   getPaymentStatus,

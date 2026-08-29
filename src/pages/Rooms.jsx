@@ -34,7 +34,7 @@ export default function Rooms() {
                 : 'bg-[#F7F4EE] border border-[#E7E1D3] text-[#2B2B2B] hover:border-[#6F7255]'
             }`}
           >
-            Tüm Süitler (10)
+            {t('rooms_page.filter_all')}
           </button>
 
           <button
@@ -45,7 +45,7 @@ export default function Rooms() {
                 : 'bg-[#F7F4EE] border border-[#E7E1D3] text-[#2B2B2B] hover:border-[#6F7255]'
             }`}
           >
-            €380 – €450 / Gece
+            {t('rooms_page.filter_budget')}
           </button>
 
           <button
@@ -56,7 +56,7 @@ export default function Rooms() {
                 : 'bg-[#F7F4EE] border border-[#E7E1D3] text-[#2B2B2B] hover:border-[#6F7255]'
             }`}
           >
-            €480 – €600 / Gece
+            {t('rooms_page.filter_mid')}
           </button>
 
           <button
@@ -67,7 +67,7 @@ export default function Rooms() {
                 : 'bg-[#F7F4EE] border border-[#E7E1D3] text-[#2B2B2B] hover:border-[#6F7255]'
             }`}
           >
-            €600+ Master Suites
+            {t('rooms_page.filter_luxury')}
           </button>
         </div>
 

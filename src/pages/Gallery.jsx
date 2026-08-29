@@ -50,13 +50,13 @@ export default function Gallery() {
             <div className="absolute inset-0 bg-gradient-to-r from-[#2B2B2B]/90 via-[#2B2B2B]/60 to-transparent flex items-center p-8 sm:p-14">
               <div className="max-w-xl text-white space-y-3">
                 <span className="text-[11px] font-semibold tracking-[0.3em] uppercase bg-[#6F7255]/80 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/20 inline-block text-[#E7E1D3]">
-                  NOURLA GÖRSEL KOLEKSİYONU
+                  {t('gallery.hero_tag')}
                 </span>
                 <h1 className="font-serif text-3xl sm:text-5xl font-normal leading-tight">
-                  Işık, Zeytin & Akdeniz Mimarisi
+                  {t('gallery.hero_title')}
                 </h1>
                 <p className="text-xs sm:text-sm text-[#E7E1D3]/90 font-light leading-relaxed">
-                  Urla'nın kadim zeytin vadisindeki huzuru, 10 bespoke süitimizin rafine detaylarını ve gurme gastronomi deneyimlerimizi keşfedin.
+                  {t('gallery.hero_desc')}
                 </p>
               </div>
             </div>
@@ -73,7 +73,7 @@ export default function Gallery() {
                 : 'bg-[#F7F4EE] border border-[#E7E1D3] text-[#2B2B2B] hover:border-[#6F7255]'
             }`}
           >
-            Tüm Koleksiyon
+            {t('gallery.filter_all')}
             <span className={`px-2 py-0.5 rounded-full text-[10px] ${activeFilter === 'all' ? 'bg-white/20 text-white' : 'bg-[#E7E1D3] text-[#6F7255]'}`}>
               {GALLERY_ITEMS.length}
             </span>
@@ -87,7 +87,7 @@ export default function Gallery() {
                 : 'bg-[#F7F4EE] border border-[#E7E1D3] text-[#2B2B2B] hover:border-[#6F7255]'
             }`}
           >
-            Süitler & Mimari
+            {t('gallery.filter_rooms')}
             <span className={`px-2 py-0.5 rounded-full text-[10px] ${activeFilter === 'rooms' ? 'bg-white/20 text-white' : 'bg-[#E7E1D3] text-[#6F7255]'}`}>
               {GALLERY_ITEMS.filter(i => i.category === 'rooms').length}
             </span>
@@ -101,7 +101,7 @@ export default function Gallery() {
                 : 'bg-[#F7F4EE] border border-[#E7E1D3] text-[#2B2B2B] hover:border-[#6F7255]'
             }`}
           >
-            Otel Yaşamı & Avlu
+            {t('gallery.filter_hotel')}
             <span className={`px-2 py-0.5 rounded-full text-[10px] ${activeFilter === 'hotel' ? 'bg-white/20 text-white' : 'bg-[#E7E1D3] text-[#6F7255]'}`}>
               {GALLERY_ITEMS.filter(i => i.category === 'hotel').length}
             </span>
@@ -115,7 +115,7 @@ export default function Gallery() {
                 : 'bg-[#F7F4EE] border border-[#E7E1D3] text-[#2B2B2B] hover:border-[#6F7255]'
             }`}
           >
-            Urla Doğa & Bağlar
+            {t('gallery.filter_nature')}
             <span className={`px-2 py-0.5 rounded-full text-[10px] ${activeFilter === 'nature' ? 'bg-white/20 text-white' : 'bg-[#E7E1D3] text-[#6F7255]'}`}>
               {GALLERY_ITEMS.filter(i => i.category === 'nature').length}
             </span>
@@ -129,7 +129,7 @@ export default function Gallery() {
                 : 'bg-[#F7F4EE] border border-[#E7E1D3] text-[#2B2B2B] hover:border-[#6F7255]'
             }`}
           >
-            Gastronomi & Şarap
+            {t('gallery.filter_food')}
             <span className={`px-2 py-0.5 rounded-full text-[10px] ${activeFilter === 'food' ? 'bg-white/20 text-white' : 'bg-[#E7E1D3] text-[#6F7255]'}`}>
               {GALLERY_ITEMS.filter(i => i.category === 'food').length}
             </span>

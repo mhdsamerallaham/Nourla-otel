@@ -1,5 +1,6 @@
 import React from 'react';
 import { Star, MapPin, Quote } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import StructuredData from './StructuredData';
 
 const REVIEWS = [
@@ -90,6 +91,7 @@ function StarRating({ score, max = 10 }) {
 }
 
 export default function GuestReviews() {
+  const { t } = useTranslation();
   return (
     <section
       className="py-12 sm:py-20 bg-[#2B2B2B] text-white relative overflow-hidden"
@@ -110,17 +112,17 @@ export default function GuestReviews() {
         {/* Header */}
         <div className="text-center mb-7 sm:mb-12 px-4">
           <span className="text-[10px] sm:text-[11px] font-semibold tracking-[0.25em] text-[#6F7255] uppercase block mb-2">
-            MİSAFİR DENEYİMLERİ
+            {t('guest_reviews.tag')}
           </span>
           <h2 className="font-serif text-2xl sm:text-4xl text-white leading-tight mb-3">
-            Konuklarımız Ne Söylüyor?
+            {t('guest_reviews.title')}
           </h2>
           {/* Score badge */}
           <div className="inline-flex items-center gap-2 bg-[#6F7255]/20 border border-[#6F7255]/40 px-4 py-2 rounded-full">
             <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
             <span className="text-white font-semibold text-sm">9.8 / 10</span>
-            <span className="text-[#E7E1D3]/60 text-xs hidden sm:inline">— 47 doğrulanmış yorum</span>
-            <span className="text-[#E7E1D3]/60 text-[10px] sm:hidden">· 47 yorum</span>
+            <span className="text-[#E7E1D3]/60 text-xs hidden sm:inline">— 47 {t('guest_reviews.verified_count')}</span>
+            <span className="text-[#E7E1D3]/60 text-[10px] sm:hidden">· 47 {t('guest_reviews.short_count')}</span>
           </div>
         </div>
 

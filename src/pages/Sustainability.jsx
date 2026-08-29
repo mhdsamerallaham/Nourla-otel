@@ -44,13 +44,13 @@ export default function Sustainability() {
             <div className="absolute inset-0 bg-gradient-to-r from-[#2B2B2B]/90 via-[#2B2B2B]/60 to-transparent flex items-center p-8 sm:p-14">
               <div className="max-w-xl text-white space-y-3">
                 <span className="text-[11px] font-semibold tracking-[0.3em] uppercase bg-[#6F7255]/80 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/20 inline-block text-[#E7E1D3]">
-                  SUSTAINABLE LUXURY SANCTUARY
+                  {t('sustainability.hero_tag')}
                 </span>
                 <h1 className="font-serif text-3xl sm:text-5xl font-normal leading-tight">
-                  Doğaya ve İnsana Saygılı Lüks
+                  {t('sustainability.hero_title')}
                 </h1>
                 <p className="text-xs sm:text-sm text-[#E7E1D3]/90 font-light leading-relaxed">
-                  Urla'nın kadim ekosistemini ve kültürel mirasını korurken, gelecek nesillere nefes alan sürdürülebilir bir sığınak bırakıyoruz.
+                  {t('sustainability.hero_desc')}
                 </p>
               </div>
             </div>
@@ -111,7 +111,7 @@ export default function Sustainability() {
                       </div>
                       <div>
                         <span className="text-[10px] font-semibold tracking-[0.25em] text-[#6F7255] uppercase block">
-                          POLİTİKA 0{idx + 1}
+                          {t('sustainability.policy_label')} 0{idx + 1}
                         </span>
                         <h2 className="font-serif text-2xl sm:text-3xl text-[#2B2B2B]">
                           {title}
@@ -144,11 +144,11 @@ export default function Sustainability() {
         <div id="survey" className="bg-[#FDFBF7] rounded-3xl p-8 sm:p-12 border border-[#E7E1D3] shadow-xl max-w-3xl mx-auto">
           <div className="text-center mb-10">
             <span className="text-[10px] font-semibold tracking-[0.25em] text-[#6F7255] uppercase block mb-1">
-              İNTERAKTİF MİSAFİR DEĞERLENDİRMESİ
+              {t('sustainability.survey_tag')}
             </span>
             <h2 className="font-serif text-3xl text-[#2B2B2B]">{t('sustainability.survey')}</h2>
             <p className="text-xs text-[#555555] mt-1 font-light max-w-md mx-auto">
-              Doğa dostu konaklama tercihlerinizi seçerek kişisel Eko-Konaklama sertifika skorunuzu hemen görüntüleyin.
+              {t('sustainability.survey_desc')}
             </p>
           </div>
 
@@ -188,7 +188,7 @@ export default function Sustainability() {
                 disabled={Object.keys(surveyAnswers).length < SURVEY_QUESTIONS.length}
                 className="w-full py-4 px-6 rounded-full bg-[#6F7255] hover:bg-[#4F523A] disabled:opacity-50 text-white text-xs font-semibold uppercase tracking-widest transition-all shadow-md"
               >
-                Sertifika Skorumu Gör
+                {t('sustainability.see_score_btn')}
               </button>
             </div>
           ) : (
@@ -196,21 +196,21 @@ export default function Sustainability() {
               <div className="w-20 h-20 rounded-full bg-[#6F7255]/10 text-[#6F7255] flex items-center justify-center mx-auto mb-6 border border-[#6F7255] shadow-inner">
                 <Award className="w-10 h-10" />
               </div>
-              <h3 className="font-serif text-3xl text-[#2B2B2B] mb-2">Tebrik Ederiz!</h3>
+              <h3 className="font-serif text-3xl text-[#2B2B2B] mb-2">{t('sustainability.congrats')}</h3>
               <p className="text-xs text-[#555555] max-w-sm mx-auto mb-8 font-light leading-relaxed">
-                Sürdürülebilir lüks bilincinize katkınız için teşekkür ederiz.
+                {t('sustainability.congrats_desc')}
               </p>
 
               {/* Digital Eco-Certificate Badge */}
               <div className="bg-[#2B2B2B] text-white p-8 rounded-3xl border border-[#4F523A] shadow-2xl max-w-sm mx-auto mb-8 relative overflow-hidden">
                 <div className="text-[10px] tracking-[0.25em] text-[#E7E1D3]/70 font-semibold uppercase block mb-1">
-                  NOURLA ECO-GUEST CERTIFICATE
+                  {t('sustainability.eco_cert_tag')}
                 </div>
                 <div className="font-serif text-4xl font-semibold text-[#E7E1D3] my-2">
                   {calculateTotalScore()} / 45
                 </div>
                 <span className="text-xs text-[#6F7255] bg-[#E7E1D3] px-3 py-1 rounded-full font-semibold uppercase tracking-wider inline-block">
-                  Doğa Dostu Misafir Unvanı
+                  {t('sustainability.eco_badge')}
                 </span>
               </div>
 
@@ -219,7 +219,7 @@ export default function Sustainability() {
                 onClick={() => { setSurveySubmitted(false); setSurveyAnswers({}); }}
                 className="px-6 py-2.5 rounded-full bg-[#6F7255] text-white text-xs font-semibold uppercase tracking-wider hover:bg-[#4F523A] transition-all"
               >
-                Anketi Yeniden Başlat
+                {t('sustainability.restart_btn')}
               </button>
             </div>
           )}

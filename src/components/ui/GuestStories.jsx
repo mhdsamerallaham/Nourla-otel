@@ -3,46 +3,43 @@ import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight, Leaf, Wine, Compass } from 'lucide-react';
 
-const STORIES = [
-  {
-    icon: Wine,
-    tag: 'VİNYARD EXPERIENCE',
-    title: 'Urla Bağlarında Şarap Tadımı',
-    excerpt:
-      "Sommelierimiz eşliğinde antik bağları keşfedin, nadir üretim şarapları tadın. Bir öğleden sonra, ömür boyu süren bir hafıza.",
-    stat: '6 bağ turu',
-    statLabel: 'her sezon',
-    color: 'bg-[#F7F4EE]',
-    accent: '#6F7255',
-  },
-  {
-    icon: Leaf,
-    tag: 'FARM-TO-TABLE',
-    title: 'Organik Bahçe Kahvaltısı',
-    excerpt:
-      "Her sabah taze toplanan zeytinler, domates ve otlarla hazırlanan kahvaltı. Misafirlerimizin %94'ü favorisi olarak seçiyor.",
-    stat: '100%',
-    statLabel: 'organik & yerel',
-    color: 'bg-emerald-50',
-    accent: '#059669',
-  },
-  {
-    icon: Compass,
-    tag: 'AEGEAN ESCAPE',
-    title: 'Özel Tekne & Çeşme Günü',
-    excerpt:
-      "Çeşme'nin turkuaz koylarına özel tekne gezileri. Kristal sularda yüzme ve gün batımı eşliğinde dönüş.",
-    stat: '35 km',
-    statLabel: "Çeşme'ye uzaklık",
-    color: 'bg-sky-50',
-    accent: '#0284c7',
-  },
-];
-
 export default function GuestStories() {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const { lang } = useParams();
   const currentLang = lang || i18n.language || 'tr';
+
+  const STORIES = [
+    {
+      icon: Wine,
+      tag: 'VINEYARD EXPERIENCE',
+      title: t('guest_stories.story1_title'),
+      excerpt: t('guest_stories.story1_excerpt'),
+      stat: t('guest_stories.story1_stat'),
+      statLabel: t('guest_stories.story1_stat_label'),
+      color: 'bg-[#F7F4EE]',
+      accent: '#6F7255',
+    },
+    {
+      icon: Leaf,
+      tag: 'FARM-TO-TABLE',
+      title: t('guest_stories.story2_title'),
+      excerpt: t('guest_stories.story2_excerpt'),
+      stat: t('guest_stories.story2_stat'),
+      statLabel: t('guest_stories.story2_stat_label'),
+      color: 'bg-emerald-50',
+      accent: '#059669',
+    },
+    {
+      icon: Compass,
+      tag: 'AEGEAN ESCAPE',
+      title: t('guest_stories.story3_title'),
+      excerpt: t('guest_stories.story3_excerpt'),
+      stat: t('guest_stories.story3_stat'),
+      statLabel: t('guest_stories.story3_stat_label'),
+      color: 'bg-sky-50',
+      accent: '#0284c7',
+    },
+  ];
 
   return (
     <section
@@ -53,13 +50,13 @@ export default function GuestStories() {
         {/* Header */}
         <div className="text-center mb-7 sm:mb-12 px-4">
           <span className="text-[10px] sm:text-[11px] font-semibold tracking-[0.25em] text-[#6F7255] uppercase block mb-2">
-            MİSAFİR HİKAYELERİ
+            {t('guest_stories.tag')}
           </span>
           <h2 className="font-serif text-2xl sm:text-4xl text-[#2B2B2B] leading-tight">
-            Nourla'da Yaşanan Anlar
+            {t('guest_stories.title')}
           </h2>
           <p className="text-xs sm:text-sm text-[#555555] font-light mt-2 max-w-md mx-auto leading-relaxed px-4">
-            Her konaklama benzersizdir. İşte misafirlerimizin en çok paylaştığı unutulmaz deneyimler.
+            {t('guest_stories.subtitle')}
           </p>
         </div>
 
@@ -179,7 +176,7 @@ export default function GuestStories() {
             className="inline-flex items-center gap-2 px-6 py-3 sm:px-7 sm:py-3.5 rounded-full bg-[#6F7255] hover:bg-[#4F523A] text-white text-xs font-semibold uppercase tracking-widest transition-all shadow-md active:scale-95"
             aria-label="Nourla Boutique Hotel rezervasyon sayfasına git"
           >
-            Kendi Hikayenizi Yazın
+            {t('guest_stories.cta_btn')}
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

@@ -123,7 +123,7 @@ export default function Home() {
           <div className="flex flex-wrap items-center justify-center gap-3 mt-3">
             <span className="inline-flex items-center gap-1.5 text-[10px] text-white/80 bg-white/10 border border-white/20 px-3 py-1.5 rounded-full backdrop-blur-sm">
               <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-              Anlık müsaitlik kontrolü
+              {t('hero.availability_chip')}
             </span>
             <a
               href="https://wa.me/902327540000"
@@ -148,11 +148,11 @@ export default function Home() {
                   <Calendar className="w-3.5 h-3.5" />
                 </div>
                 <h3 className="font-serif text-base sm:text-lg font-semibold text-[#2B2B2B]">
-                  Konaklamanızı Planlayın
+                  {t('hero.widget_title')}
                 </h3>
               </div>
               <span className="hidden sm:inline text-[10px] font-semibold tracking-[0.15em] uppercase text-[#6F7255] bg-[#6F7255]/10 px-3 py-1 rounded-full">
-                Konaklama & Fiyat
+                {t('hero.widget_label')}
               </span>
             </div>
 
@@ -164,10 +164,10 @@ export default function Home() {
                 className="col-span-1 lg:col-span-3 bg-[#F7F4EE] p-3 rounded-xl border border-[#E7E1D3] hover:border-[#6F7255] cursor-pointer transition-all group min-h-[60px] flex flex-col justify-between"
               >
                 <label className="block text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-[#6F7255] flex items-center gap-1 cursor-pointer mb-1">
-                  <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> Giriş
+                  <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> {t('hero.checkin_label')}
                 </label>
                 <span className="font-serif text-sm sm:text-base font-semibold text-[#2B2B2B] group-hover:text-[#6F7255] transition-colors">
-                  {checkIn ? checkIn.split('-').reverse().join('.') : 'Seçin'}
+                  {checkIn ? checkIn.split('-').reverse().join('.') : t('hero.select_placeholder')}
                 </span>
               </div>
 
@@ -177,33 +177,33 @@ export default function Home() {
                 className="col-span-1 lg:col-span-3 bg-[#F7F4EE] p-3 rounded-xl border border-[#E7E1D3] hover:border-[#6F7255] cursor-pointer transition-all group min-h-[60px] flex flex-col justify-between"
               >
                 <label className="block text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-[#6F7255] flex items-center gap-1 cursor-pointer mb-1">
-                  <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> Çıkış
+                  <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> {t('hero.checkout_label')}
                 </label>
                 <span className="font-serif text-sm sm:text-base font-semibold text-[#2B2B2B] group-hover:text-[#6F7255] transition-colors">
-                  {checkOut ? checkOut.split('-').reverse().join('.') : 'Seçin'}
+                  {checkOut ? checkOut.split('-').reverse().join('.') : t('hero.select_placeholder')}
                 </span>
               </div>
 
               {/* Misafir */}
               <div className="col-span-1 lg:col-span-2 bg-[#F7F4EE] p-3 rounded-xl border border-[#E7E1D3] min-h-[60px] flex flex-col justify-between">
                 <label className="block text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-[#6F7255] flex items-center gap-1 mb-1">
-                  <Users className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> Misafir
+                  <Users className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> {t('hero.guest_label')}
                 </label>
                 <select
                   value={guests}
                   onChange={(e) => setGuests(e.target.value)}
                   className="w-full bg-transparent text-xs sm:text-sm font-semibold text-[#2B2B2B] focus:outline-none cursor-pointer"
                 >
-                  <option value="1">1 Kişi</option>
-                  <option value="2">2 Kişi</option>
-                  <option value="3">3 Kişi</option>
+                  <option value="1">1 {t('hero.person_suffix')}</option>
+                  <option value="2">2 {t('hero.person_suffix')}</option>
+                  <option value="3">3 {t('hero.person_suffix')}</option>
                 </select>
               </div>
 
               {/* Para Birimi */}
               <div className="col-span-1 lg:col-span-2 bg-[#F7F4EE] p-3 rounded-xl border border-[#E7E1D3] min-h-[60px] flex flex-col justify-between">
                 <label className="block text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-[#6F7255] flex items-center gap-1 mb-1">
-                  <Building className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> Para
+                  <Building className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> {t('hero.currency_label')}
                 </label>
                 <select
                   value={currency}
@@ -223,7 +223,7 @@ export default function Home() {
                   onClick={handleSearchRooms}
                   className="w-full h-full min-h-[52px] lg:min-h-[60px] rounded-xl bg-[#6F7255] hover:bg-[#4F523A] text-white text-xs sm:text-sm font-semibold uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98]"
                 >
-                  Müsait Odalar <ArrowRight className="w-4 h-4" />
+                  {t('hero.search_btn')} <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -365,10 +365,10 @@ export default function Home() {
       <section className="relative py-14 sm:py-20 bg-[#6F7255] text-white text-center overflow-hidden z-10">
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6">
           <h2 className="font-serif text-2xl sm:text-4xl md:text-5xl mb-4 sm:mb-6 leading-tight">
-            Urla'daki Sakin Sığınağınız Sizi Bekliyor
+            {t('cta_banner.title')}
           </h2>
           <p className="text-xs sm:text-sm text-[#E7E1D3] max-w-lg mx-auto mb-6 sm:mb-8 font-light leading-relaxed">
-            Sadece 10 özel süit ile Nourla Boutique Hotel'de unutulmaz bir Akdeniz tatili rezerve edin.
+            {t('cta_banner.subtitle')}
           </p>
           <Link
             to={`/${currentLang}/reservation`}

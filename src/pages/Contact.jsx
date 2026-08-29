@@ -77,8 +77,8 @@ export default function Contact() {
   };
 
   const breadcrumbItems = [
-    { label: 'Ana Sayfa', href: `/${currentLang}` },
-    { label: 'İletişim' },
+    { label: t('breadcrumb.home'), href: `/${currentLang}` },
+    { label: t('contact.title') },
   ];
 
   return (
@@ -101,13 +101,13 @@ export default function Contact() {
             <div className="absolute inset-0 bg-gradient-to-r from-[#2B2B2B]/90 via-[#2B2B2B]/60 to-transparent flex items-center p-8 sm:p-14">
               <div className="max-w-xl text-white space-y-3">
                 <span className="text-[11px] font-semibold tracking-[0.3em] uppercase bg-[#6F7255]/80 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/20 inline-block text-[#E7E1D3]">
-                  NOURLA CONCIERGE & DANIŞMA
+                  {t('contact.hero_tag')}
                 </span>
                 <h1 className="font-serif text-3xl sm:text-5xl font-normal leading-tight">
-                  Urla'daki Sığınağınız İle Bağlantıya Geçin
+                  {t('contact.hero_title')}
                 </h1>
                 <p className="text-xs sm:text-sm text-[#E7E1D3]/90 font-light leading-relaxed">
-                  Özel konaklama talepleriniz, VIP havalimanı transferiniz veya gurme şarap tadım rotalarınız için 7/24 hizmetinizdeyiz.
+                  {t('contact.hero_desc')}
                 </p>
               </div>
             </div>
@@ -121,9 +121,9 @@ export default function Contact() {
               <div className="w-12 h-12 rounded-full bg-[#6F7255]/10 text-[#6F7255] flex items-center justify-center border border-[#6F7255]/20">
                 <Phone className="w-6 h-6" />
               </div>
-              <h3 className="font-serif text-xl text-[#2B2B2B]">Rezervasyon & Concierge</h3>
+              <h3 className="font-serif text-xl text-[#2B2B2B]">{t('contact.concierge_card_title')}</h3>
               <p className="text-xs text-[#555555] font-light leading-relaxed">
-                Konaklama teklifleri, oda tercihleri ve özel karşılama paketleri.
+                {t('contact.concierge_card_desc')}
               </p>
               <div className="text-xs font-semibold text-[#2B2B2B] pt-2">
                 +90 232 754 00 00 / +90 532 000 00 00
@@ -136,7 +136,7 @@ export default function Contact() {
               className="mt-4 inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-white border border-[#E7E1D3] text-xs font-semibold text-[#6F7255] hover:bg-[#6F7255] hover:text-white transition-all shadow-xs"
             >
               <MessageCircle className="w-4 h-4 text-emerald-600" />
-              WhatsApp İle Hızlı İletişim
+              {t('contact.whatsapp_btn')}
             </a>
           </div>
 
@@ -145,9 +145,9 @@ export default function Contact() {
               <div className="w-12 h-12 rounded-full bg-[#6F7255]/10 text-[#6F7255] flex items-center justify-center border border-[#6F7255]/20">
                 <Mail className="w-6 h-6" />
               </div>
-              <h3 className="font-serif text-xl text-[#2B2B2B]">E-Posta & Yazılı İletişim</h3>
+              <h3 className="font-serif text-xl text-[#2B2B2B]">{t('contact.email_card_title')}</h3>
               <p className="text-xs text-[#555555] font-light leading-relaxed">
-                Özel davetler, kurumsal rezervasyonlar ve detaylı broşür talepleri.
+                {t('contact.email_card_desc')}
               </p>
               <div className="text-xs font-semibold text-[#2B2B2B] pt-2">
                 info@nourla.com.tr
@@ -158,7 +158,7 @@ export default function Contact() {
               className="mt-4 inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-white border border-[#E7E1D3] text-xs font-semibold text-[#6F7255] hover:bg-[#6F7255] hover:text-white transition-all shadow-xs"
             >
               <Mail className="w-4 h-4" />
-              Doğrudan E-Posta Gönder
+              {t('contact.email_btn')}
             </a>
           </div>
 
@@ -167,9 +167,9 @@ export default function Contact() {
               <div className="w-12 h-12 rounded-full bg-[#6F7255]/10 text-[#6F7255] flex items-center justify-center border border-[#6F7255]/20">
                 <Car className="w-6 h-6" />
               </div>
-              <h3 className="font-serif text-xl text-[#2B2B2B]">Havalimanı & Yol Tarifi</h3>
+              <h3 className="font-serif text-xl text-[#2B2B2B]">{t('contact.direction_card_title')}</h3>
               <p className="text-xs text-[#555555] font-light leading-relaxed">
-                ADB Havalimanı'na 40 dk (38 km) mesafede, İskele Urla mevkiinde.
+                {t('contact.direction_card_desc')}
               </p>
               <div className="text-xs font-semibold text-[#2B2B2B] pt-2">
                 GPS: 38.3182° N, 26.7641° E
@@ -183,7 +183,7 @@ export default function Contact() {
               aria-label="Google Maps'te Nourla Boutique Hotel işletme profilini aç"
             >
               <MapPin className="w-4 h-4" />
-              Google Maps'te Aç
+              {t('contact.maps_btn')}
             </a>
           </div>
         </div>
@@ -197,17 +197,17 @@ export default function Contact() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <span className="text-[10px] font-semibold tracking-[0.2em] text-[#6F7255] uppercase block mb-1">
-                    ÖZEL MESAJ & TALEP FORMU
+                    {t('contact.form_tag')}
                   </span>
-                  <h3 className="font-serif text-3xl text-[#2B2B2B]">Size Nasıl Yardımcı Olabiliriz?</h3>
+                  <h3 className="font-serif text-3xl text-[#2B2B2B]">{t('contact.form_title')}</h3>
                   <p className="text-xs text-[#555555] font-light mt-1">
-                    Talebinizi iletin, concierge ekibimiz maksimum 2 saat içerisinde sizinle iletişime geçsin.
+                    {t('contact.form_subtitle')}
                   </p>
                 </div>
 
                 {/* Topic Selector Pills */}
                 <div>
-                  <label className="block text-xs font-semibold text-[#2B2B2B] mb-2">Konu Başlığı Seçiniz:</label>
+                  <label className="block text-xs font-semibold text-[#2B2B2B] mb-2">{t('contact.topic_label')}</label>
                   <div className="flex flex-wrap gap-2">
                     {CONTACT_TOPICS.map((topic) => {
                       const isSelected = selectedTopic === topic.id;
@@ -232,17 +232,17 @@ export default function Contact() {
                 {/* Name & Phone */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5">Adınız Soyadınız</label>
+                    <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5">{t('contact.form_name')}</label>
                     <input
                       type="text"
-                      placeholder="Örn: Selin Karaca"
+                      placeholder={t('contact.form_name')}
                       className="w-full px-4 py-3 rounded-xl border border-[#E7E1D3] bg-[#F7F4EE] text-xs text-[#2B2B2B] focus:border-[#6F7255] focus:outline-none"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5">Telefon Numarası</label>
+                    <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5">{t('contact.form_phone')}</label>
                     <input
                       type="tel"
                       placeholder="+90 532 000 00 00"
@@ -254,10 +254,10 @@ export default function Contact() {
 
                 {/* Email */}
                 <div>
-                  <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5">E-Posta Adresiniz</label>
+                  <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5">{t('contact.form_email')}</label>
                   <input
                     type="email"
-                    placeholder="Örn: selin@example.com"
+                    placeholder={t('contact.form_email')}
                     className="w-full px-4 py-3 rounded-xl border border-[#E7E1D3] bg-[#F7F4EE] text-xs text-[#2B2B2B] focus:border-[#6F7255] focus:outline-none"
                     required
                   />
@@ -265,7 +265,7 @@ export default function Contact() {
 
                 {/* Preferred Channel */}
                 <div>
-                  <label className="block text-xs font-semibold text-[#2B2B2B] mb-1.5">Tercih Ettiğiniz Dönüş Kanalı:</label>
+                  <label className="block text-xs font-semibold text-[#2B2B2B] mb-1.5">{t('contact.channel_label')}</label>
                   <div className="flex gap-4">
                     <label className="flex items-center gap-2 text-xs text-[#555555] cursor-pointer">
                       <input
@@ -275,7 +275,7 @@ export default function Contact() {
                         onChange={() => setPreferredChannel('email')}
                         className="accent-[#6F7255]"
                       />
-                      E-Posta ile
+                      {t('contact.channel_email')}
                     </label>
                     <label className="flex items-center gap-2 text-xs text-[#555555] cursor-pointer">
                       <input
@@ -285,17 +285,17 @@ export default function Contact() {
                         onChange={() => setPreferredChannel('whatsapp')}
                         className="accent-[#6F7255]"
                       />
-                      WhatsApp / Telefon ile
+                      {t('contact.channel_whatsapp')}
                     </label>
                   </div>
                 </div>
 
                 {/* Message */}
                 <div>
-                  <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5">Mesajınız & Detaylar</label>
+                  <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5">{t('contact.message_label')}</label>
                   <textarea
                     rows="4"
-                    placeholder="Tarih tercihiniz, özel kutlama talepleriniz veya sormak istedikleriniz..."
+                    placeholder={t('contact.message_placeholder')}
                     className="w-full px-4 py-3 rounded-xl border border-[#E7E1D3] bg-[#F7F4EE] text-xs text-[#2B2B2B] focus:border-[#6F7255] focus:outline-none"
                     required
                   ></textarea>
@@ -306,7 +306,7 @@ export default function Contact() {
                   className="w-full py-4 px-6 rounded-full bg-[#6F7255] hover:bg-[#4F523A] text-white text-xs font-semibold uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg"
                 >
                   <Send className="w-4 h-4" />
-                  Talep Gönder
+                  {t('contact.submit_btn')}
                 </button>
               </form>
             ) : (
@@ -314,15 +314,15 @@ export default function Contact() {
                 <div className="w-16 h-16 rounded-full bg-[#6F7255]/10 text-[#6F7255] flex items-center justify-center mx-auto mb-4 border border-[#6F7255]">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h3 className="font-serif text-3xl text-[#2B2B2B] mb-2">Talebiniz Alındı</h3>
+                <h3 className="font-serif text-3xl text-[#2B2B2B] mb-2">{t('contact.success_title')}</h3>
                 <p className="text-xs text-[#555555] max-w-md mx-auto mb-6">
-                  Nourla Concierge ekibimiz talebinizi inceleyip seçtiğiniz iletişim kanalından sizinle en kısa sürede bağlantı kuracaktır.
+                  {t('contact.success_desc')}
                 </p>
                 <button
                   onClick={() => setSubmitted(false)}
                   className="px-6 py-2.5 rounded-full bg-[#6F7255] text-white text-xs font-semibold uppercase tracking-wider"
                 >
-                  Yeni Mesaj Gönder
+                  {t('contact.new_message_btn')}
                 </button>
               </div>
             )}
@@ -357,7 +357,7 @@ export default function Contact() {
                           <Star key={s} className="w-2.5 h-2.5 text-amber-400 fill-amber-400" />
                         ))}
                       </div>
-                      <span className="text-[10px] text-[#555555]">· Google İşletme</span>
+                      <span className="text-[10px] text-[#555555]">· {t('contact.google_business')}</span>
                     </div>
                   </div>
                   <a
@@ -368,7 +368,7 @@ export default function Contact() {
                     className="pointer-events-auto shrink-0 flex items-center gap-1.5 bg-[#6F7255] hover:bg-[#4F523A] text-white text-[10px] font-bold px-3 py-2 rounded-xl transition-all active:scale-95 shadow-md"
                   >
                     <MapPin className="w-3.5 h-3.5" />
-                    Yol Tarifi
+                    {t('contact.directions_btn')}
                   </a>
                 </div>
               </div>
@@ -379,7 +379,7 @@ export default function Contact() {
               <div className="flex items-center justify-between mb-4">
                 <h4 className="font-serif text-lg sm:text-xl text-[#2B2B2B] flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-[#6F7255]" />
-                  Mesafe & Ulaşım
+                  {t('contact.distance_title')}
                 </h4>
                 <a
                   href="https://maps.app.goo.gl/5G7yaqk8hH6MBCN4A"
@@ -389,16 +389,32 @@ export default function Contact() {
                   aria-label="Google Maps'te görüntüle"
                 >
                   <MapPin className="w-3 h-3" />
-                  Haritada Gör
+                  {t('contact.map_link')}
                 </a>
               </div>
               <div className="space-y-0 text-xs text-[#555555]">
                 {[
-                  { label: 'ADB Havalimanı', value: '38 km · 40 dk' },
-                  { label: 'Urla Merkez', value: '4 km · 8 dk' },
-                  { label: 'Çeşme', value: '35 km · 30 dk' },
-                  { label: 'Demircili Plajı', value: '12 km · 15 dk' },
-                  { label: 'EV Şarj (22kW)', value: 'Otelde • Ücretsiz', green: true },
+                  {
+                    label: currentLang === 'de' ? 'ADB Flughafen' : currentLang === 'ru' ? 'Аэропорт ADB' : currentLang === 'en' ? 'ADB Airport' : 'ADB Havalimanı',
+                    value: currentLang === 'de' ? '38 km · 40 Min.' : currentLang === 'ru' ? '38 км · 40 мин.' : '38 km · 40 min'
+                  },
+                  {
+                    label: currentLang === 'de' ? 'Urla Zentrum' : currentLang === 'ru' ? 'Центр Урлы' : currentLang === 'en' ? 'Urla Center' : 'Urla Merkez',
+                    value: currentLang === 'de' ? '4 km · 8 Min.' : currentLang === 'ru' ? '4 км · 8 мин.' : '4 km · 8 min'
+                  },
+                  {
+                    label: 'Çeşme',
+                    value: currentLang === 'de' ? '35 km · 30 Min.' : currentLang === 'ru' ? '35 км · 30 мин.' : '35 km · 30 min'
+                  },
+                  {
+                    label: currentLang === 'de' ? 'Demircili Strand' : currentLang === 'ru' ? 'Пляж Демирджили' : currentLang === 'en' ? 'Demircili Beach' : 'Demircili Plajı',
+                    value: currentLang === 'de' ? '12 km · 15 Min.' : currentLang === 'ru' ? '12 км · 15 мин.' : '12 km · 15 min'
+                  },
+                  {
+                    label: 'EV Charge (22kW)',
+                    value: currentLang === 'tr' ? 'Otelde • Ücretsiz' : currentLang === 'de' ? 'Im Hotel • Kostenlos' : currentLang === 'ru' ? 'В отеле • Бесплатно' : 'On-site • Free',
+                    green: true
+                  },
                 ].map((row) => (
                   <div key={row.label} className="flex items-center justify-between py-2 border-b border-[#E7E1D3] last:border-0">
                     <span>{row.label}</span>
@@ -414,9 +430,9 @@ export default function Contact() {
         <div className="bg-[#FDFBF7] p-8 sm:p-12 rounded-3xl border border-[#E7E1D3] shadow-lg max-w-4xl mx-auto">
           <div className="text-center mb-10">
             <span className="text-[10px] font-semibold tracking-[0.25em] text-[#6F7255] uppercase block mb-1">
-              S I K Ç A  S O R U L A N L A R
+              {t('contact.faq_tag')}
             </span>
-            <h2 className="font-serif text-3xl text-[#2B2B2B]">Merak Edilen Detaylar</h2>
+            <h2 className="font-serif text-3xl text-[#2B2B2B]">{t('contact.faq_title')}</h2>
           </div>
 
           <div className="space-y-4">

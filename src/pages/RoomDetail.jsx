@@ -59,8 +59,8 @@ export default function RoomDetail() {
   });
 
   const breadcrumbItems = [
-    { label: 'Ana Sayfa', href: `/${currentLang}` },
-    { label: 'Odalar', href: `/${currentLang}/rooms` },
+    { label: t('breadcrumb.home'), href: `/${currentLang}` },
+    { label: t('breadcrumb.rooms'), href: `/${currentLang}/rooms` },
     { label: roomName },
   ];
 
@@ -87,7 +87,7 @@ export default function RoomDetail() {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 pb-6 border-b border-[#E7E1D3]">
           <div>
             <span className="text-[11px] font-semibold tracking-[0.25em] text-[#6F7255] uppercase block mb-1">
-              SÜİT DETAYLARI
+              {t('room_detail.suite_details_tag')}
             </span>
             <h1 className="font-serif text-2xl sm:text-4xl lg:text-5xl text-[#2B2B2B]">{roomName}</h1>
             <p className="text-xs text-[#6F7255] italic mt-1 font-light">{roomView}</p>
@@ -143,33 +143,33 @@ export default function RoomDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pt-8 border-t border-[#E7E1D3]">
           <div className="lg:col-span-8 space-y-8">
             <div>
-              <h3 className="font-serif text-2xl text-[#2B2B2B] mb-4 font-normal">Süit Hakkında</h3>
+              <h3 className="font-serif text-2xl text-[#2B2B2B] mb-4 font-normal">{t('room_detail.about_title')}</h3>
               <p className="text-sm text-[#555555] font-light leading-relaxed">{roomDesc}</p>
             </div>
 
             {/* Specs Bar */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-6 rounded-2xl bg-[#F7F4EE] border border-[#E7E1D3]">
               <div>
-                <span className="text-[11px] text-[#555555] block">Oda Büyüklüğü</span>
+                <span className="text-[11px] text-[#555555] block">{t('room_detail.size_label')}</span>
                 <span className="text-sm font-semibold text-[#2B2B2B] flex items-center gap-1.5 mt-0.5">
                   <Maximize2 className="w-4 h-4 text-[#6F7255]" /> {room.size}
                 </span>
               </div>
               <div>
-                <span className="text-[11px] text-[#555555] block">Kapasite</span>
+                <span className="text-[11px] text-[#555555] block">{t('room_detail.capacity_label')}</span>
                 <span className="text-sm font-semibold text-[#2B2B2B] flex items-center gap-1.5 mt-0.5">
                   <Users className="w-4 h-4 text-[#6F7255]" /> {room.capacity}
                 </span>
               </div>
               <div>
-                <span className="text-[11px] text-[#555555] block">Manzara</span>
+                <span className="text-[11px] text-[#555555] block">{t('room_detail.view_label')}</span>
                 <span className="text-xs font-medium text-[#6F7255] mt-1 block">{roomView}</span>
               </div>
             </div>
 
             {/* Complete Amenities Grid */}
             <div>
-              <h3 className="font-serif text-2xl text-[#2B2B2B] mb-6 font-normal">Oda Özellikleri & İmkanları</h3>
+              <h3 className="font-serif text-2xl text-[#2B2B2B] mb-6 font-normal">{t('room_detail.amenities_title')}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {room.features.map((feature, idx) => {
                   const Icon = AMENITY_ICONS[feature] || CheckCircle2;

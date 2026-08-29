@@ -5,7 +5,7 @@ import { ArrowRight, Wind, Leaf, Utensils } from 'lucide-react';
 import { usePageMeta } from '../hooks/usePageMeta';
 
 export default function About() {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const { lang } = useParams();
   const currentLang = lang || i18n.language || 'tr';
 
@@ -14,6 +14,8 @@ export default function About() {
       ? 'Hakkımızda | Nourla Boutique Hotel — Urla İzmir\'in Lavüks Butik Oteli'
       : currentLang === 'de'
       ? 'Über Uns | Nourla Boutique Hotel Urla İzmir'
+      : currentLang === 'ru'
+      ? 'О нас | Nourla Boutique Hotel Урла Измир'
       : 'About Us | Nourla Boutique Hotel — Luxury in Urla Izmir',
     description: currentLang === 'tr'
       ? 'Nourla Boutique Hotel, Urla\'nın tarihi taş mimarisi ve antik zeytin bahçeleri arasında restore edilmiş bir hanımdır. Hikayemizi, felsefemizi ve Ege\'nin ruhunu keşfedin.'
@@ -36,38 +38,32 @@ export default function About() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-[#FDFBF7]" />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
           <span className="text-[10px] sm:text-[11px] font-semibold tracking-[0.35em] text-[#E7E1D3]/80 uppercase mb-4">
-            Urla, İzmir
+            {t('about.hero_tag')}
           </span>
           <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl text-white font-normal leading-tight drop-shadow-lg max-w-3xl">
-            Bir yer değil,<br />bir ruh hâli.
+            {t('about.hero_title')}
           </h1>
         </div>
       </section>
 
-      {/* ─── BÖLÜM 1: RÜZGÂRın HİKÂYESİ ─── */}
+      {/* ─── BÖLÜM 1: KİM BİZ ─── */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-20 pb-16 sm:pb-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
           <div className="space-y-6 sm:space-y-8 order-2 lg:order-1">
             <div className="inline-flex items-center gap-2">
               <span className="h-px w-8 bg-[#6F7255]" />
-              <span className="text-[10px] font-semibold tracking-[0.3em] text-[#6F7255] uppercase">Biz Kimiz</span>
+              <span className="text-[10px] font-semibold tracking-[0.3em] text-[#6F7255] uppercase">{t('about.who_tag')}</span>
             </div>
             <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#2B2B2B] leading-snug">
-              Urla'nın rüzgârı sadece esmez
+              {t('about.who_title')}
             </h2>
             <div className="space-y-4 text-sm sm:text-base text-[#555555] font-light leading-[1.9]">
-              <p>
-                Taşın, ağacın, denizin ve zamanın içinden geçerek bir hikâye anlatır.
-              </p>
+              <p>{t('about.who_p1')}</p>
               <p className="text-[#6F7255] font-medium italic font-serif text-base sm:text-lg">
-                "NoUrla, bu hikâyenin içinde durmayı seçenlerin markasıdır."
+                {t('about.who_quote')}
               </p>
-              <p>
-                Her oda bir tasarım fikrinin sonucu değil, bir yaşam hissinin devamıdır. Doğal dokular, yalın çizgiler ve dikkatle seçilmiş detaylar; gösteriş için değil, huzur için vardır.
-              </p>
-              <p>
-                Çünkü NoUrla, konaklama deneyimi ile bir otelden fazlasıdır.
-              </p>
+              <p>{t('about.who_p2')}</p>
+              <p>{t('about.who_p3')}</p>
             </div>
           </div>
 
@@ -93,12 +89,10 @@ export default function About() {
         <div className="max-w-4xl mx-auto text-center">
           <Wind className="w-8 h-8 text-[#6F7255] mx-auto mb-6 opacity-70" />
           <blockquote className="font-serif text-2xl sm:text-3xl lg:text-4xl text-white font-normal leading-relaxed">
-            Kalabalığın dışında kalan, acele etmeyen,<br className="hidden sm:block" />
-            gösteriş yerine sadeliği seçen<br className="hidden sm:block" />
-            bir yaşam anlayışından doğdu.
+            {t('about.blockquote')}
           </blockquote>
           <p className="mt-6 text-sm text-[#E7E1D3]/70 font-light max-w-2xl mx-auto leading-relaxed">
-            Burada her detay bir tercih; her köşe bir duruş, her dokunuş bir niyet taşır.
+            {t('about.blockquote_sub')}
           </p>
         </div>
       </section>
@@ -113,30 +107,26 @@ export default function About() {
               className="w-full aspect-[4/3] object-cover rounded-2xl shadow-2xl"
             />
             <div className="absolute top-4 right-4 bg-[#6F7255]/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-[10px] font-semibold tracking-widest uppercase shadow">
-              Nourla Mutfağı
+              {t('about.kitchen_badge')}
             </div>
           </div>
 
           <div className="space-y-5 sm:space-y-7">
             <div className="inline-flex items-center gap-2">
               <span className="h-px w-8 bg-[#6F7255]" />
-              <span className="text-[10px] font-semibold tracking-[0.3em] text-[#6F7255] uppercase">Gastronomi</span>
+              <span className="text-[10px] font-semibold tracking-[0.3em] text-[#6F7255] uppercase">{t('about.kitchen_tag')}</span>
             </div>
             <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#2B2B2B] leading-snug">
-              Bir tariften değil,<br />bir coğrafyadan doğar
+              {t('about.kitchen_title')}
             </h2>
             <div className="space-y-4 text-sm sm:text-base text-[#555555] font-light leading-[1.9]">
-              <p>
-                Burada sıradan bir masaya oturmaz — bir coğrafyayı hissedersiniz.
-              </p>
-              <p>
-                Burada yemek hazırlanmaz; topraktan gelenin hikâyesi tamamlanır. Toprağın verdiğine saygı duyan, mevsimin söylediğini dinleyen, fazlasını değil doğrusunu seçen bir mutfak anlayışıyla yola çıktık.
-              </p>
+              <p>{t('about.kitchen_p1')}</p>
+              <p>{t('about.kitchen_p2')}</p>
               <p className="text-[#6F7255] font-medium italic font-serif text-base sm:text-lg">
-                "NoUrla'da lezzet, gösterişten değil sadelikten gelir."
+                {t('about.kitchen_quote')}
               </p>
               <p className="text-xs sm:text-sm text-[#888] leading-relaxed">
-                Her tabakta Urla'nın rüzgârı, zeytin ağaçlarının gölgesi, baharın tazeliği, Urla bağlarının sabrı ve Ege'nin dinginliği vardır.
+                {t('about.kitchen_sub')}
               </p>
             </div>
           </div>
@@ -152,9 +142,9 @@ export default function About() {
               <div className="w-10 h-10 rounded-full bg-[#6F7255]/10 flex items-center justify-center mx-auto">
                 <Leaf className="w-5 h-5 text-[#6F7255]" />
               </div>
-              <h3 className="font-serif text-lg text-[#2B2B2B]">Azın Değeri</h3>
+              <h3 className="font-serif text-lg text-[#2B2B2B]">{t('about.value1_title')}</h3>
               <p className="text-xs text-[#555555] leading-relaxed font-light">
-                Az ile yetinmeden sadeleşmenin mümkün olduğunu hatırlatan bir deneyim.
+                {t('about.value1_desc')}
               </p>
             </div>
 
@@ -162,9 +152,9 @@ export default function About() {
               <div className="w-10 h-10 rounded-full bg-[#6F7255]/10 flex items-center justify-center mx-auto">
                 <Wind className="w-5 h-5 text-[#6F7255]" />
               </div>
-              <h3 className="font-serif text-lg text-[#2B2B2B]">Sessizliğin Sesi</h3>
+              <h3 className="font-serif text-lg text-[#2B2B2B]">{t('about.value2_title')}</h3>
               <p className="text-xs text-[#555555] leading-relaxed font-light">
-                Şehirden uzaklaşmadan sakinleşmenin, doğaya yaklaşmadan derinleşmenin yeri.
+                {t('about.value2_desc')}
               </p>
             </div>
 
@@ -172,9 +162,9 @@ export default function About() {
               <div className="w-10 h-10 rounded-full bg-[#6F7255]/10 flex items-center justify-center mx-auto">
                 <Utensils className="w-5 h-5 text-[#6F7255]" />
               </div>
-              <h3 className="font-serif text-lg text-[#2B2B2B]">Topraktan Sofraya</h3>
+              <h3 className="font-serif text-lg text-[#2B2B2B]">{t('about.value3_title')}</h3>
               <p className="text-xs text-[#555555] leading-relaxed font-light">
-                İsmini aldığı toprakların karakterini taşır. Samimi ama mesafeli, zarif ama iddialı.
+                {t('about.value3_desc')}
               </p>
             </div>
 
@@ -188,20 +178,16 @@ export default function About() {
           <div className="space-y-5 sm:space-y-7">
             <div className="inline-flex items-center gap-2">
               <span className="h-px w-8 bg-[#6F7255]" />
-              <span className="text-[10px] font-semibold tracking-[0.3em] text-[#6F7255] uppercase">Deneyim</span>
+              <span className="text-[10px] font-semibold tracking-[0.3em] text-[#6F7255] uppercase">{t('about.exp_tag')}</span>
             </div>
             <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#2B2B2B] leading-snug">
-              Yalnızca bir mekân değil
+              {t('about.exp_title')}
             </h2>
             <div className="space-y-4 text-sm sm:text-base text-[#555555] font-light leading-[1.9]">
-              <p>
-                NoUrla, şehirden uzaklaşmadan sakinleşmenin, doğaya yaklaşmadan derinleşmenin, az ile yetinmeden sadeleşmenin mümkün olduğunu hatırlatan bir deneyimdir.
-              </p>
-              <p>
-                İsmini aldığı toprakların karakterini taşır. Samimi ama mesafeli, zarif ama iddialı, sakin ama güçlü.
-              </p>
+              <p>{t('about.exp_p1')}</p>
+              <p>{t('about.exp_p2')}</p>
               <p className="text-[#6F7255] font-medium italic font-serif text-base sm:text-lg">
-                "Buraya gelen herkes biraz yavaşlar. Biraz daha dikkatli bakar. Biraz daha gerçek hisseder."
+                {t('about.exp_quote')}
               </p>
             </div>
           </div>
@@ -241,16 +227,13 @@ export default function About() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#2B2B2B]/80 to-[#2B2B2B]/90" />
         <div className="relative z-10 max-w-3xl mx-auto px-4 text-center space-y-6">
-          <p className="text-[#E7E1D3]/70 text-xs font-semibold tracking-[0.3em] uppercase">Çünkü NoUrla bir yer değil</p>
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-white font-normal leading-relaxed">
-            Azın değerli olduğu,<br />
-            Sessizliğin duyulduğu,<br />
-            Kendinizi değerli bulacağınız,<br />
-            Zamanın acele etmediği bir yer…
+          <p className="text-[#E7E1D3]/70 text-xs font-semibold tracking-[0.3em] uppercase">{t('about.closing_tag')}</p>
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-white font-normal leading-relaxed whitespace-pre-line">
+            {t('about.closing_h2')}
           </h2>
           <div className="pt-4">
             <p className="font-serif text-xl sm:text-2xl text-[#6F7255] italic">
-              NoUrla. Burada her şey olması gerektiği kadar.
+              {t('about.closing_quote')}
             </p>
           </div>
           <div className="pt-6">
@@ -258,7 +241,7 @@ export default function About() {
               to={`/${currentLang}/reservation`}
               className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#6F7255] hover:bg-[#4F523A] text-white text-xs font-semibold uppercase tracking-widest transition-all shadow-xl active:scale-95"
             >
-              Rezervasyon Yap
+              {t('about.reserve_btn')}
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

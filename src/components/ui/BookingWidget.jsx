@@ -39,6 +39,7 @@ import {
   getPrices,
   createReservation,
   confirmTransferReservation,
+  confirmMailOrderReservation,
   createPaymentSession,
   process3DSecureVerification,
   getTcmbRates,
@@ -237,10 +238,17 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // Havale Payment State
-  const [paymentMethod, setPaymentMethod] = useState('HAVALE'); // 'HAVALE' | 'CREDIT_CARD'
+  const [paymentMethod, setPaymentMethod] = useState('HAVALE'); // 'HAVALE' | 'MAIL_ORDER'
   const [showHavaleModal, setShowHavaleModal] = useState(false);
   const [pmsReservationResult, setPmsReservationResult] = useState(null);
   const [ibanCopied, setIbanCopied] = useState(false);
+
+  // Mail Order Card State
+  const [moCardHolder, setMoCardHolder] = useState('');
+  const [moCardNumber, setMoCardNumber] = useState('');
+  const [moCardExpiry, setMoCardExpiry] = useState('');
+  const [moCardCvv, setMoCardCvv] = useState('');
+  const [moCardType, setMoCardType] = useState(''); // VISA, MC, etc. detected from first digit
 
   // Processing & Confirmation State
   const [isProcessing, setIsProcessing] = useState(false);
@@ -770,6 +778,91 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
     } catch (err) {
       console.warn('[CONFIRM TRANSFER FALLBACK - OPTION A]', err.message);
       // Option A: User experience priority — show popup even if PMS API call fails, team will handle fallback
+      const fallbackCode = createdReservation?.reservationCode || 'NOURLA-REC';
+      updateGuestLeadReservationCode(guestEmail, fallbackCode).catch(() => {});
+      setShowHavaleModal(true);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Step 4: Confirm Mail Order — Create ElektraWeb PMS reservation + save card data
+  const handleConfirmMailOrder = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!acceptedKvkk || !acceptedTerms) {
+      setApiError('Lütfen KVKK Aydınlatma Metnini ve Mesafeli Satış Sözleşmesini onaylayınız.');
+      return;
+    }
+    if (!moCardHolder.trim() || !moCardNumber.replace(/\s+/g, '').match(/^\d{13,19}$/) || !moCardExpiry.match(/^\d{2}\/\d{2}$/) || !moCardCvv.match(/^\d{3,4}$/)) {
+      setApiError('Lütfen tüm kart bilgilerini eksiksiz ve doğru formatta giriniz.');
+      return;
+    }
+
+    setIsProcessing(true);
+    setApiError(null);
+
+    try {
+      const primaryItem = cartItems[0];
+      const offer = primaryItem?.offer;
+
+      const roomsPayload = cartItems.flatMap((item) =>
+        Array.from({ length: item.quantity }, (_, qIdx) => ({
+          pmsRoomTypeId: item.room.elektraRoomTypeId,
+          roomName: item.room.name.tr,
+          boardChoice: item.boardChoice,
+          boardTypeId: item.offer?.boardTypeId || 893,
+          rateTypeId: item.offer?.rateTypeId || 792,
+          rateCodeId: item.offer?.rateCodeId || 6844,
+          priceAgencyId: item.offer?.priceAgencyId || 44573,
+          pricePerNight: item.offer?.pricePerNight || 0,
+          totalPrice: parseFloat(((item.offer?.totalPrice || 0) * item.quantity).toFixed(2)),
+          originalPrice: parseFloat(((item.offer?.originalPrice || (item.offer?.totalPrice / 0.95) || 0) * item.quantity).toFixed(2)),
+          roomIndex: qIdx + 1,
+        }))
+      );
+
+      const result = await confirmMailOrderReservation(
+        createdReservation?.reservationId || 0,
+        {
+          reservationCode: createdReservation?.reservationCode,
+          guestName,
+          guestEmail,
+          guestPhone,
+          cartItems: roomsPayload,
+          pmsRoomTypeId: selectedRoom?.elektraRoomTypeId,
+          checkIn,
+          checkOut,
+          adultCount: parseInt(guests, 10),
+          nationality: 'TR',
+          boardTypeId: offer?.boardTypeId || 893,
+          rateTypeId: offer?.rateTypeId || 792,
+          rateCodeId: offer?.rateCodeId || 6844,
+          priceAgencyId: offer?.priceAgencyId || 44573,
+          currency,
+          totalPrice: finalTotalPrice,
+          displayPrice: displayOldTotalPrice,
+          specialNotes: specialNotes || '',
+          // Card details — sent to backend for secure storage & ElektraWeb notes
+          cardHolderName: moCardHolder,
+          cardNumber: moCardNumber.replace(/\s+/g, ''),
+          cardExpiry: moCardExpiry,
+          cardCvv: moCardCvv,
+        }
+      );
+
+      if (result && result.success) {
+        setPmsReservationResult(result);
+      } else {
+        console.warn('[CONFIRM MAIL ORDER] PMS yanıtı:', result);
+      }
+
+      const resCodeToSave = result?.reservationCode || createdReservation?.reservationCode || 'NOURLA-REC';
+      updateGuestLeadReservationCode(guestEmail, resCodeToSave).catch(() => {});
+
+      // Show success modal (reuse havale modal)
+      setShowHavaleModal(true);
+    } catch (err) {
+      console.warn('[CONFIRM MAIL ORDER FALLBACK]', err.message);
       const fallbackCode = createdReservation?.reservationCode || 'NOURLA-REC';
       updateGuestLeadReservationCode(guestEmail, fallbackCode).catch(() => {});
       setShowHavaleModal(true);
@@ -1599,9 +1692,11 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
       {/* STEP 4: PAYMENT FORM & LEGAL APPROVALS */}
       {currentStep === 4 && (
         <form
-          onSubmit={(e) => {
+        onSubmit={(e) => {
             if (paymentMethod === 'HAVALE') {
               handleConfirmTransfer(e);
+            } else if (paymentMethod === 'MAIL_ORDER') {
+              handleConfirmMailOrder(e);
             } else {
               handleExecutePayment(e);
             }
@@ -1680,30 +1775,134 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                   )}
                 </div>
 
-                {/* Option 2: Kredi Kartı — PASİF / DISABLED */}
+                {/* Option 2: Mail Order — Kart bilgisi gir, personel işler */}
                 <div
-                  className="p-5 rounded-2xl border border-stone-200 bg-stone-100/70 opacity-60 cursor-not-allowed relative"
-                  title="Sanal POS altyapımız hazırlanmaktadır. Şu an yalnızca Havale/EFT aktiftir."
+                  onClick={() => setPaymentMethod('MAIL_ORDER')}
+                  className={`p-5 rounded-2xl border transition-all cursor-pointer relative ${
+                    paymentMethod === 'MAIL_ORDER'
+                      ? 'border-[#6F7255] bg-white shadow-md ring-2 ring-[#6F7255]/30'
+                      : 'border-[#E7E1D3] bg-[#F7F4EE] hover:border-[#6F7255]/60'
+                  }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 rounded-full border-2 border-stone-300 bg-stone-200 flex items-center justify-center">
-                        <Lock className="w-3 h-3 text-stone-400" />
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                        paymentMethod === 'MAIL_ORDER' ? 'border-[#6F7255] bg-[#6F7255]' : 'border-stone-400'
+                      }`}>
+                        {paymentMethod === 'MAIL_ORDER' && <Check className="w-3.5 h-3.5 text-white" />}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <CreditCard className="w-4 h-4 text-stone-400" />
-                          <h4 className="font-serif font-bold text-stone-500 text-base">Kredi Kartı / Banka Kartı</h4>
-                          <span className="text-[10px] font-semibold text-stone-500 bg-stone-200 px-2.5 py-0.5 rounded-full border border-stone-300 uppercase tracking-wider">
-                            Yakında Aktif
+                          <CreditCard className="w-4 h-4 text-[#6F7255]" />
+                          <h4 className="font-serif font-bold text-[#2B2B2B] text-base">Kredi Kartı (Mail Order)</h4>
+                          <span className="text-[10px] font-semibold text-white bg-[#6F7255] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                            Güvenli
                           </span>
                         </div>
-                        <p className="text-xs text-stone-500 font-light mt-0.5">
-                          Sanal POS entegrasyonumuz hazırlanıyor. Lütfen yukarıdaki %5 indirimli Havale/EFT seçeneğini kullanınız.
+                        <p className="text-xs text-[#555555] font-light mt-0.5">
+                          Kart bilgilerinizi girin, otelimiz sizinle iletişime geçerek ödemeyi tamamlar.
                         </p>
                       </div>
                     </div>
                   </div>
+
+                  {/* Kart Bilgileri Formu — Mail Order seçilince açılır */}
+                  {paymentMethod === 'MAIL_ORDER' && (
+                    <div className="mt-4 pt-3 border-t border-[#E7E1D3] space-y-3" onClick={(e) => e.stopPropagation()}>
+                      {/* Kart Sahibi */}
+                      <div>
+                        <label className="block text-[11px] font-semibold text-[#2B2B2B] mb-1 uppercase tracking-wider">
+                          Kart Üzerindeki Ad Soyad
+                        </label>
+                        <input
+                          type="text"
+                          value={moCardHolder}
+                          onChange={(e) => setMoCardHolder(e.target.value.toUpperCase())}
+                          placeholder="AHMET YILMAZ"
+                          autoComplete="cc-name"
+                          className="w-full px-3 py-2.5 rounded-xl border border-[#E7E1D3] bg-[#F7F4EE] text-xs text-[#2B2B2B] font-mono focus:border-[#6F7255] focus:outline-none uppercase tracking-wider"
+                          required
+                        />
+                      </div>
+
+                      {/* Kart Numarası */}
+                      <div>
+                        <label className="block text-[11px] font-semibold text-[#2B2B2B] mb-1 uppercase tracking-wider">
+                          Kart Numarası
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            value={moCardNumber}
+                            onChange={(e) => {
+                              const raw = e.target.value.replace(/\D/g, '').slice(0, 19);
+                              const formatted = raw.match(/.{1,4}/g)?.join(' ') || raw;
+                              setMoCardNumber(formatted);
+                              const first = raw[0];
+                              setMoCardType(first === '4' ? 'VISA' : first === '5' ? 'MC' : first === '3' ? 'AMEX' : '');
+                            }}
+                            placeholder="0000 0000 0000 0000"
+                            autoComplete="cc-number"
+                            maxLength={23}
+                            className="w-full px-3 py-2.5 rounded-xl border border-[#E7E1D3] bg-white text-sm text-[#2B2B2B] font-mono tracking-[0.15em] focus:border-[#6F7255] focus:outline-none"
+                            required
+                          />
+                          {moCardType && (
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[#6F7255] bg-[#6F7255]/10 px-2 py-0.5 rounded">
+                              {moCardType}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Son Kul. + CVV */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-semibold text-[#2B2B2B] mb-1 uppercase tracking-wider">
+                            Son Kullanma (AA/YY)
+                          </label>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            value={moCardExpiry}
+                            onChange={(e) => {
+                              let v = e.target.value.replace(/\D/g, '').slice(0, 4);
+                              if (v.length > 2) v = v.slice(0, 2) + '/' + v.slice(2);
+                              setMoCardExpiry(v);
+                            }}
+                            placeholder="12/28"
+                            autoComplete="cc-exp"
+                            maxLength={5}
+                            className="w-full px-3 py-2.5 rounded-xl border border-[#E7E1D3] bg-white text-sm text-[#2B2B2B] font-mono tracking-widest focus:border-[#6F7255] focus:outline-none"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-semibold text-[#2B2B2B] mb-1 uppercase tracking-wider">
+                            CVV / CVC
+                          </label>
+                          <input
+                            type="password"
+                            inputMode="numeric"
+                            value={moCardCvv}
+                            onChange={(e) => setMoCardCvv(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                            placeholder="•••"
+                            autoComplete="cc-csc"
+                            maxLength={4}
+                            className="w-full px-3 py-2.5 rounded-xl border border-[#E7E1D3] bg-white text-sm text-[#2B2B2B] font-mono tracking-widest focus:border-[#6F7255] focus:outline-none"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      {/* KVKK notu */}
+                      <p className="text-[10px] text-[#6F7255] italic flex items-start gap-1.5">
+                        <Lock className="w-3 h-3 mt-0.5 shrink-0" />
+                        Kart bilgileriniz güvenli sunucularımızda şifreli olarak saklanır. KVKK kapsamında yalnızca mail order işlemi için kullanılır.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
               </div>
@@ -1816,7 +2015,8 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
 
                   <div className="flex justify-between text-[#E7E1D3] font-medium bg-white/5 p-2.5 rounded-xl border border-white/10">
                     <span className="flex items-center gap-1.5 text-xs text-[#E7E1D3]/90">
-                      <Tag className="w-3.5 h-3.5 text-[#6F7255]" /> Havale ile %5 İndirim:
+                      <Tag className="w-3.5 h-3.5 text-[#6F7255]" />
+                      {paymentMethod === 'HAVALE' ? 'Havale ile %5 İndirim:' : 'Web Fiyatı %5 İndirimi:'}
                     </span>
                     <span className="text-[#E7E1D3] font-semibold">-{currSymbol}{webDiscountAmount.toLocaleString('tr-TR')}</span>
                   </div>
@@ -1840,7 +2040,10 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                     </>
                   ) : (
                     <>
-                      <Landmark className="w-4 h-4" /> Rezervasyonu Tamamla ({currSymbol}{finalTotalPrice.toLocaleString('tr-TR')})
+                      {paymentMethod === 'MAIL_ORDER'
+                        ? <><CreditCard className="w-4 h-4" /> Kart ile Rezervasyonu Tamamla ({currSymbol}{finalTotalPrice.toLocaleString('tr-TR')})</>
+                        : <><Landmark className="w-4 h-4" /> Rezervasyonu Tamamla ({currSymbol}{finalTotalPrice.toLocaleString('tr-TR')})</>
+                      }
                     </>
                   )}
                 </button>

@@ -111,7 +111,7 @@ export default function Footer() {
               className="hover:text-[#6F7255] transition-colors"
               aria-label="Gizlilik Politikası"
             >
-              Gizlilik Politikası
+              {t('footer.privacy_policy')}
             </Link>
             <span className="text-[#E7E1D3]/20">•</span>
             <Link
@@ -119,7 +119,7 @@ export default function Footer() {
               className="hover:text-[#6F7255] transition-colors"
               aria-label="KVKK Aydınlatma Metni"
             >
-              KVKK Aydınlatma Metni
+              {t('footer.kvkk')}
             </Link>
             <span className="text-[#E7E1D3]/20">•</span>
             <Link
@@ -127,7 +127,7 @@ export default function Footer() {
               className="hover:text-[#6F7255] transition-colors"
               aria-label="Mesafeli Satış Sözleşmesi"
             >
-              Mesafeli Satış Sözleşmesi
+              {t('footer.distance_contract')}
             </Link>
           </div>
         </div>

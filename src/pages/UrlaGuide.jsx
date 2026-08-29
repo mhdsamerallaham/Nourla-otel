@@ -53,7 +53,7 @@ export default function UrlaGuide() {
         {/* 2. QUICK JUMP ANCHOR NAVIGATION BAR */}
         <div className="bg-[#F7F4EE] p-4 sm:p-6 rounded-2xl border border-[#E7E1D3] shadow-xs mb-16">
           <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#6F7255] block mb-3 text-center sm:text-left">
-            HIZLI KEŞİF BAŞLIKLARI
+            {t('urla_section.quick_nav')}
           </span>
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
             {URLA_TOPICS.map((topic) => {
@@ -128,7 +128,7 @@ export default function UrlaGuide() {
                     {topic.highlights && (
                       <div className="pt-2 border-t border-[#E7E1D3]/80 space-y-2">
                         <span className="text-[11px] font-semibold text-[#2B2B2B] uppercase tracking-wider block">
-                          Öne Çıkan Deneyimler:
+                          {t('urla_section.highlights_label')}
                         </span>
                         <div className="flex flex-wrap gap-2">
                           {topic.highlights.map((hl, hIdx) => (
@@ -150,7 +150,7 @@ export default function UrlaGuide() {
                         className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#6F7255] hover:bg-[#4F523A] text-white text-xs font-semibold uppercase tracking-widest transition-all shadow-md"
                       >
                         <Calendar className="w-4 h-4" />
-                        Concierge İle Keşfet
+                        {t('urla_section.explore_btn')}
                       </Link>
                     </div>
                   </div>

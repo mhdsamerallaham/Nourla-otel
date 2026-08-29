@@ -221,6 +221,20 @@ async function createReservation(data) {
     payload['discount-type-id'] = parseInt(data.discountTypeId || 1, 10);
   }
 
+  // ─── Kredi Kartı / Mail Order Bilgileri ─────────────────────────────────────
+  // ElektraWeb'in "Kredi Kartı Bilgileri" bölümüne gönderilir.
+  // paymentInfo: { ccNo, ccHolder, ccExpire, ccCvv } ile gönderildiğinde
+  // PMS'in kart bilgisi ekranında görünür.
+  if (data.paymentInfo && data.paymentInfo.ccNo) {
+    payload['payment-info'] = {
+      'cc-no':     String(data.paymentInfo.ccNo).replace(/\s+/g, ''),
+      'cc-holder': String(data.paymentInfo.ccHolder || '').toUpperCase(),
+      'cc-expire': String(data.paymentInfo.ccExpire || ''),  // "MM/YY"
+      'cc-cvv':    String(data.paymentInfo.ccCvv || ''),
+    };
+    console.log(`[ELEKTRA RESERVATION] Mail Order kredi kartı bilgileri payload'a eklendi (card: ****${String(data.paymentInfo.ccNo).slice(-4)})`);
+  }
+
   if (process.env.TEST_SUITE_MOCK_PMS === 'true') {
     if (String(data.roomTypeId) === '999999') {
       throw new Error('Geçersiz oda tipi ID (Test PMS Sync Failure).');

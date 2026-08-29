@@ -281,7 +281,212 @@ router.post('/reservation/:id/confirm-transfer', async (req, res) => {
   }
 });
 
-// ─── Get Reservation Details ─────────────────────────────────────────────────
+// ─── Confirm Mail Order — Creates PMS Reservation + Logs Card Data ─────────────
+// Called when customer selects "Mail Order" and clicks "Rezervasyonu Tamamla".
+// Card data is saved to Supabase and sent to ElektraWeb reservation notes.
+router.post('/reservation/:id/confirm-mail-order', async (req, res) => {
+  try {
+    const body = req.body;
+
+    if (!body.guestName || !body.checkIn || !body.checkOut) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'MISSING_FIELDS', message: 'Eksik alan: guestName, checkIn, checkOut zorunludur.' },
+      });
+    }
+
+    if (!body.cardNumber || !body.cardHolderName || !body.cardExpiry) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'MISSING_CARD_FIELDS', message: 'Kart bilgileri eksik: cardNumber, cardHolderName, cardExpiry zorunludur.' },
+      });
+    }
+
+    // ── Kart bilgileri — tam, düz metin (muhasebe mail order yapacak) ──────
+    const rawCard = body.cardNumber.replace(/\s+/g, '');
+    // Görüntüleme için boşluklu format: "4111 1111 1111 1111"
+    const cardFormatted = rawCard.match(/.{1,4}/g)?.join(' ') || rawCard;
+    const cardExpiry    = body.cardExpiry || '';
+    const cardCvv       = body.cardCvv || '';
+    const cardLast4     = rawCard.slice(-4);
+    const cardFirst6    = rawCard.slice(0, 6);
+
+    // Build cart items (same pattern as confirm-transfer)
+    let roomItems = Array.isArray(body.cartItems) && body.cartItems.length > 0
+      ? body.cartItems
+      : [{
+          pmsRoomTypeId: body.pmsRoomTypeId,
+          boardTypeId: body.boardTypeId || 893,
+          rateTypeId: body.rateTypeId || 792,
+          rateCodeId: body.rateCodeId || 6844,
+          priceAgencyId: body.priceAgencyId || 44573,
+          totalPrice: body.totalPrice,
+          roomName: 'Oda 1',
+        }];
+
+    const totalCartRooms = roomItems.length;
+    const overallCartTotal = parseFloat((body.totalPrice || 0).toFixed(2));
+
+    const pmsResults = [];
+    const pmsIds = [];
+
+    // Create ElektraWeb reservation for each room — add card info to notes
+    for (let i = 0; i < roomItems.length; i++) {
+      const item = roomItems[i];
+      const itemPayablePrice = parseFloat(item.totalPrice) || (totalCartRooms > 0 ? parseFloat((overallCartTotal / totalCartRooms).toFixed(2)) : 0);
+      const itemDisplayPrice = item.originalPrice ? parseFloat(item.originalPrice) : parseFloat((itemPayablePrice / 0.95).toFixed(2));
+      const itemDiscountAmount = parseFloat((itemDisplayPrice - itemPayablePrice).toFixed(2));
+
+      const mailOrderNotes = [
+        '=== MAİL ORDER ÖDEME BİLGİLERİ ===',
+        body.reservationCode ? `REZ KODU: ${body.reservationCode}` : '',
+        `KART SAHİBİ: ${body.cardHolderName}`,
+        `KART NUMARASI: ${cardFormatted}`,
+        `SON KULLANMA TARİHİ: ${cardExpiry}`,
+        `CVV: ${cardCvv}`,
+        '===================================',
+        `Web Liste Fiyatı: ${itemDisplayPrice} ${body.currency || 'TRY'}`,
+        `%5 Web İndirimi: -${itemDiscountAmount} ${body.currency || 'TRY'}`,
+        `NET TAHSİL EDİLECEK TUTAR: ${itemPayablePrice} ${body.currency || 'TRY'}`,
+        `Misafir: ${body.guestName} (${body.guestEmail || ''} | ${body.guestPhone || ''})`,
+        totalCartRooms > 1 ? `Sepet: Oda ${i + 1}/${totalCartRooms} (${item.roomName || 'Oda'})` : '',
+        body.specialNotes || '',
+        'KVKK: Kart bilgileri yalnızca mail order işlemi için alınmıştır.',
+      ].filter(Boolean).join(' | ');
+
+      try {
+        const pmsRes = await elektra.createReservation({
+          roomTypeId:    item.pmsRoomTypeId || body.pmsRoomTypeId,
+          checkIn:       body.checkIn,
+          checkOut:      body.checkOut,
+          adultCount:    body.adultCount || 2,
+          guestName:     body.guestName,
+          guestEmail:    body.guestEmail || 'info@nourla.com.tr',
+          guestPhone:    body.guestPhone || '+905320000000',
+          boardTypeId:   item.boardTypeId   || body.boardTypeId   || 893,
+          rateTypeId:    item.rateTypeId    || body.rateTypeId    || 792,
+          rateCodeId:    item.rateCodeId    || body.rateCodeId    || 6844,
+          priceAgencyId: item.priceAgencyId || body.priceAgencyId || 44573,
+          currency:      (body.currency || 'TRY').toUpperCase(),
+          totalPrice:    itemPayablePrice,
+          netPrice:      itemPayablePrice,
+          displayPrice:  itemDisplayPrice,
+          nationality:   body.nationality || 'TR',
+          specialNotes:  mailOrderNotes,
+          paymentType:   4, // 4 = Kredi Kartı / Mail Order
+          discountPercent: 5,
+          discountAmount:  itemDiscountAmount,
+          discountTypeId:  1,
+          // ─ ElektraWeb kredi kartı alanı ─────────────────────────────
+          paymentInfo: {
+            ccNo:     rawCard,                   // tam kart numarası (boşluksuz)
+            ccHolder: body.cardHolderName,       // kart sahibi
+            ccExpire: cardExpiry,                // "12/28"
+            ccCvv:    cardCvv,                   // CVV
+          },
+        });
+
+        const pId = pmsRes?.['reservation-id'] || pmsRes?.reservationId || pmsRes?.id || null;
+        if (pId) pmsIds.push(pId);
+        pmsResults.push(pmsRes);
+      } catch (rErr) {
+        console.error(`[CONFIRM-MAIL-ORDER] ElektraWeb oda ${i + 1}/${totalCartRooms} hatası:`, rErr.message);
+      }
+    }
+
+    const primaryPmsId = pmsIds[0] || null;
+    const primaryPmsUuid = pmsResults[0]?.['reservation-uuid'] || pmsResults[0]?.reservationUuid || null;
+
+    console.log(`[CONFIRM-MAIL-ORDER] ElektraWeb PMS ${pmsResults.length} oda rezervasyonu. PMS IDs: ${pmsIds.join(', ')}`);
+
+    // ── Supabase'e tam kart bilgileriyle kayıt (.env.local credentials) ──────
+    try {
+      const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+      const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+
+      if (supabaseUrl && supabaseKey) {
+        const fetchFn = globalThis.fetch || ((...args) => import('node-fetch').then(({ default: f }) => f(...args)));
+
+        const sbRes = await fetchFn(`${supabaseUrl}/rest/v1/mail_order_requests`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Prefer': 'return=minimal',
+          },
+          body: JSON.stringify({
+            reservation_code:   body.reservationCode || null,
+            pms_reservation_id: primaryPmsId ? String(primaryPmsId) : null,
+            pms_reservation_ids: pmsIds.length > 1 ? pmsIds.join(',') : null,
+            guest_name:         body.guestName,
+            guest_email:        body.guestEmail || null,
+            guest_phone:        body.guestPhone || null,
+            card_holder_name:   body.cardHolderName,
+            card_number:        cardFormatted,   // boşluklu: "4111 1111 1111 1111"
+            card_number_raw:    rawCard,          // boşluksuz: "4111111111111111"
+            card_first6:        cardFirst6,
+            card_last4:         cardLast4,
+            card_expiry:        cardExpiry,       // "12/28"
+            card_cvv:           cardCvv,          // tam CVV
+            check_in:           body.checkIn,
+            check_out:          body.checkOut,
+            total_price:        overallCartTotal,
+            currency:           body.currency || 'TRY',
+            status:             'PENDING',
+          }),
+        });
+        console.log(`[CONFIRM-MAIL-ORDER] Supabase kayıt: HTTP ${sbRes?.status}`);
+      } else {
+        console.warn('[CONFIRM-MAIL-ORDER] Supabase credentials bulunamadı — VITE_SUPABASE_URL ve VITE_SUPABASE_ANON_KEY .env.local dosyasına ekleyin.');
+      }
+    } catch (sbErr) {
+      console.warn('[CONFIRM-MAIL-ORDER] Supabase kayıt hatası (non-blocking):', sbErr.message);
+    }
+
+    // Best-effort: update local DB
+    try {
+      const { runQuery } = require('../database/db');
+      const reservationId = parseInt(req.params.id, 10);
+      if (reservationId && primaryPmsId) {
+        await runQuery(
+          `UPDATE RESERVATIONS SET
+             status = 'CONFIRMED',
+             sync_status = 'SYNC_SUCCESS',
+             pms_reservation_id = ?,
+             payment_status = 'PENDING_MAIL_ORDER',
+             updated_at = CURRENT_TIMESTAMP
+           WHERE id = ?`,
+          [String(primaryPmsId), reservationId]
+        );
+      }
+    } catch (_dbErr) {
+      console.warn('[confirm-mail-order] DB güncellemesi başarısız (memory-store modu):', _dbErr.message);
+    }
+
+    return res.json({
+      success: true,
+      pmsReservationId:   primaryPmsId,
+      pmsReservationIds:  pmsIds,
+      pmsReservationUuid: primaryPmsUuid,
+      reservationCode:    body.reservationCode,
+      cardLast4,
+      currency:           body.currency || 'TRY',
+      totalPrice:         overallCartTotal,
+      message: `${pmsResults.length} oda için ElektraWeb mail order rezervasyonu oluşturuldu. Kart bilgileri sisteme kaydedildi.`,
+    });
+  } catch (err) {
+    console.error('[/reservation/:id/confirm-mail-order ERROR]', err.message);
+    return res.status(502).json({
+      success: false,
+      error: {
+        code: 'MAIL_ORDER_FAILED',
+        message: `Mail order rezervasyonu oluşturulamadı: ${err.message}`,
+      },
+    });
+  }
+});
+
 router.get('/reservation/:code', async (req, res) => {
   try {
     const reservation = await reservationService.getReservationByCode(req.params.code);

@@ -811,11 +811,13 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
       const primaryItem = cartItems[0];
       const offer = primaryItem?.offer;
 
-      // Mail Order'da indirim YOK: Tam liste fiyatı kullanılır
-      const mailOrderPayableTotal = displayOldTotalPrice;
+      // ElektraWeb PMS'e gönderilecek fiyat teklifi:
+      // ElektraWeb kendi /price teklif fiyatını (örn: 20154.42) bekler.
+      const pmsOfferTotal = finalTotalPrice; // ElektraWeb baz teklif toplamı
 
       const roomsPayload = cartItems.flatMap((item) =>
         Array.from({ length: item.quantity }, (_, qIdx) => {
+          const itemPmsPrice = parseFloat(((item.offer?.totalPrice || 0) * item.quantity).toFixed(2));
           const itemOriginalSingle = item.offer?.originalPrice || (item.offer?.totalPrice ? item.offer.totalPrice / 0.95 : 0);
           const itemUndiscountedTotal = parseFloat((itemOriginalSingle * item.quantity).toFixed(2));
           return {
@@ -826,9 +828,9 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             rateTypeId: item.offer?.rateTypeId || 792,
             rateCodeId: item.offer?.rateCodeId || 6844,
             priceAgencyId: item.offer?.priceAgencyId || 44573,
-            pricePerNight: item.offer?.originalPricePerNight || item.offer?.pricePerNight || 0,
-            totalPrice: itemUndiscountedTotal,
-            originalPrice: itemUndiscountedTotal,
+            pricePerNight: item.offer?.pricePerNight || 0,
+            totalPrice: itemPmsPrice, // ElektraWeb'in istediği net teklif fiyatı
+            originalPrice: itemUndiscountedTotal, // Liste fiyatı
             roomIndex: qIdx + 1,
           };
         })
@@ -850,12 +852,12 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
         card_cvv: moCardCvv,
         check_in: checkIn,
         check_out: checkOut,
-        total_price: mailOrderPayableTotal,
+        total_price: displayOldTotalPrice, // Müşterinin gördüğü tahsil edilecek liste fiyatı
         currency,
         status: 'PENDING',
       }).catch((sbErr) => console.warn('[Supabase Direct MO Lead Warning]:', sbErr.message));
 
-      // 2. Backend API çağrısı: ElektraWeb PMS'e kart bilgilerini özel alanlarıyla aktar
+      // 2. Backend API çağrısı: ElektraWeb PMS'e kart bilgilerini ve rezervasyonu aktar
       const result = await confirmMailOrderReservation(
         createdReservation?.reservationId || 0,
         {
@@ -874,8 +876,8 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
           rateCodeId: offer?.rateCodeId || 6844,
           priceAgencyId: offer?.priceAgencyId || 44573,
           currency,
-          totalPrice: mailOrderPayableTotal, // İndirimsiz liste fiyatı
-          displayPrice: mailOrderPayableTotal,
+          totalPrice: pmsOfferTotal, // ElektraWeb'in birebir onayladığı teklif fiyatı
+          displayPrice: displayOldTotalPrice, // Liste fiyatı
           specialNotes: specialNotes || '',
           // Card details
           cardHolderName: moCardHolder.toUpperCase(),

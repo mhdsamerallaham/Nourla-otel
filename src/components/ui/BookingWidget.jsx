@@ -1529,7 +1529,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                                 {itemInCart.quantity} Adet {currentBoardChoice === 'BB' ? 'Kahvaltılı' : 'Kahvaltısız'} Seçildi
                               </span>
                               <span className="text-[10px] text-[#6F7255]">
-                                Gecelik {currSymbol}{(Math.round(activeOffer.pricePerNight) * itemInCart.quantity).toLocaleString('tr-TR')}
+                                {nights > 1 ? `${nights} Gece Toplam: ` : ''}{currSymbol}{(Math.round(activeOffer.totalPrice) * itemInCart.quantity).toLocaleString('tr-TR')}
                               </span>
                             </div>
                             <button
@@ -1555,7 +1555,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                           >
                             {isRoomTypeSoldOutInCart
                               ? 'Oda Müsaitliği Doldu (Sepette)'
-                              : `Odayı Sepete Ekle (${currSymbol}${Math.round(activeOffer.pricePerNight).toLocaleString('tr-TR')}/gece) +`}
+                              : `Odayı Sepete Ekle (${currSymbol}${Math.round(activeOffer.totalPrice).toLocaleString('tr-TR')}${nights > 1 ? ` / ${nights} gece` : ''}) +`}
                           </button>
                         );
                       })()}
@@ -1590,7 +1590,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                   </div>
                   <div>
                     <span className="text-xs font-bold text-[#E7E1D3] uppercase tracking-wider block">
-                      SEÇİLEN ODALAR SEPETİ ({totalSelectedRoomsCount} ODA)
+                      SEÇİLEN ODALAR SEPETİ ({totalSelectedRoomsCount} ODA{nights > 1 ? ` • ${nights} GECE` : ''})
                     </span>
                     <p className="text-[11px] text-stone-300 font-light truncate max-w-xs sm:max-w-md">
                       {cartItems.map((item) => `${item.quantity}x ${item.room.name.tr} (${item.boardChoice === 'BB' ? 'Kahvaltılı' : 'Kahvaltısız'})`).join(' • ')}
@@ -1600,9 +1600,14 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
 
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <span className="text-[10px] text-[#E7E1D3]/80 uppercase block">Toplam Tutar</span>
+                    <span className="text-[10px] text-[#E7E1D3]/80 uppercase block">
+                      {nights > 1 ? `Toplam Tutar (${nights} Gece)` : 'Toplam Tutar'}
+                    </span>
                     <span className="font-serif text-xl sm:text-2xl font-bold text-[#E7E1D3]">
-                      {currSymbol}{finalTotalPrice.toLocaleString('tr-TR')}
+                      {currSymbol}{Math.round(elektraBasePrice).toLocaleString('tr-TR')}
+                    </span>
+                    <span className="text-[10px] text-emerald-300 block font-light">
+                      Havale ile: {currSymbol}{Math.round(havaleDiscountedPrice).toLocaleString('tr-TR')}
                     </span>
                   </div>
                   <button

@@ -225,6 +225,12 @@ async function createReservation(data) {
   // ElektraWeb PMS'in "Kredi Kartı Bilgileri" sekmesine ve alt tablosuna (sub-grid) aktarılır.
   // ElektraWeb resmi Channel & Booking API standartlarına uygun tüm alan formatları sağlanır.
   if (data.paymentInfo && data.paymentInfo.ccNo) {
+    payload['pay-by-credit-card'] = true;
+    payload['pay-at-hotel'] = false;
+    payload['pay-by-wire-transfer'] = false;
+    payload['payment-method'] = 'CreditCard';
+    payload['payment-type'] = 2; // 2 = Kredi Kartı
+
     const rawCcNo = String(data.paymentInfo.ccNo).replace(/\s+/g, '');
     const ccHolder = String(data.paymentInfo.ccHolder || `${firstName} ${lastName}`).toUpperCase();
     const rawExpire = String(data.paymentInfo.ccExpire || '').trim(); // "12/28"

@@ -97,7 +97,7 @@ const FEATURE_TRANSLATIONS = {
   'Mini bar': { tr: 'Organik Mini Bar', en: 'Organic Mini Bar', de: 'Organische Minibar', ru: 'Мини-бар' },
 };
 
-export default function BookingWidget({ preselectedRoomId = '' }) {
+export default function BookingWidget({ preselectedRoomId = '', isSidebar = false }) {
   const { i18n, t } = useTranslation();
   const { lang } = useParams();
   const [searchParams] = useSearchParams();
@@ -1040,27 +1040,46 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   return (
     <div className="space-y-8">
       {/* STEP PROGRESS BAR */}
-      <div className="bg-[#FDFBF7] p-4 rounded-2xl border border-[#E7E1D3] flex flex-wrap items-center justify-between gap-2 shadow-xs text-xs">
-        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${currentStep === 1 ? 'bg-[#6F7255] text-white font-semibold' : 'text-[#555555]'}`}>
-          <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">1</span>
-          <span>Tarih & Müsaitlik</span>
+      {isSidebar ? (
+        <div className="bg-[#FDFBF7] px-4 py-3 rounded-2xl border border-[#E7E1D3] flex items-center justify-between shadow-xs text-xs">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-5 h-5 rounded-full bg-[#6F7255] text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+              {currentStep}
+            </span>
+            <span className="font-semibold text-[#2B2B2B] truncate">
+              {currentStep === 1 && 'Tarih & Müsaitlik'}
+              {currentStep === 2 && 'Oda Seçimi'}
+              {currentStep === 3 && 'Misafir Bilgileri'}
+              {currentStep === 4 && 'Güvenli Ödeme'}
+            </span>
+          </div>
+          <span className="text-[11px] text-[#6F7255] font-semibold font-mono shrink-0">
+            Adım {currentStep} / 4
+          </span>
         </div>
-        <ArrowRight className="w-3.5 h-3.5 text-[#E7E1D3] hidden sm:block" />
-        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${currentStep === 2 ? 'bg-[#6F7255] text-white font-semibold' : 'text-[#555555]'}`}>
-          <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">2</span>
-          <span>Oda Seçimi</span>
+      ) : (
+        <div className="bg-[#FDFBF7] p-4 rounded-2xl border border-[#E7E1D3] flex flex-wrap items-center justify-between gap-2 shadow-xs text-xs">
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${currentStep === 1 ? 'bg-[#6F7255] text-white font-semibold' : 'text-[#555555]'}`}>
+            <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">1</span>
+            <span>Tarih & Müsaitlik</span>
+          </div>
+          <ArrowRight className="w-3.5 h-3.5 text-[#E7E1D3] hidden sm:block" />
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${currentStep === 2 ? 'bg-[#6F7255] text-white font-semibold' : 'text-[#555555]'}`}>
+            <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">2</span>
+            <span>Oda Seçimi</span>
+          </div>
+          <ArrowRight className="w-3.5 h-3.5 text-[#E7E1D3] hidden sm:block" />
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${currentStep === 3 ? 'bg-[#6F7255] text-white font-semibold' : 'text-[#555555]'}`}>
+            <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">3</span>
+            <span>Misafir Bilgileri</span>
+          </div>
+          <ArrowRight className="w-3.5 h-3.5 text-[#E7E1D3] hidden sm:block" />
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${currentStep === 4 ? 'bg-[#6F7255] text-white font-semibold' : 'text-[#555555]'}`}>
+            <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">4</span>
+            <span>Güvenli Ödeme</span>
+          </div>
         </div>
-        <ArrowRight className="w-3.5 h-3.5 text-[#E7E1D3] hidden sm:block" />
-        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${currentStep === 3 ? 'bg-[#6F7255] text-white font-semibold' : 'text-[#555555]'}`}>
-          <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">3</span>
-          <span>Misafir Bilgileri</span>
-        </div>
-        <ArrowRight className="w-3.5 h-3.5 text-[#E7E1D3] hidden sm:block" />
-        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${currentStep === 4 ? 'bg-[#6F7255] text-white font-semibold' : 'text-[#555555]'}`}>
-          <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">4</span>
-          <span>Güvenli Ödeme</span>
-        </div>
-      </div>
+      )}
 
       {/* ERROR BANNER */}
       {apiError && (
@@ -1075,40 +1094,42 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
 
       {/* STEP 1: DATES & GUESTS PICKER */}
       {currentStep === 1 && (
-        <div className="bg-[#FDFBF7] p-6 sm:p-8 rounded-3xl border border-[#E7E1D3] shadow-lg relative overflow-hidden space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#6F7255]/10 text-[#6F7255] flex items-center justify-center">
-                <Calendar className="w-5 h-5" />
+        <div className={`bg-[#FDFBF7] ${isSidebar ? 'p-4 sm:p-5 space-y-4' : 'p-6 sm:p-8 space-y-6'} rounded-3xl border border-[#E7E1D3] shadow-lg relative overflow-hidden`}>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-9 h-9 rounded-full bg-[#6F7255]/10 text-[#6F7255] flex items-center justify-center shrink-0">
+                <Calendar className="w-4 h-4" />
               </div>
-              <div>
-                <span className="text-[10px] font-semibold tracking-[0.2em] text-[#6F7255] uppercase block">ADIM 1</span>
-                <h3 className="font-serif text-2xl text-[#2B2B2B]">Konaklama Tarihleri & Misafir Sayısı</h3>
+              <div className="min-w-0">
+                <span className="text-[9px] font-semibold tracking-[0.2em] text-[#6F7255] uppercase block">ADIM 1</span>
+                <h3 className={`font-serif ${isSidebar ? 'text-lg sm:text-xl' : 'text-2xl'} text-[#2B2B2B] truncate`}>
+                  {isSidebar ? 'Konaklama & Misafir' : 'Konaklama Tarihleri & Misafir Sayısı'}
+                </h3>
               </div>
             </div>
 
-            <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-xs text-emerald-800 font-semibold shadow-xs">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              En İyi Fiyat Garantisi
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-[10px] text-emerald-800 font-semibold shrink-0 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              En İyi Fiyat
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className={`grid ${isSidebar ? 'grid-cols-2 gap-2.5' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'}`}>
             {/* GİRİŞ TARİHİ KUTUSU - HER YERİNE TIKLANABİLİR */}
             <div
               onClick={() => openDatePicker('checkIn')}
-              className="bg-[#F7F4EE] p-4 rounded-2xl border border-[#E7E1D3] hover:border-[#6F7255] cursor-pointer transition-all flex flex-col justify-between group shadow-2xs hover:shadow-md"
+              className="bg-[#F7F4EE] p-3 sm:p-3.5 rounded-2xl border border-[#E7E1D3] hover:border-[#6F7255] cursor-pointer transition-all flex flex-col justify-between group shadow-2xs hover:shadow-md"
             >
-              <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#6F7255] mb-1.5 flex items-center justify-between cursor-pointer">
-                <span className="flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-[#6F7255]" /> Giriş Tarihi
+              <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6F7255] mb-1 flex items-center justify-between cursor-pointer">
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3 h-3 text-[#6F7255]" /> Giriş
                 </span>
-                <span className="text-[10px] text-[#6F7255] bg-white px-2 py-0.5 rounded-full border border-[#E7E1D3] font-semibold group-hover:bg-[#6F7255] group-hover:text-white transition-all">
-                  Seç / Değiştir
+                <span className="text-[9px] text-[#6F7255] bg-white px-1.5 py-0.5 rounded-full border border-[#E7E1D3] font-medium group-hover:bg-[#6F7255] group-hover:text-white transition-all">
+                  Seç
                 </span>
               </label>
-              <div className="flex items-center justify-between pt-1">
-                <span className="font-serif text-lg font-semibold text-[#2B2B2B] group-hover:text-[#6F7255] transition-colors">
+              <div className="pt-0.5">
+                <span className="font-serif text-sm sm:text-base font-semibold text-[#2B2B2B] group-hover:text-[#6F7255] transition-colors whitespace-nowrap block">
                   {checkIn ? checkIn.split('-').reverse().join('.') : 'Tarih Seçin'}
                 </span>
               </div>
@@ -1117,31 +1138,31 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             {/* ÇIKIŞ TARİHİ KUTUSU - HER YERİNE TIKLANABİLİR */}
             <div
               onClick={() => openDatePicker('checkOut')}
-              className="bg-[#F7F4EE] p-4 rounded-2xl border border-[#E7E1D3] hover:border-[#6F7255] cursor-pointer transition-all flex flex-col justify-between group shadow-2xs hover:shadow-md"
+              className="bg-[#F7F4EE] p-3 sm:p-3.5 rounded-2xl border border-[#E7E1D3] hover:border-[#6F7255] cursor-pointer transition-all flex flex-col justify-between group shadow-2xs hover:shadow-md"
             >
-              <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#6F7255] mb-1.5 flex items-center justify-between cursor-pointer">
-                <span className="flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-[#6F7255]" /> Çıkış Tarihi
+              <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6F7255] mb-1 flex items-center justify-between cursor-pointer">
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3 h-3 text-[#6F7255]" /> Çıkış
                 </span>
-                <span className="text-[10px] text-[#6F7255] bg-white px-2 py-0.5 rounded-full border border-[#E7E1D3] font-semibold group-hover:bg-[#6F7255] group-hover:text-white transition-all">
-                  Seç / Değiştir
+                <span className="text-[9px] text-[#6F7255] bg-white px-1.5 py-0.5 rounded-full border border-[#E7E1D3] font-medium group-hover:bg-[#6F7255] group-hover:text-white transition-all">
+                  Seç
                 </span>
               </label>
-              <div className="flex items-center justify-between pt-1">
-                <span className="font-serif text-lg font-semibold text-[#2B2B2B] group-hover:text-[#6F7255] transition-colors">
+              <div className="pt-0.5">
+                <span className="font-serif text-sm sm:text-base font-semibold text-[#2B2B2B] group-hover:text-[#6F7255] transition-colors whitespace-nowrap block">
                   {checkOut ? checkOut.split('-').reverse().join('.') : 'Tarih Seçin'}
                 </span>
               </div>
             </div>
 
-            <div className="bg-[#F7F4EE] p-4 rounded-2xl border border-[#E7E1D3]">
-              <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#6F7255] mb-1.5 flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5" /> Misafir Sayısı
+            <div className="bg-[#F7F4EE] p-3 sm:p-3.5 rounded-2xl border border-[#E7E1D3]">
+              <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6F7255] mb-1 flex items-center gap-1">
+                <Users className="w-3 h-3 text-[#6F7255]" /> Misafir
               </label>
               <select
                 value={guests}
                 onChange={(e) => setGuests(e.target.value)}
-                className="w-full bg-transparent text-sm font-semibold text-[#2B2B2B] focus:outline-none cursor-pointer"
+                className="w-full bg-transparent text-xs sm:text-sm font-semibold text-[#2B2B2B] focus:outline-none cursor-pointer pt-0.5"
               >
                 <option value="1">1 Yetişkin</option>
                 <option value="2">2 Yetişkin</option>
@@ -1149,26 +1170,26 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
               </select>
             </div>
 
-            <div className="bg-[#F7F4EE] p-4 rounded-2xl border border-[#E7E1D3]">
-              <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#6F7255] mb-1.5 flex items-center gap-1.5">
-                <Building className="w-3.5 h-3.5" /> Para Birimi
+            <div className="bg-[#F7F4EE] p-3 sm:p-3.5 rounded-2xl border border-[#E7E1D3]">
+              <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6F7255] mb-1 flex items-center gap-1">
+                <Building className="w-3 h-3 text-[#6F7255]" /> Para Birimi
               </label>
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="w-full bg-transparent text-sm font-semibold text-[#2B2B2B] focus:outline-none cursor-pointer"
+                className="w-full bg-transparent text-xs sm:text-sm font-semibold text-[#2B2B2B] focus:outline-none cursor-pointer pt-0.5"
               >
-                <option value="TRY">₺ TRY (Türk Lirası)</option>
-                <option value="EUR">€ EUR (Euro - TCMB)</option>
-                <option value="USD">$ USD (Dolar - TCMB)</option>
+                <option value="TRY">₺ TRY (TL)</option>
+                <option value="EUR">€ EUR (Euro)</option>
+                <option value="USD">$ USD (Dolar)</option>
               </select>
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-xs text-[#6F7255] pt-1">
-            <span className="italic flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              TCMB Canlı Kur: 1 USD = {tcmbRates.USD} ₺ | 1 EUR = {tcmbRates.EUR} ₺
+          <div className="flex items-center justify-between text-[11px] text-[#6F7255] pt-0.5">
+            <span className="italic flex items-center gap-1 truncate">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              TCMB Canlı: 1 USD = {tcmbRates.USD} ₺ | 1 EUR = {tcmbRates.EUR} ₺
             </span>
           </div>
 
@@ -1176,7 +1197,7 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
             type="button"
             onClick={() => setCurrentStep(2)}
             disabled={isSearching}
-            className="w-full py-4 rounded-full bg-[#6F7255] text-white text-xs font-semibold uppercase tracking-widest hover:bg-[#4F523A] transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            className="w-full py-3.5 sm:py-4 rounded-full bg-[#6F7255] text-white text-xs font-semibold uppercase tracking-widest hover:bg-[#4F523A] transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             {isSearching ? (
               <>

@@ -193,17 +193,17 @@ export default function RoomDetail() {
               )}
             </div>
 
-            {/* Gallery Thumbnails */}
+            {/* Gallery Thumbnails - Balanced 5 Columns (2 clean rows of 5) */}
             {totalImages > 1 && (
-              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2.5">
+              <div className="grid grid-cols-5 gap-2 sm:gap-3">
                 {allImages.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setActiveImageIndex(idx)}
-                    className={`overflow-hidden rounded-xl border-2 transition-all cursor-pointer aspect-[4/3] ${
+                    className={`overflow-hidden rounded-xl border-2 transition-all cursor-pointer aspect-[16/10] sm:aspect-[4/3] shadow-2xs ${
                       activeImageIndex === idx
-                        ? 'border-[#6F7255] ring-2 ring-[#6F7255]/40 opacity-100 scale-95'
-                        : 'border-transparent opacity-60 hover:opacity-100 hover:border-[#6F7255]/50'
+                        ? 'border-[#6F7255] ring-2 ring-[#6F7255]/40 opacity-100 scale-[0.98]'
+                        : 'border-stone-200/80 opacity-70 hover:opacity-100 hover:border-[#6F7255]/50'
                     }`}
                     aria-label={`${roomName} görsel ${idx + 1}`}
                   >
@@ -220,8 +220,8 @@ export default function RoomDetail() {
           </div>
 
           {/* Booking Widget Sidebar */}
-          <div className="lg:col-span-4">
-            <BookingWidget preselectedRoomId={room.id} />
+          <div className="lg:col-span-4 lg:sticky lg:top-28 h-fit">
+            <BookingWidget preselectedRoomId={room.id} isSidebar={true} />
           </div>
         </div>
 

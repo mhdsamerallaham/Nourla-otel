@@ -28,6 +28,16 @@ const FEATURE_ICONS = {
   'Mini bar': Wine,
 };
 
+const FEATURE_TRANSLATIONS = {
+  'Free WiFi': { tr: 'Ücretsiz Wi-Fi', en: 'Free WiFi', de: 'Kostenloses WLAN', ru: 'Бесплатный Wi-Fi' },
+  'AC': { tr: 'Klima', en: 'Air Conditioning', de: 'Klimaanlage', ru: 'Кондиционер' },
+  'Breakfast': { tr: 'Gurme Kahvaltı', en: 'Breakfast Included', de: 'Frühstück inklusive', ru: 'Завтрак включен' },
+  'Private bathroom': { tr: 'Özel Mermer Banyo', en: 'Private Bathroom', de: 'Privates Badezimmer', ru: 'Собственная ванная' },
+  'Balcony': { tr: 'Özel Veranda / Balkon', en: 'Private Balcony', de: 'Privater Balkon', ru: 'Балкон / Терраса' },
+  'Smart TV': { tr: 'Smart TV', en: 'Smart TV', de: 'Smart TV', ru: 'Смарт ТВ' },
+  'Mini bar': { tr: 'Organik Mini Bar', en: 'Organic Mini Bar', de: 'Organische Minibar', ru: 'Мини-бар' },
+};
+
 export default function RoomCard({ room, compact = false }) {
   const { i18n, t } = useTranslation();
   const { lang } = useParams();
@@ -266,33 +276,33 @@ export default function RoomCard({ room, compact = false }) {
             </button>
           )}
 
-          {/* Bottom Pagination Dots & Counter */}
+          {/* Bottom Pagination Dots & Counter Pill */}
           {totalImages > 1 && (
             <div
-              className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/45 backdrop-blur-md text-white shadow-md pointer-events-auto"
+              className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md text-white shadow-md pointer-events-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              {allImages.slice(0, Math.min(totalImages, 7)).map((_, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveImageIndex(idx);
-                  }}
-                  aria-label={`Fotoğraf ${idx + 1}`}
-                  className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                    idx === activeImageIndex
-                      ? 'w-4 bg-[#A8AB8D]'
-                      : 'w-1.5 bg-white/50 hover:bg-white/90'
-                  }`}
-                />
-              ))}
-              {totalImages > 7 && (
-                <span className="text-[9px] font-mono pl-1 text-white/80">
-                  +{totalImages - 7}
-                </span>
-              )}
+              <div className="flex items-center gap-1">
+                {allImages.slice(0, Math.min(totalImages, 5)).map((_, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveImageIndex(idx);
+                    }}
+                    aria-label={`Fotoğraf ${idx + 1}`}
+                    className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                      idx === activeImageIndex
+                        ? 'w-3.5 bg-[#A8AB8D]'
+                        : 'w-1.5 bg-white/50 hover:bg-white/90'
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-[10px] font-mono text-white/90 pl-1 border-l border-white/20">
+                {activeImageIndex + 1}/{totalImages}
+              </span>
             </div>
           )}
         </div>
@@ -305,7 +315,7 @@ export default function RoomCard({ room, compact = false }) {
                 <Maximize2 className="w-3.5 h-3.5" /> {room.size}
               </span>
               <span className="flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5" /> {room.capacity}
+                <Users className="w-3.5 h-3.5" /> {room.maxAdults ? `${room.maxAdults} ${currentLang === 'en' ? 'Guests' : currentLang === 'de' ? 'Gäste' : currentLang === 'ru' ? 'Гостя' : 'Misafir'}` : room.capacity}
               </span>
             </div>
 
@@ -326,14 +336,15 @@ export default function RoomCard({ room, compact = false }) {
               <div className="flex flex-wrap gap-1.5">
                 {room.features.map((feature, idx) => {
                   const IconComponent = FEATURE_ICONS[feature] || Wifi;
+                  const label = FEATURE_TRANSLATIONS[feature]?.[currentLang] || FEATURE_TRANSLATIONS[feature]?.tr || feature;
                   return (
                     <span
                       key={idx}
                       className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#F7F4EE] border border-[#E7E1D3] text-[11px] text-[#2B2B2B]/80 font-medium"
-                      title={feature}
+                      title={label}
                     >
                       <IconComponent className="w-3 h-3 text-[#6F7255]" />
-                      {feature}
+                      {label}
                     </span>
                   );
                 })}

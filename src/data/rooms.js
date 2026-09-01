@@ -34,7 +34,13 @@ export const ROOMS_DATA = [
     gallery: [
       "/nourla/odalar/oda 4/WhatsApp Image 2026-07-23 at 18.42.42.jpeg",
       "/nourla/odalar/oda 4/WhatsApp Image 2026-07-23 at 18.42.42 (1).jpeg",
-      "/nourla/odalar/oda 4/WhatsApp Image 2026-07-23 at 18.42.42 (2).jpeg"
+      "/nourla/odalar/oda 4/WhatsApp Image 2026-07-23 at 18.42.42 (2).jpeg",
+      "/nourla/odalar/oda 4/WhatsApp Image 2026-07-23 at 18.42.42 (3).jpeg",
+      "/nourla/odalar/oda 4/WhatsApp Image 2026-07-23 at 18.42.42 (4).jpeg",
+      "/nourla/odalar/oda 4/WhatsApp Image 2026-07-23 at 18.42.42 (5).jpeg",
+      "/nourla/odalar/oda 4/WhatsApp Image 2026-07-23 at 18.42.41 (2).jpeg",
+      "/nourla/odalar/oda 4/WhatsApp Image 2026-07-23 at 18.42.41 (3).jpeg",
+      "/nourla/odalar/oda 4/WhatsApp Image 2026-07-23 at 18.42.43.jpeg"
     ],
     features: ["Free WiFi", "AC", "Breakfast", "Private bathroom", "Balcony", "Smart TV", "Mini bar"],
     description: {
@@ -68,7 +74,10 @@ export const ROOMS_DATA = [
     gallery: [
       "/nourla/odalar/oda 6/WhatsApp Image 2026-07-23 at 18.42.45.jpeg",
       "/nourla/odalar/oda 6/WhatsApp Image 2026-07-23 at 18.42.44 (3).jpeg",
-      "/nourla/odalar/oda 6/WhatsApp Image 2026-07-23 at 18.42.44 (4).jpeg"
+      "/nourla/odalar/oda 6/WhatsApp Image 2026-07-23 at 18.42.44 (4).jpeg",
+      "/nourla/odalar/oda 6/WhatsApp Image 2026-07-23 at 18.42.44 (5).jpeg",
+      "/nourla/odalar/oda 6/WhatsApp Image 2026-07-23 at 18.42.45 (1).jpeg",
+      "/nourla/odalar/oda 6/WhatsApp Image 2026-07-23 at 18.42.45 (2).jpeg"
     ],
     features: ["Free WiFi", "AC", "Breakfast", "Private bathroom", "Balcony", "Smart TV", "Mini bar"],
     description: {
@@ -102,7 +111,13 @@ export const ROOMS_DATA = [
     gallery: [
       "/nourla/odalar/oda 1/WhatsApp Image 2026-07-23 at 18.42.34.jpeg",
       "/nourla/odalar/oda 1/WhatsApp Image 2026-07-23 at 18.42.34 (1).jpeg",
-      "/nourla/odalar/oda 1/WhatsApp Image 2026-07-23 at 18.42.34 (2).jpeg"
+      "/nourla/odalar/oda 1/WhatsApp Image 2026-07-23 at 18.42.34 (2).jpeg",
+      "/nourla/odalar/oda 1/WhatsApp Image 2026-07-23 at 18.42.35.jpeg",
+      "/nourla/odalar/oda 1/WhatsApp Image 2026-07-23 at 18.42.35 (1).jpeg",
+      "/nourla/odalar/oda 1/WhatsApp Image 2026-07-23 at 18.42.35 (2).jpeg",
+      "/nourla/odalar/oda 1/WhatsApp Image 2026-07-23 at 18.42.35 (5).jpeg",
+      "/nourla/odalar/oda 1/WhatsApp Image 2026-07-23 at 18.42.36.jpeg",
+      "/nourla/odalar/oda 1/WhatsApp Image 2026-07-23 at 18.42.36 (1).jpeg"
     ],
     features: ["Free WiFi", "AC", "Breakfast", "Private bathroom", "Balcony", "Smart TV", "Mini bar"],
     description: {
@@ -136,7 +151,13 @@ export const ROOMS_DATA = [
     gallery: [
       "/nourla/odalar/oda 2/WhatsApp Image 2026-07-23 at 18.42.37.jpeg",
       "/nourla/odalar/oda 2/WhatsApp Image 2026-07-23 at 18.42.37 (1).jpeg",
-      "/nourla/odalar/oda 2/WhatsApp Image 2026-07-23 at 18.42.37 (2).jpeg"
+      "/nourla/odalar/oda 2/WhatsApp Image 2026-07-23 at 18.42.37 (2).jpeg",
+      "/nourla/odalar/oda 2/WhatsApp Image 2026-07-23 at 18.42.37 (3).jpeg",
+      "/nourla/odalar/oda 2/WhatsApp Image 2026-07-23 at 18.42.37 (4).jpeg",
+      "/nourla/odalar/oda 2/WhatsApp Image 2026-07-23 at 18.42.38.jpeg",
+      "/nourla/odalar/oda 2/WhatsApp Image 2026-07-23 at 18.42.38 (1).jpeg",
+      "/nourla/odalar/oda 2/WhatsApp Image 2026-07-23 at 18.42.38 (3).jpeg",
+      "/nourla/odalar/oda 2/WhatsApp Image 2026-07-23 at 18.42.39.jpeg"
     ],
     features: ["Free WiFi", "AC", "Breakfast", "Private bathroom", "Balcony", "Smart TV", "Mini bar"],
     description: {
@@ -170,7 +191,10 @@ export const ROOMS_DATA = [
     gallery: [
       "/nourla/odalar/oda 7/WhatsApp Image 2026-07-23 at 18.42.46.jpeg",
       "/nourla/odalar/oda 7/WhatsApp Image 2026-07-23 at 18.42.45 (3).jpeg",
-      "/nourla/odalar/oda 7/WhatsApp Image 2026-07-23 at 18.42.45 (4).jpeg"
+      "/nourla/odalar/oda 7/WhatsApp Image 2026-07-23 at 18.42.45 (4).jpeg",
+      "/nourla/odalar/oda 7/WhatsApp Image 2026-07-23 at 18.42.46 (2).jpeg",
+      "/nourla/odalar/oda 7/WhatsApp Image 2026-07-23 at 18.42.46 (3).jpeg",
+      "/nourla/odalar/oda 7/WhatsApp Image 2026-07-23 at 18.42.46 (4).jpeg"
     ],
     features: ["Free WiFi", "AC", "Breakfast", "Private bathroom", "Balcony", "Smart TV", "Mini bar"],
     description: {

@@ -30,11 +30,15 @@ import {
   Square,
   Printer,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Expand,
   Landmark,
   Copy,
 } from 'lucide-react';
 import { ROOMS_DATA } from '../../data/rooms';
 import LuxuryDatePickerModal from './LuxuryDatePickerModal';
+import RoomLightboxModal from './RoomLightboxModal';
 import {
   getPrices,
   createReservation,
@@ -164,6 +168,8 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
   const [selectedBoardChoice, setSelectedBoardChoice] = useState({});
   // Inline photo gallery active index per room
   const [activePhotoMap, setActivePhotoMap] = useState({});
+  const [lightboxRoom, setLightboxRoom] = useState(null);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   // Multi-Room Cart State: { [cartKey]: { cartKey, room, boardChoice, quantity, offer } }
   const [roomCart, setRoomCart] = useState({});
@@ -1287,39 +1293,99 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
                     
                     {/* Photo Gallery Column */}
                     <div className="md:col-span-5 space-y-2">
-                      <div className="aspect-[16/10] md:aspect-[4/3] rounded-xl sm:rounded-2xl overflow-hidden shadow-xs relative border border-[#E7E1D3]">
-                        <img src={activePhoto} alt={roomName} className={`w-full h-full object-cover ${!isRoomAvailable ? 'grayscale' : ''}`} />
-                        <span className="absolute bottom-2 left-2 bg-[#2B2B2B]/85 text-white text-[10px] font-medium tracking-wider px-2.5 py-0.5 rounded-full backdrop-blur-xs">
-                          {roomSize}
-                        </span>
-                      </div>
+                      {(() => {
+                        const roomPhotos = [room.image, ...(room.gallery || [])].filter((img, idx, arr) => img && arr.indexOf(img) === idx);
+                        const currentPhotoIndex = Math.max(0, roomPhotos.indexOf(activePhoto));
 
-                      {/* Photo Thumbnails */}
-                      {room.gallery && room.gallery.length > 0 && (
-                        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-                          <button
-                            type="button"
-                            onClick={() => setActivePhotoMap((prev) => ({ ...prev, [room.id]: room.image }))}
-                            className={`w-12 h-9 sm:w-14 sm:h-10 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${
-                              activePhoto === room.image ? 'border-[#6F7255] scale-105' : 'border-transparent opacity-60 hover:opacity-100'
-                            }`}
-                          >
-                            <img src={room.image} alt="" className="w-full h-full object-cover" />
-                          </button>
-                          {room.gallery.map((img, gIdx) => (
-                            <button
-                              key={gIdx}
-                              type="button"
-                              onClick={() => setActivePhotoMap((prev) => ({ ...prev, [room.id]: img }))}
-                              className={`w-12 h-9 sm:w-14 sm:h-10 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${
-                                activePhoto === img ? 'border-[#6F7255] scale-105' : 'border-transparent opacity-60 hover:opacity-100'
-                              }`}
+                        const handlePrevPhoto = (e) => {
+                          e.stopPropagation();
+                          const nextIdx = currentPhotoIndex === 0 ? roomPhotos.length - 1 : currentPhotoIndex - 1;
+                          setActivePhotoMap((prev) => ({ ...prev, [room.id]: roomPhotos[nextIdx] }));
+                        };
+
+                        const handleNextPhoto = (e) => {
+                          e.stopPropagation();
+                          const nextIdx = currentPhotoIndex === roomPhotos.length - 1 ? 0 : currentPhotoIndex + 1;
+                          setActivePhotoMap((prev) => ({ ...prev, [room.id]: roomPhotos[nextIdx] }));
+                        };
+
+                        const handleOpenRoomLightbox = (e) => {
+                          e.stopPropagation();
+                          setLightboxRoom(room);
+                          setLightboxIndex(currentPhotoIndex);
+                        };
+
+                        return (
+                          <>
+                            <div
+                              onClick={handleOpenRoomLightbox}
+                              className="aspect-[16/10] md:aspect-[4/3] rounded-xl sm:rounded-2xl overflow-hidden shadow-xs relative border border-[#E7E1D3] cursor-pointer group/photo bg-stone-100"
                             >
-                              <img src={img} alt="" className="w-full h-full object-cover" />
-                            </button>
-                          ))}
-                        </div>
-                      )}
+                              <img
+                                key={activePhoto}
+                                src={activePhoto}
+                                alt={roomName}
+                                className={`w-full h-full object-cover transition-transform duration-500 group-hover/photo:scale-105 animate-fadeIn ${
+                                  !isRoomAvailable ? 'grayscale' : ''
+                                }`}
+                              />
+                              <span className="absolute bottom-2 left-2 bg-[#2B2B2B]/85 text-white text-[10px] font-medium tracking-wider px-2.5 py-0.5 rounded-full backdrop-blur-xs z-10">
+                                {roomSize}
+                              </span>
+
+                              {/* Expand Button */}
+                              <button
+                                type="button"
+                                onClick={handleOpenRoomLightbox}
+                                title="Tam Ekran İncele"
+                                className="absolute top-2.5 right-2.5 z-20 w-7 h-7 rounded-full bg-black/45 hover:bg-black/80 text-white backdrop-blur-xs flex items-center justify-center transition-all cursor-pointer shadow-md"
+                              >
+                                <Expand className="w-3.5 h-3.5" />
+                              </button>
+
+                              {/* Arrow navigation buttons */}
+                              {roomPhotos.length > 1 && (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={handlePrevPhoto}
+                                    aria-label="Önceki Fotoğraf"
+                                    className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-black/45 hover:bg-black/80 text-white backdrop-blur-xs flex items-center justify-center transition-all cursor-pointer shadow-md opacity-90 group-hover/photo:opacity-100"
+                                  >
+                                    <ChevronLeft className="w-4 h-4 -translate-x-0.5" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={handleNextPhoto}
+                                    aria-label="Sonraki Fotoğraf"
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-black/45 hover:bg-black/80 text-white backdrop-blur-xs flex items-center justify-center transition-all cursor-pointer shadow-md opacity-90 group-hover/photo:opacity-100"
+                                  >
+                                    <ChevronRight className="w-4 h-4 translate-x-0.5" />
+                                  </button>
+                                </>
+                              )}
+                            </div>
+
+                            {/* Photo Thumbnails */}
+                            {roomPhotos.length > 1 && (
+                              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+                                {roomPhotos.map((img, gIdx) => (
+                                  <button
+                                    key={gIdx}
+                                    type="button"
+                                    onClick={() => setActivePhotoMap((prev) => ({ ...prev, [room.id]: img }))}
+                                    className={`w-12 h-9 sm:w-14 sm:h-10 rounded-lg overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
+                                      activePhoto === img ? 'border-[#6F7255] scale-105 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'
+                                    }`}
+                                  >
+                                    <img src={img} alt="" className="w-full h-full object-cover" />
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
 
                       {/* Müsaitlik Bilgisi — Fotoğrafların Altında Açık Bildirim */}
                       {(() => {
@@ -2462,6 +2528,24 @@ export default function BookingWidget({ preselectedRoomId = '' }) {
         tcmbRates={tcmbRates}
         initialTarget={datePickerTarget}
       />
+
+      {/* FULLSCREEN ROOM LIGHTBOX MODAL */}
+      {lightboxRoom && (
+        <RoomLightboxModal
+          isOpen={Boolean(lightboxRoom)}
+          onClose={() => setLightboxRoom(null)}
+          images={[lightboxRoom.image, ...(lightboxRoom.gallery || [])].filter((img, idx, arr) => img && arr.indexOf(img) === idx)}
+          currentIndex={lightboxIndex}
+          onIndexChange={(idx) => {
+            setLightboxIndex(idx);
+            const allImgs = [lightboxRoom.image, ...(lightboxRoom.gallery || [])].filter((img, i, arr) => img && arr.indexOf(img) === i);
+            if (allImgs[idx]) {
+              setActivePhotoMap((prev) => ({ ...prev, [lightboxRoom.id]: allImgs[idx] }));
+            }
+          }}
+          room={lightboxRoom}
+        />
+      )}
     </div>
   );
 }

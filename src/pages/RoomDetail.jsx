@@ -1,14 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, Link } from 'react-router-dom';
-import { Wifi, Wind, Coffee, Bath, Sun, Tv, Wine, Maximize2, Users, ArrowLeft, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import {
+  Wifi,
+  Wind,
+  Coffee,
+  Bath,
+  Sun,
+  Tv,
+  Wine,
+  Maximize2,
+  Users,
+  ArrowLeft,
+  ShieldCheck,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Expand,
+} from 'lucide-react';
 
 import { ROOMS_DATA } from '../data/rooms';
-import MediaPlaceholder from '../components/ui/MediaPlaceholder';
 import BookingWidget from '../components/ui/BookingWidget';
 import Breadcrumb from '../components/ui/Breadcrumb';
 import StructuredData, { buildRoomSchema } from '../components/ui/StructuredData';
 import { usePageMeta } from '../hooks/usePageMeta';
+import RoomLightboxModal from '../components/ui/RoomLightboxModal';
 
 const AMENITY_ICONS = {
   'Free WiFi': Wifi,
@@ -26,13 +42,32 @@ export default function RoomDetail() {
   const currentLang = lang || i18n.language || 'tr';
 
   const room = ROOMS_DATA.find((r) => r.id === roomId || r.slug === roomId) || ROOMS_DATA[0];
-  const [selectedImage, setSelectedImage] = useState(room.image);
+
+  const allImages = [room.image, ...(room.gallery || [])].filter(
+    (img, idx, arr) => img && arr.indexOf(img) === idx
+  );
+
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   useEffect(() => {
-    if (room) {
-      setSelectedImage(room.image);
-    }
+    setActiveImageIndex(0);
   }, [room]);
+
+  const currentImage = allImages[activeImageIndex] || room.image;
+  const totalImages = allImages.length;
+
+  const handlePrev = (e) => {
+    if (e) e.stopPropagation();
+    if (totalImages <= 1) return;
+    setActiveImageIndex((prev) => (prev === 0 ? totalImages - 1 : prev - 1));
+  };
+
+  const handleNext = (e) => {
+    if (e) e.stopPropagation();
+    if (totalImages <= 1) return;
+    setActiveImageIndex((prev) => (prev === totalImages - 1 ? 0 : prev + 1));
+  };
 
   const roomName = room.name[currentLang] || room.name.tr;
   const roomDesc = room.description[currentLang] || room.description.tr;
@@ -99,38 +134,89 @@ export default function RoomDetail() {
           </div>
         </div>
 
-        {/* Gallery Placeholder & Main View */}
+        {/* Gallery Showcase & Main View */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 mb-10 sm:mb-16">
           <div className="lg:col-span-8">
-            {/* Main Featured Photo */}
-            <MediaPlaceholder
-              type="image"
-              imageUrl={selectedImage}
-              title={roomName}
-              aspectRatio="aspect-[16/10]"
-              className="shadow-xl mb-4 rounded-2xl overflow-hidden"
-            />
+            {/* Main Featured Photo with Navigation & Lightbox */}
+            <div
+              className="relative aspect-[16/10] rounded-2xl overflow-hidden shadow-xl mb-4 bg-stone-100 group cursor-pointer border border-[#E7E1D3]"
+              onClick={() => setIsLightboxOpen(true)}
+            >
+              <img
+                key={currentImage}
+                src={currentImage}
+                alt={`${roomName} - ${activeImageIndex + 1}`}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 animate-fadeIn"
+              />
+
+              {/* Top Right Fullscreen Button */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsLightboxOpen(true);
+                }}
+                className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/45 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center transition-all shadow-lg cursor-pointer"
+                title="Tam Ekran Aç"
+                aria-label="Tam Ekran Aç"
+              >
+                <Expand className="w-4 h-4" />
+              </button>
+
+              {/* Photo Counter Badge */}
+              <span className="absolute bottom-4 left-4 z-20 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md text-white text-xs font-mono">
+                {activeImageIndex + 1} / {totalImages}
+              </span>
+
+              {/* Prev Button */}
+              {totalImages > 1 && (
+                <button
+                  type="button"
+                  onClick={handlePrev}
+                  aria-label="Önceki Fotoğraf"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/45 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center transition-all shadow-lg cursor-pointer opacity-90 group-hover:opacity-100"
+                >
+                  <ChevronLeft className="w-6 h-6 -translate-x-0.5" />
+                </button>
+              )}
+
+              {/* Next Button */}
+              {totalImages > 1 && (
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  aria-label="Sonraki Fotoğraf"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/45 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center transition-all shadow-lg cursor-pointer opacity-90 group-hover:opacity-100"
+                >
+                  <ChevronRight className="w-6 h-6 translate-x-0.5" />
+                </button>
+              )}
+            </div>
 
             {/* Gallery Thumbnails */}
-            <div className="grid grid-cols-3 gap-3">
-              {room.gallery.map((img, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setSelectedImage(img)}
-                  className={`overflow-hidden rounded-xl border-2 transition-all ${
-                    selectedImage === img ? 'border-[#6F7255] opacity-100 scale-[0.98]' : 'border-transparent opacity-70 hover:opacity-100'
-                  }`}
-                  aria-label={`${roomName} görsel ${idx + 1}`}
-                >
-                  <img
-                    src={img}
-                    alt={`${roomName} — Nourla Boutique Hotel Urla ${idx + 1}. süit görünümü`}
-                    className="w-full h-24 object-cover"
-                    loading="lazy"
-                  />
-                </button>
-              ))}
-            </div>
+            {totalImages > 1 && (
+              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2.5">
+                {allImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveImageIndex(idx)}
+                    className={`overflow-hidden rounded-xl border-2 transition-all cursor-pointer aspect-[4/3] ${
+                      activeImageIndex === idx
+                        ? 'border-[#6F7255] ring-2 ring-[#6F7255]/40 opacity-100 scale-95'
+                        : 'border-transparent opacity-60 hover:opacity-100 hover:border-[#6F7255]/50'
+                    }`}
+                    aria-label={`${roomName} görsel ${idx + 1}`}
+                  >
+                    <img
+                      src={img}
+                      alt={`${roomName} ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Booking Widget Sidebar */}
@@ -138,6 +224,16 @@ export default function RoomDetail() {
             <BookingWidget preselectedRoomId={room.id} />
           </div>
         </div>
+
+        {/* Fullscreen Lightbox Modal */}
+        <RoomLightboxModal
+          isOpen={isLightboxOpen}
+          onClose={() => setIsLightboxOpen(false)}
+          images={allImages}
+          currentIndex={activeImageIndex}
+          onIndexChange={setActiveImageIndex}
+          room={room}
+        />
 
         {/* Room Specs & Full Amenities */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pt-8 border-t border-[#E7E1D3]">

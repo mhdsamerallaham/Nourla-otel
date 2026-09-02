@@ -72,10 +72,10 @@ app.use('/', sitemapRoutes);
 
 // ─── Rate Limiting (Katmanlı — endpoint önemine göre) ────────────────────────
 
-// 1. Genel API limiti — tüm /api/ için (1 dk içinde max 60 istek)
+// 1. Genel API limiti — tüm /api/ için (1 dk içinde max 300 istek — takvim ve oda gezintisi için)
 const apiLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
-  max: 60,
+  max: 300,
   standardHeaders: true,
   legacyHeaders: false,
   validate: { xForwardedForHeader: false },
@@ -88,10 +88,10 @@ const apiLimiter = rateLimit({
   },
 });
 
-// 2. Kritik yazma işlemleri — rezervasyon & ödeme (1 dk içinde max 5 istek)
+// 2. Kritik yazma işlemleri — rezervasyon & ödeme (1 dk içinde max 15 istek)
 const strictLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
-  max: 5,
+  max: 15,
   standardHeaders: true,
   legacyHeaders: false,
   validate: { xForwardedForHeader: false },
@@ -104,10 +104,10 @@ const strictLimiter = rateLimit({
   },
 });
 
-// 3. Okuma ağırlıklı endpoint'ler — fiyat & müsaitlik (1 dk içinde max 30 istek)
+// 3. Okuma ağırlıklı endpoint'ler — fiyat & müsaitlik (1 dk içinde max 300 istek)
 const readLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
-  max: 30,
+  max: 300,
   standardHeaders: true,
   legacyHeaders: false,
   validate: { xForwardedForHeader: false },

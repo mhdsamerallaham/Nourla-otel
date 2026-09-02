@@ -116,46 +116,24 @@ export default function LuxuryDatePickerModal({
     }
 
     try {
-      // ── 1. İlk sorgu: ayın başından sonuna ────────────────────────────────────
-      let offers = await fetchPricesRaw({ fromdate: fromStr, todate: toStr, adult: 2, currency, language: 'TR', signal });
-      let queryStartDateStr = fromStr;
-
-      // ── 2. Hiç teklif gelmediyse: ayın ilk kapalı günlerini atla ─────────
-      //    Kapalı/bloke ayın başında olabilir. Mid-month tarihinden tekrar sor.
-      if (offers.length === 0) {
-        const midDay = 16;
-        if (midDay <= lastDayNum) {
-          const midFromStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(midDay).padStart(2, '0')}`;
-          if (midFromStr >= todayStr && midFromStr < toStr) {
-            const midOffers = await fetchPricesRaw({ fromdate: midFromStr, todate: toStr, adult: 2, currency, language: 'TR', signal });
-            if (midOffers.length > 0) {
-              offers = midOffers;
-              queryStartDateStr = midFromStr; // ← Kritik: başlangıç tarihini güncelle
-            }
-          }
-        }
-      }
-
-      // ── 3. price-arr ile gün-gün dayMap oluştur ───────────────────────────
       const dayMap = {};
-      const startDate = new Date(queryStartDateStr + 'T00:00:00Z');
 
-      if (offers.length > 0) {
-        offers.forEach((rawOffer) => {
+      const populateDayMapFromOffers = (offerList, sliceStartStr) => {
+        if (!Array.isArray(offerList) || offerList.length === 0) return;
+        const sliceStartDate = new Date(sliceStartStr + 'T00:00:00Z');
+
+        offerList.forEach((rawOffer) => {
           const priceArr = rawOffer.priceArr || rawOffer['price-arr'] || rawOffer.rawOffer?.['price-arr'] || [];
           const availArr = rawOffer.availabilityArr || rawOffer['availability-arr'] || rawOffer.rawOffer?.['availability-arr'] || [];
 
-          // Rate rules stop-sell kontrolü
           const rateRules = rawOffer.rawOffer?.['rate-rules'] || rawOffer.rateRules;
           const isStopped = rateRules && (rateRules['stop-sell'] || rateRules['stop-sell-closed-to-arrival']);
 
           if (priceArr.length > 0) {
-            // price-arr mevcut: gün bazında fiyat+müsaitlik
             priceArr.forEach((priceVal, idx) => {
-              const currDate = new Date(startDate.getTime() + idx * 86400000);
+              const currDate = new Date(sliceStartDate.getTime() + idx * 86400000);
               const dateKey = currDate.toISOString().split('T')[0];
 
-              // Sadece bu ayın günlerini işle
               if (!dateKey.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`)) return;
 
               let avail = 0;
@@ -184,10 +162,9 @@ export default function LuxuryDatePickerModal({
               }
             });
           } else if (!isStopped && (rawOffer.pricePerNight || rawOffer.totalPrice)) {
-            // price-arr yok: tek fiyat tüm sorgu aralığına yay (sadece queryStartDateStr'den itibaren)
             const avail = rawOffer.availableRooms || 1;
             const nightP = Math.round(rawOffer.pricePerNight || rawOffer.totalPrice);
-            const startDay = parseInt(queryStartDateStr.split('-')[2], 10);
+            const startDay = parseInt(sliceStartStr.split('-')[2], 10);
             for (let d = startDay; d <= lastDayNum; d++) {
               const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
               if (!dayMap[dateKey]) {
@@ -203,9 +180,44 @@ export default function LuxuryDatePickerModal({
             }
           }
         });
+      };
+
+      // ── 1. İlk sorgu: ayın başından sonuna tam ay sorgusu ──────────────────────
+      let fullOffers = await fetchPricesRaw({ fromdate: fromStr, todate: toStr, adult: 2, currency, language: 'TR', signal });
+
+      if (fullOffers.length > 0) {
+        populateDayMapFromOffers(fullOffers, fromStr);
+      } else {
+        // ── 2. Tam ay sorgusu 0 döndüyse (ayın başında kapalı/bloke günler var): ────
+        //    Ayı 5 günlük paralel dilimlere bölerek tüm müsait günleri tespit et
+        const startDayNum = parseInt(fromStr.split('-')[2], 10);
+        const slices = [];
+        for (let d = startDayNum; d < lastDayNum; d += 5) {
+          const sEnd = Math.min(d + 5, lastDayNum);
+          const sFrom = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          const sTo = `${year}-${String(month + 1).padStart(2, '0')}-${String(sEnd).padStart(2, '0')}`;
+          slices.push([sFrom, sTo]);
+        }
+
+        const sliceResults = await Promise.all(
+          slices.map(async ([sFrom, sTo]) => {
+            try {
+              const offers = await fetchPricesRaw({ fromdate: sFrom, todate: sTo, adult: 2, currency, language: 'TR', signal });
+              return { sFrom, offers };
+            } catch {
+              return { sFrom, offers: [] };
+            }
+          })
+        );
+
+        sliceResults.forEach(({ sFrom, offers }) => {
+          if (offers && offers.length > 0) {
+            populateDayMapFromOffers(offers, sFrom);
+          }
+        });
       }
 
-      // ── 4. Ayın son günü price-arr'ın dışında kalabilir — önceki günden kopyala ─
+      // ── 3. Ayın son günü price-arr'ın dışında kalabilir — önceki günden kopyala ─
       const lastMonthDateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDayNum).padStart(2, '0')}`;
       if (!dayMap[lastMonthDateKey]?.available) {
         const prevDayNum = lastDayNum - 1;
@@ -218,7 +230,6 @@ export default function LuxuryDatePickerModal({
       setMonthData(dayMap);
       monthCacheRef.current[cacheKey] = dayMap;
     } catch (err) {
-      // AbortError: modal kapandı veya ay değişti — beklenen durum, sessizce geç
       if (err.name === 'AbortError') return;
       console.warn('[MONTH CALENDAR] Fiyat verisi alınamadı:', err.message);
       setMonthData({});

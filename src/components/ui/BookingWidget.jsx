@@ -1286,8 +1286,51 @@ export default function BookingWidget({ preselectedRoomId = '', isSidebar = fals
             </div>
           </div>
 
-          <div className="space-y-6 sm:space-y-8">
-            {displayRooms.map((room) => {
+          {/* CANLI ELEKTRAWEB YÜKLEME BİLDİRİMİ */}
+          {isSearching && (
+            <div className="bg-[#6F7255]/10 border border-[#6F7255]/30 rounded-2xl p-4 sm:p-5 text-center animate-pulse flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#6F7255] text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                </div>
+                <div className="text-left">
+                  <h4 className="text-xs sm:text-sm font-semibold text-[#2B2B2B]">
+                    ElektraWeb Canlı Oda Fiyatları Hesaplanıyor...
+                  </h4>
+                  <p className="text-[11px] text-[#555555]">
+                    Seçtiğiniz tarihler ({checkIn} — {checkOut}) için anlık müsaitlik ve en uygun fiyatlar hazırlanıyor.
+                  </p>
+                </div>
+              </div>
+              <span className="text-[10px] font-mono font-bold text-[#6F7255] uppercase tracking-wider bg-white px-3 py-1 rounded-full border border-[#6F7255]/20 shadow-2xs">
+                CANLI PMS ENTEGRASYONU
+              </span>
+            </div>
+          )}
+
+          {isSearching ? (
+            <div className="space-y-6 animate-pulse">
+              {[1, 2].map((idx) => (
+                <div key={`room-skeleton-${idx}`} className="rounded-2xl sm:rounded-3xl border border-[#E7E1D3] bg-[#FDFBF7] p-4 sm:p-7 space-y-4 sm:space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 items-start">
+                    <div className="md:col-span-5 h-52 sm:h-60 bg-[#E7E1D3]/60 rounded-2xl" />
+                    <div className="md:col-span-7 space-y-3 sm:space-y-4">
+                      <div className="h-6 w-3/5 bg-[#E7E1D3] rounded-md" />
+                      <div className="h-4 w-4/5 bg-[#E7E1D3]/60 rounded-md" />
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        <div className="h-6 w-20 bg-[#E7E1D3]/50 rounded-full" />
+                        <div className="h-6 w-24 bg-[#E7E1D3]/50 rounded-full" />
+                        <div className="h-6 w-28 bg-[#E7E1D3]/50 rounded-full" />
+                      </div>
+                      <div className="h-20 bg-[#F7F4EE] border border-[#E7E1D3]/60 rounded-xl" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-6 sm:space-y-8">
+              {displayRooms.map((room) => {
               const isSelected = selectedRoomId === room.id;
               const roomName = room.name[currentLang] || room.name.tr;
               const roomDesc = room.description[currentLang] || room.description.tr;
@@ -1690,6 +1733,7 @@ export default function BookingWidget({ preselectedRoomId = '', isSidebar = fals
               );
             })}
           </div>
+        )}
 
           {/* FLOATING LUXURY CART SUMMARY BAR */}
           {totalSelectedRoomsCount > 0 && (

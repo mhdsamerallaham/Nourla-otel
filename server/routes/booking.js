@@ -55,6 +55,31 @@ router.get('/availability', validateAvailabilityDates, async (req, res) => {
   }
 });
 
+// ─── Fast In-Memory Price Cache (60s TTL for identical requests) ─────────────
+const priceCache = new Map();
+const PRICE_CACHE_TTL_MS = 60 * 1000; // 60 seconds
+
+function getCachedPrice(key) {
+  const cached = priceCache.get(key);
+  if (!cached) return null;
+  if (Date.now() > cached.expiresAt) {
+    priceCache.delete(key);
+    return null;
+  }
+  return cached.data;
+}
+
+function setCachedPrice(key, data) {
+  if (priceCache.size > 200) {
+    const firstKey = priceCache.keys().next().value;
+    priceCache.delete(firstKey);
+  }
+  priceCache.set(key, {
+    data,
+    expiresAt: Date.now() + PRICE_CACHE_TTL_MS,
+  });
+}
+
 // ─── Price ────────────────────────────────────────────────────────────────────
 router.get('/price', validatePriceParams, async (req, res) => {
   try {
@@ -81,10 +106,21 @@ router.get('/price', validatePriceParams, async (req, res) => {
       priceParams['price-agency-id'] = req.query['price-agency-id'];
     }
 
+    const cacheKey = JSON.stringify(priceParams);
+    const cachedData = getCachedPrice(cacheKey);
+    if (cachedData) {
+      res.set('Cache-Control', 'no-store');
+      res.set('X-Price-Cache', 'HIT');
+      return res.json(cachedData);
+    }
+
     const raw = await elektra.getPrices(priceParams);
 
     const normalized = normalizePrice(raw, { ...params, nights: params.nights });
+    setCachedPrice(cacheKey, normalized);
+
     res.set('Cache-Control', 'no-store');
+    res.set('X-Price-Cache', 'MISS');
     return res.json(normalized);
   } catch (err) {
     return res.status(err.httpStatus || 500).json(normalizeError(err));

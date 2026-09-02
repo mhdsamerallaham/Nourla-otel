@@ -53,12 +53,26 @@ export default function LuxuryDatePickerModal({
     }
   }, [isOpen, initialTarget, checkIn, checkOut]);
 
+  // Client-side in-memory cache for months: { '2026-8-TRY': dayMap }
+  const monthCacheRef = useRef({});
+
   // AbortController ref — ay değişince veya modal kapanınca eski fetch'i iptal et
   const abortControllerRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
-      // Önceki fetch varsa iptal et
+      const year = viewDate.getFullYear();
+      const month = viewDate.getMonth();
+      const cacheKey = `${year}-${month}-${currency}`;
+
+      // 1. Önbellekte varsa ANINDA (0ms) göster
+      if (monthCacheRef.current[cacheKey]) {
+        setMonthData(monthCacheRef.current[cacheKey]);
+        setIsLoadingMonth(false);
+        return;
+      }
+
+      // 2. Önbellekte yoksa ElektraWeb'den sorgula
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
@@ -73,7 +87,6 @@ export default function LuxuryDatePickerModal({
       }
     }
     return () => {
-      // Cleanup: effect yeniden çalışırsa önceki isteği iptal et
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
@@ -81,10 +94,12 @@ export default function LuxuryDatePickerModal({
   }, [isOpen, viewDate, currency]);
 
   const fetchMonthPrices = async (signal) => {
-    setIsLoadingMonth(true);
-    setMonthData({}); // ← Her yüklemede eski veriyi temizle
     const year = viewDate.getFullYear();
     const month = viewDate.getMonth();
+    const cacheKey = `${year}-${month}-${currency}`;
+
+    setIsLoadingMonth(true);
+    setMonthData({}); // ← Yeni ay için yükleme durumunu başlat
     const todayStr = new Date().toISOString().split('T')[0];
 
     const lastDayNum = new Date(year, month + 1, 0).getDate();
@@ -201,6 +216,7 @@ export default function LuxuryDatePickerModal({
       }
 
       setMonthData(dayMap);
+      monthCacheRef.current[cacheKey] = dayMap;
     } catch (err) {
       // AbortError: modal kapandı veya ay değişti — beklenen durum, sessizce geç
       if (err.name === 'AbortError') return;
@@ -326,9 +342,14 @@ export default function LuxuryDatePickerModal({
             <span className="font-serif text-lg font-semibold text-[#2B2B2B]">
               {MONTH_NAMES[month]} {year}
             </span>
-            {isLoadingMonth && (
-              <span className="text-[10px] text-[#6F7255] flex items-center justify-center gap-1 mt-0.5">
-                <Loader2 className="w-3 h-3 animate-spin" /> Güncel fiyatlar yükleniyor...
+            {isLoadingMonth ? (
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#6F7255]/10 text-[#6F7255] text-[10px] font-semibold animate-pulse border border-[#6F7255]/20 mt-0.5">
+                <Loader2 className="w-3 h-3 animate-spin text-[#6F7255]" />
+                <span>ElektraWeb Canlı Fiyatlar Hazırlanıyor...</span>
+              </div>
+            ) : (
+              <span className="text-[10px] text-[#888888] block mt-0.5">
+                Giriş ve çıkış tarihinizi seçiniz
               </span>
             )}
           </div>
@@ -364,6 +385,19 @@ export default function LuxuryDatePickerModal({
               const isCheckIn = dateStr === tempCheckIn;
               const isCheckOut = dateStr === tempCheckOut;
               const isInRange = tempCheckIn && tempCheckOut && dateStr > tempCheckIn && dateStr < tempCheckOut;
+
+              // Shimmer skeleton when loading new month
+              if (isLoadingMonth && !isPast) {
+                return (
+                  <div
+                    key={`skeleton-${dateStr}`}
+                    className="h-16 p-2 rounded-xl bg-[#F7F4EE] border border-[#E7E1D3]/70 flex flex-col items-center justify-between animate-pulse"
+                  >
+                    <span className="text-xs font-semibold text-[#888888]">{dayNum}</span>
+                    <div className="w-9 h-3 bg-[#6F7255]/20 rounded-md" />
+                  </div>
+                );
+              }
 
               const dayInfo = monthData[dateStr];
               const isAvailable = Boolean(dayInfo && dayInfo.available && dayInfo.minPrice !== Infinity);

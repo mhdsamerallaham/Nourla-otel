@@ -34,6 +34,7 @@ export default function About() {
           alt="Nourla Boutique Hotel — Urla İzmir'de restore edilmiş tarihi taş konak dış cephesi, Akdeniz mimarisi"
           className="w-full h-full object-cover object-center"
           loading="lazy"
+          decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-[#FDFBF7]" />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
@@ -72,12 +73,16 @@ export default function About() {
               src="/nourla/dış cephe/WhatsApp Image 2026-07-23 at 18.42.47 (5).jpeg"
               alt="NoUrla — Taş Mimari"
               className="w-full aspect-[3/4] object-cover rounded-2xl shadow-2xl"
+              loading="lazy"
+              decoding="async"
             />
             <div className="absolute -bottom-4 -left-4 sm:-bottom-6 sm:-left-6 w-28 sm:w-36 h-28 sm:h-36 rounded-2xl overflow-hidden border-4 border-[#FDFBF7] shadow-xl">
               <img
                 src="/nourla/dış cephe/WhatsApp Image 2026-07-23 at 18.42.48 (2).jpeg"
                 alt="Detay"
                 className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -105,6 +110,8 @@ export default function About() {
               src="/nourla/lobi/WhatsApp Image 2026-07-23 at 18.43.57 (3).jpeg"
               alt="NoUrla — Mutfak"
               className="w-full aspect-[4/3] object-cover rounded-2xl shadow-2xl"
+              loading="lazy"
+              decoding="async"
             />
             <div className="absolute top-4 right-4 bg-[#6F7255]/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-[10px] font-semibold tracking-widest uppercase shadow">
               {t('about.kitchen_badge')}
@@ -198,21 +205,29 @@ export default function About() {
               src="/nourla/dış cephe/WhatsApp Image 2026-07-23 at 18.42.48 (1).jpeg"
               alt="NoUrla detay 1"
               className="rounded-xl aspect-square object-cover shadow-md"
+              loading="lazy"
+              decoding="async"
             />
             <img
               src="/nourla/lobi/WhatsApp Image 2026-07-23 at 18.43.57 (1).jpeg"
               alt="NoUrla detay 2"
               className="rounded-xl aspect-square object-cover shadow-md mt-6"
+              loading="lazy"
+              decoding="async"
             />
             <img
               src="/nourla/lobi/WhatsApp Image 2026-07-23 at 18.43.57 (4).jpeg"
               alt="NoUrla detay 3"
               className="rounded-xl aspect-square object-cover shadow-md -mt-6"
+              loading="lazy"
+              decoding="async"
             />
             <img
               src="/nourla/dış cephe/WhatsApp Image 2026-07-23 at 18.42.48 (3).jpeg"
               alt="NoUrla detay 4"
               className="rounded-xl aspect-square object-cover shadow-md"
+              loading="lazy"
+              decoding="async"
             />
           </div>
         </div>
@@ -224,6 +239,8 @@ export default function About() {
           src="/nourla/dış cephe/WhatsApp Image 2026-07-23 at 18.42.48 (5).jpeg"
           alt="NoUrla arka plan"
           className="absolute inset-0 w-full h-full object-cover object-center"
+          loading="lazy"
+          decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#2B2B2B]/80 to-[#2B2B2B]/90" />
         <div className="relative z-10 max-w-3xl mx-auto px-4 text-center space-y-6">

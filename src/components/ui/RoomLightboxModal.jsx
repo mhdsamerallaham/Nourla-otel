@@ -179,6 +179,7 @@ export default function RoomLightboxModal({
             src={currentImage}
             alt={`${roomName} - ${currentIndex + 1}`}
             className="max-h-[62vh] sm:max-h-[68vh] md:max-h-[72vh] max-w-full w-auto object-contain rounded-xl sm:rounded-2xl shadow-2xl transition-opacity duration-300 animate-fadeIn"
+            decoding="async"
           />
         </div>
 
@@ -218,7 +219,7 @@ export default function RoomLightboxModal({
                     : 'border-white/20 opacity-50 hover:opacity-90 hover:border-white/50'
                 }`}
               >
-                <img src={img} alt="" className="w-full h-full object-cover" />
+                <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
               </button>
             ))}
           </div>

@@ -971,7 +971,7 @@ export default function BookingWidget({ preselectedRoomId = '', isSidebar = fals
               {(cartItems.length > 0 ? cartItems : [{ room: selectedRoom, boardChoice: 'BB', quantity: 1, offer: { totalPrice: finalTotalPrice, pricePerNight: roomPricePerNight } }]).map((item, idx) => (
                 <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-white border border-[#E7E1D3] text-xs">
                   <div className="flex items-center gap-3">
-                    <img src={item.room.image} alt="" className="w-14 h-11 object-cover rounded-lg shadow-2xs shrink-0" />
+                    <img src={item.room.image} alt="" className="w-14 h-11 object-cover rounded-lg shadow-2xs shrink-0" loading="lazy" decoding="async" />
                     <div>
                       <h5 className="font-serif font-bold text-[#2B2B2B]">{item.quantity}x {item.room.name[currentLang] || item.room.name.tr}</h5>
                       <span className="text-[10px] text-[#6F7255]">
@@ -1349,6 +1349,8 @@ export default function BookingWidget({ preselectedRoomId = '', isSidebar = fals
                                 className={`w-full h-full object-cover transition-transform duration-500 group-hover/photo:scale-105 animate-fadeIn ${
                                   !isRoomAvailable ? 'grayscale' : ''
                                 }`}
+                                loading="lazy"
+                                decoding="async"
                               />
                               <span className="absolute bottom-2 left-2 bg-[#2B2B2B]/85 text-white text-[10px] font-medium tracking-wider px-2.5 py-0.5 rounded-full backdrop-blur-xs z-10">
                                 {roomSize}
@@ -1399,7 +1401,7 @@ export default function BookingWidget({ preselectedRoomId = '', isSidebar = fals
                                       activePhoto === img ? 'border-[#6F7255] scale-105 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'
                                     }`}
                                   >
-                                    <img src={img} alt="" className="w-full h-full object-cover" />
+                                    <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                   </button>
                                 ))}
                               </div>

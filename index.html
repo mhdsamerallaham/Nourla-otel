@@ -46,15 +46,21 @@
     <meta name="twitter:description" content="Urla'nın zeytin bahçeleri arasında 10 özel süit ile lüks butik otel deneyimi." />
     <meta name="twitter:image" content="https://www.nourla.com.tr/og-nourla.jpg" />
 
-    <!-- ── Performance: DNS Prefetch & Preconnect ────────────── -->
+    <!-- ── Performance: DNS Prefetch & Preconnect (Early TCP/TLS Handshake) ── -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-    <link rel="dns-prefetch" href="https://maps.googleapis.com" />
-    <link rel="dns-prefetch" href="https://www.google.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
+    <!-- ── Preload Critical LCP Hero Banner Image ──────────────── -->
+    <link
+      rel="preload"
+      as="image"
+      href="/nourla/d%C4%B1%C5%9F%20cephe/WhatsApp%20Image%202026-07-23%20at%2018.42.48.jpeg"
+      fetchpriority="high"
+    />
 
-    <!-- ── Google Fonts ───────────────────────────────────────── -->
+    <!-- ── Google Fonts (display=swap for zero FOIT) ───────────── -->
     <link
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"

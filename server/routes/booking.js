@@ -23,7 +23,7 @@ router.get('/definitions', async (req, res) => {
     const language = req.query.language || 'TR';
     const raw = await elektra.getHotelDefinitions(language);
     const normalized = normalizeHotelDefinitions(raw);
-    res.set('Cache-Control', 'public, max-age=3600');
+    res.set('Cache-Control', 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400');
     return res.json(normalized);
   } catch (err) {
     return res.status(err.httpStatus || 500).json(normalizeError(err));
@@ -35,7 +35,7 @@ router.get('/exchange-rates', async (req, res) => {
   try {
     const { getTcmbExchangeRates } = require('../services/currency/tcmbService');
     const rates = await getTcmbExchangeRates();
-    res.set('Cache-Control', 'public, max-age=1800');
+    res.set('Cache-Control', 'public, max-age=1800, s-maxage=1800, stale-while-revalidate=3600');
     return res.json(rates);
   } catch (err) {
     return res.status(500).json(normalizeError(err));
@@ -48,7 +48,7 @@ router.get('/availability', validateAvailabilityDates, async (req, res) => {
     const { fromdate, todate } = req.validatedDates;
     const raw = await elektra.getAvailability(fromdate, todate);
     const normalized = normalizeAvailability(raw, fromdate, todate);
-    res.set('Cache-Control', 'public, max-age=60');
+    res.set('Cache-Control', 'public, max-age=60, s-maxage=60, stale-while-revalidate=120');
     return res.json(normalized);
   } catch (err) {
     return res.status(err.httpStatus || 500).json(normalizeError(err));

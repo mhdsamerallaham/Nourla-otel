@@ -78,6 +78,7 @@ export default function Home() {
             className="w-full h-full object-cover object-center"
             fetchpriority="high"
             loading="eager"
+            decoding="async"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#2B2B2B] via-[#2B2B2B]/40 to-black/50" />
           <div className="absolute inset-0 bg-black/15" />
@@ -278,6 +279,7 @@ export default function Home() {
                 alt="Nourla Boutique Hotel iç avlu — restore edilmiş tarihi taş konak ve Ege mimarisi, Urla İzmir"
                 className="w-full h-auto rounded-xl sm:rounded-2xl shadow-xl object-cover aspect-[4/3]"
                 loading="lazy"
+                decoding="async"
               />
             </div>
           </div>

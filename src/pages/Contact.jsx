@@ -97,6 +97,7 @@ export default function Contact() {
               alt="Nourla Boutique Hotel concierge ve iletişim — Urla İzmir'de lüks butik otel girişi"
               className="w-full h-full object-cover"
               loading="lazy"
+              decoding="async"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-[#2B2B2B]/90 via-[#2B2B2B]/60 to-transparent flex items-center p-8 sm:p-14">
               <div className="max-w-xl text-white space-y-3">

@@ -75,7 +75,7 @@ router.get('/sitemap.xml', (_req, res) => {
   xml += `</urlset>`;
 
   res.header('Content-Type', 'application/xml');
-  res.header('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+  res.header('Cache-Control', 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400');
   res.send(xml);
 });
 

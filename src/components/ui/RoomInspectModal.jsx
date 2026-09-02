@@ -52,7 +52,7 @@ export default function RoomInspectModal({ room, isOpen, onClose, onSelectAndBoo
           {/* Main Photo Gallery Slider */}
           <div>
             <div className="relative aspect-[16/9] rounded-2xl overflow-hidden shadow-md mb-3">
-              <img src={activeImage} alt={roomName} className="w-full h-full object-cover" />
+              <img src={activeImage} alt={roomName} className="w-full h-full object-cover" decoding="async" />
               <div className="absolute top-4 left-4 bg-[#6F7255] text-white px-3 py-1 rounded-full text-xs font-semibold">
                 €{room.price} / gece
               </div>
@@ -68,7 +68,7 @@ export default function RoomInspectModal({ room, isOpen, onClose, onSelectAndBoo
                     activeImage === img ? 'border-[#6F7255] opacity-100' : 'border-transparent opacity-60 hover:opacity-100'
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 </button>
               ))}
             </div>

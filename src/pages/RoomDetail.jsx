@@ -147,6 +147,8 @@ export default function RoomDetail() {
                 src={currentImage}
                 alt={`${roomName} - ${activeImageIndex + 1}`}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 animate-fadeIn"
+                fetchpriority="high"
+                decoding="async"
               />
 
               {/* Top Right Fullscreen Button */}
@@ -212,6 +214,7 @@ export default function RoomDetail() {
                       alt={`${roomName} ${idx + 1}`}
                       className="w-full h-full object-cover"
                       loading="lazy"
+                      decoding="async"
                     />
                   </button>
                 ))}

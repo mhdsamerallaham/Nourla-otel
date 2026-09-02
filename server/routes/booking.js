@@ -81,26 +81,10 @@ router.get('/price', validatePriceParams, async (req, res) => {
       priceParams['price-agency-id'] = req.query['price-agency-id'];
     }
 
-    let raw = await elektra.getPrices(priceParams);
-
-    // If full month query starting on closed days returns 0 offers, try mid-month sub-range
-    if ((!Array.isArray(raw) || raw.length === 0) && params.fromdate && params.todate) {
-      const fromD = new Date(params.fromdate + 'T00:00:00Z');
-      const toD = new Date(params.todate + 'T00:00:00Z');
-      const diffDays = Math.round((toD - fromD) / (1000 * 60 * 60 * 24));
-      
-      if (diffDays > 10) {
-        const midD = new Date(fromD.getTime() + Math.floor(diffDays / 2) * 86400000);
-        const midStr = midD.toISOString().split('T')[0];
-        const subRaw = await elektra.getPrices({ ...priceParams, fromdate: midStr });
-        if (Array.isArray(subRaw) && subRaw.length > 0) {
-          raw = subRaw;
-        }
-      }
-    }
+    const raw = await elektra.getPrices(priceParams);
 
     const normalized = normalizePrice(raw, { ...params, nights: params.nights });
-    res.set('Cache-Control', 'public, max-age=60');
+    res.set('Cache-Control', 'no-store');
     return res.json(normalized);
   } catch (err) {
     return res.status(err.httpStatus || 500).json(normalizeError(err));

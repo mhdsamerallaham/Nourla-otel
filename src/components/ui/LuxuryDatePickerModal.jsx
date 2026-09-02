@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, X, Check, AlertCircle, Loader2 } from 'lucide-react';
-import { getPrices } from '../../services/api';
+
+// Direct fetch — bypass any service-layer cache, always get fresh data
+async function fetchPricesRaw({ fromdate, todate, adult = 2, currency, language = 'TR' }) {
+  const query = new URLSearchParams({ fromdate, todate, adult: String(adult), currency, language });
+  const res = await fetch(`/api/booking/price?${query}`, {
+    headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+  });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return (data && data.success && Array.isArray(data.offers)) ? data.offers : [];
+}
 
 const WEEKDAYS = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
 const MONTH_NAMES = [
@@ -49,6 +59,7 @@ export default function LuxuryDatePickerModal({
 
   const fetchMonthPrices = async () => {
     setIsLoadingMonth(true);
+    setMonthData({}); // ← Her yüklemede eski veriyi temizle
     const year = viewDate.getFullYear();
     const month = viewDate.getMonth();
     const todayStr = new Date().toISOString().split('T')[0];
@@ -67,38 +78,27 @@ export default function LuxuryDatePickerModal({
     }
 
     try {
-      let priceRes = await getPrices({
-        fromdate: fromStr,
-        todate: toStr,
-        adult: 2,
-        currency,
-        language: 'TR',
-      });
-
-      let offers = (priceRes && priceRes.success && Array.isArray(priceRes.offers)) ? priceRes.offers : [];
+      // ── 1. İlk sorgu: ayın başından sonuna ────────────────────────────────
+      let offers = await fetchPricesRaw({ fromdate: fromStr, todate: toStr, adult: 2, currency, language: 'TR' });
       let queryStartDateStr = fromStr;
 
-      // If full month query starting on sold-out/closed early days returns 0 offers, query second half of month
+      // ── 2. Hiç teklif gelmediyse: ayın ilk kapalı günlerini atla ─────────
+      //    Kapalı/bloke ayın başında olabilir. Mid-month tarihinden tekrar sor.
       if (offers.length === 0) {
         const midDay = 16;
-        if (midDay < lastDayNum) {
+        if (midDay <= lastDayNum) {
           const midFromStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(midDay).padStart(2, '0')}`;
-          if (midFromStr >= todayStr) {
-            const subRes = await getPrices({
-              fromdate: midFromStr,
-              todate: toStr,
-              adult: 2,
-              currency,
-              language: 'TR',
-            });
-            if (subRes && subRes.success && Array.isArray(subRes.offers) && subRes.offers.length > 0) {
-              offers = subRes.offers;
-              queryStartDateStr = midFromStr;
+          if (midFromStr >= todayStr && midFromStr < toStr) {
+            const midOffers = await fetchPricesRaw({ fromdate: midFromStr, todate: toStr, adult: 2, currency, language: 'TR' });
+            if (midOffers.length > 0) {
+              offers = midOffers;
+              queryStartDateStr = midFromStr; // ← Kritik: başlangıç tarihini güncelle
             }
           }
         }
       }
 
+      // ── 3. price-arr ile gün-gün dayMap oluştur ───────────────────────────
       const dayMap = {};
       const startDate = new Date(queryStartDateStr + 'T00:00:00Z');
 
@@ -107,26 +107,30 @@ export default function LuxuryDatePickerModal({
           const priceArr = rawOffer.priceArr || rawOffer['price-arr'] || rawOffer.rawOffer?.['price-arr'] || [];
           const availArr = rawOffer.availabilityArr || rawOffer['availability-arr'] || rawOffer.rawOffer?.['availability-arr'] || [];
 
+          // Rate rules stop-sell kontrolü
+          const rateRules = rawOffer.rawOffer?.['rate-rules'] || rawOffer.rateRules;
+          const isStopped = rateRules && (rateRules['stop-sell'] || rateRules['stop-sell-closed-to-arrival']);
+
           if (priceArr.length > 0) {
+            // price-arr mevcut: gün bazında fiyat+müsaitlik
             priceArr.forEach((priceVal, idx) => {
               const currDate = new Date(startDate.getTime() + idx * 86400000);
               const dateKey = currDate.toISOString().split('T')[0];
 
-              let avail = 0;
-              if (Array.isArray(availArr) && availArr[idx] !== undefined) {
-                avail = availArr[idx];
-              } else if (rawOffer.availableRooms !== undefined) {
-                avail = rawOffer.availableRooms;
-              } else if (rawOffer.rawOffer?.['room-to-sell'] !== undefined) {
-                avail = rawOffer.rawOffer['room-to-sell'];
-              } else if (priceVal > 0) {
-                avail = 1; // Positive ElektraWeb price indicates availability
-              }
+              // Sadece bu ayın günlerini işle
+              if (!dateKey.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`)) return;
 
-              // Check for rate rules stop-sell
-              const rateRules = rawOffer.rawOffer?.['rate-rules'] || rawOffer.rateRules;
-              if (rateRules && (rateRules['stop-sell'] || rateRules['stop-sell-closed-to-arrival'])) {
-                avail = 0;
+              let avail = 0;
+              if (!isStopped) {
+                if (Array.isArray(availArr) && availArr[idx] !== undefined) {
+                  avail = availArr[idx];
+                } else if (rawOffer.availableRooms !== undefined) {
+                  avail = rawOffer.availableRooms;
+                } else if (rawOffer.rawOffer?.['room-to-sell'] !== undefined) {
+                  avail = rawOffer.rawOffer['room-to-sell'];
+                } else if (priceVal > 0) {
+                  avail = 1;
+                }
               }
 
               if (!dayMap[dateKey]) {
@@ -141,10 +145,12 @@ export default function LuxuryDatePickerModal({
                 }
               }
             });
-          } else if (rawOffer.pricePerNight || rawOffer.totalPrice) {
+          } else if (!isStopped && (rawOffer.pricePerNight || rawOffer.totalPrice)) {
+            // price-arr yok: tek fiyat tüm sorgu aralığına yay (sadece queryStartDateStr'den itibaren)
             const avail = rawOffer.availableRooms || 1;
             const nightP = Math.round(rawOffer.pricePerNight || rawOffer.totalPrice);
-            for (let d = 1; d <= lastDayNum; d++) {
+            const startDay = parseInt(queryStartDateStr.split('-')[2], 10);
+            for (let d = startDay; d <= lastDayNum; d++) {
               const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
               if (!dayMap[dateKey]) {
                 dayMap[dateKey] = { available: false, minPrice: Infinity, availableRooms: 0 };
@@ -161,23 +167,19 @@ export default function LuxuryDatePickerModal({
         });
       }
 
-      // Complete month-end date (30th/31st) if check-out date boundary truncated it in ElektraWeb price-arr
+      // ── 4. Ayın son günü price-arr'ın dışında kalabilir — önceki günden kopyala ─
       const lastMonthDateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDayNum).padStart(2, '0')}`;
-      if (!dayMap[lastMonthDateKey] || !dayMap[lastMonthDateKey].available) {
+      if (!dayMap[lastMonthDateKey]?.available) {
         const prevDayNum = lastDayNum - 1;
         const prevMonthDateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(prevDayNum).padStart(2, '0')}`;
-        if (dayMap[prevMonthDateKey] && dayMap[prevMonthDateKey].available) {
-          dayMap[lastMonthDateKey] = {
-            available: true,
-            minPrice: dayMap[prevMonthDateKey].minPrice,
-            availableRooms: dayMap[prevMonthDateKey].availableRooms,
-          };
+        if (dayMap[prevMonthDateKey]?.available) {
+          dayMap[lastMonthDateKey] = { ...dayMap[prevMonthDateKey] };
         }
       }
 
       setMonthData(dayMap);
     } catch (err) {
-      console.warn('[MONTH CALENDAR] ElektraWeb month price fetch:', err.message);
+      console.warn('[MONTH CALENDAR] Fiyat verisi alınamadı:', err.message);
       setMonthData({});
     } finally {
       setIsLoadingMonth(false);

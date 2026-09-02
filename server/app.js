@@ -11,6 +11,7 @@ const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const { requestLogger } = require('./middleware/logger');
+const { securityHeaders } = require('./middleware/securityHeaders');
 
 const elektraRoutes = require('./routes/elektra');
 const bookingRoutes = require('./routes/booking');
@@ -20,34 +21,50 @@ const sitemapRoutes = require('./routes/sitemap');
 
 const app = express();
 
+// Disable X-Powered-By to prevent server technology fingerprinting
+app.disable('x-powered-by');
+
 // Trust proxy for Vercel / reverse proxy deployment
 app.set('trust proxy', 1);
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
-// ─── CORS Setup (Vercel & Local Support) ──────────────────────────────────────
+// ─── Katı CORS Yapılandırması ─────────────────────────────────────────────────
+const ALLOWED_ORIGIN_PATTERNS = [
+  /^https?:\/\/www\.nourla\.com\.tr$/,
+  /^https?:\/\/nourla\.com\.tr$/,
+  /^https:\/\/.*\.vercel\.app$/,
+  /^http:\/\/localhost(:\d+)?$/,
+  /^http:\/\/127\.0\.0\.1(:\d+)?$/,
+];
+
 const corsOptions = {
   origin: (origin, callback) => {
-    if (
-      !origin ||
-      origin.includes('nourla.com.tr') ||
-      origin.includes('vercel.app') ||
-      origin.includes('localhost') ||
-      origin === FRONTEND_URL
-    ) {
+    // Mobil uygulamalar, sunucu-içi çağrılar veya aynı kaynaktan gelen istekler (no origin)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    const isAllowed = ALLOWED_ORIGIN_PATTERNS.some((pattern) => pattern.test(origin)) || origin === FRONTEND_URL;
+    if (isAllowed) {
       callback(null, true);
     } else {
-      callback(null, true); // Permissive CORS for deployed clients
+      callback(new Error('CORS: Bu kaynak üzerinden erişim yetkiniz bulunmamaktadır.'));
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Accept', 'Authorization', 'X-Requested-With'],
+  maxAge: 86400, // 24 saatlik preflight cache
 };
 
+// 1. HTTP Güvenlik Başlıkları (OWASP / HSTS / CSP)
+app.use(securityHeaders);
+
+// 2. CORS ve Body Parsing
 app.use(cors(corsOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(requestLogger);
 
 // Dynamic Sitemap Endpoint for Googlebot
@@ -156,21 +173,26 @@ app.use((req, res) => {
   });
 });
 
-// Global Error Handler
+// Global Error Handler (Security: Never leak stack traces or internal DB errors to client)
 app.use((err, req, res, _next) => {
   if (err.message && err.message.startsWith('CORS:')) {
     return res.status(403).json({
       success: false,
-      error: { code: 'CORS_ERROR', message: err.message },
+      error: { code: 'CORS_FORBIDDEN', message: 'Yetkisiz erişim kaynağı (CORS).' },
     });
   }
 
-  console.error('[SERVER ERROR]', err.message);
-  res.status(500).json({
+  // Log internal error to server stdout for debugging
+  console.error('[SERVER ERROR]', err.message || err);
+
+  const status = Number(err.httpStatus || err.status || 500);
+  const isClientError = status >= 400 && status < 500;
+
+  return res.status(status).json({
     success: false,
     error: {
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'Sunucu hatası oluştu.',
+      code: err.code || (isClientError ? 'INVALID_REQUEST' : 'INTERNAL_SERVER_ERROR'),
+      message: isClientError ? err.message : 'İşlem sırasında bir aksaklık meydana geldi. Lütfen tekrar deneyiniz.',
     },
   });
 });

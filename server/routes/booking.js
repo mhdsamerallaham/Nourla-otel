@@ -9,7 +9,7 @@ const express = require('express');
 const router = express.Router();
 const reservationService = require('../services/reservation/reservationService');
 const elektra = require('../services/elektraweb');
-const { validateAvailabilityDates, validatePriceParams } = require('../middleware/validation');
+const { validateAvailabilityDates, validatePriceParams, validateReservationBody } = require('../middleware/validation');
 const {
   normalizeHotelDefinitions,
   normalizeAvailability,
@@ -92,7 +92,7 @@ router.get('/price', validatePriceParams, async (req, res) => {
 });
 
 // ─── Create Pending Reservation ───────────────────────────────────────────────
-router.post('/reservation', async (req, res) => {
+router.post('/reservation', validateReservationBody, async (req, res) => {
   try {
     const body = req.body;
     const reservation = await reservationService.createPendingReservation({

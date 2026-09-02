@@ -230,7 +230,58 @@ function validatePriceParams(req, res, next) {
   next();
 }
 
+/**
+ * Reservation body validation & sanitization
+ * POST /api/booking/reservation
+ */
+const { sanitizeText, sanitizePhone, isValidEmail, isValidPhone } = require('../utils/sanitizer');
+
+function validateReservationBody(req, res, next) {
+  const body = req.body;
+  if (!body || typeof body !== 'object') {
+    return res.status(400).json({
+      success: false,
+      error: { code: 'INVALID_BODY', message: 'Geçersiz istek gövdesi.' },
+    });
+  }
+
+  const cleanGuestName = sanitizeText(body.guestName);
+  const cleanGuestEmail = sanitizeText(body.guestEmail);
+  const cleanGuestPhone = sanitizePhone(body.guestPhone);
+  const cleanSpecialNotes = sanitizeText(body.specialNotes);
+
+  if (!cleanGuestName || cleanGuestName.length < 2) {
+    return res.status(400).json({
+      success: false,
+      error: { code: 'INVALID_NAME', message: 'Misafir ad soyad alanı zorunludur (en az 2 karakter).' },
+    });
+  }
+
+  if (!cleanGuestEmail || !isValidEmail(cleanGuestEmail)) {
+    return res.status(400).json({
+      success: false,
+      error: { code: 'INVALID_EMAIL', message: 'Lütfen geçerli bir e-posta adresi giriniz.' },
+    });
+  }
+
+  if (cleanGuestPhone && !isValidPhone(cleanGuestPhone)) {
+    return res.status(400).json({
+      success: false,
+      error: { code: 'INVALID_PHONE', message: 'Geçersiz telefon numarası formatı.' },
+    });
+  }
+
+  // Overwrite with sanitized values
+  req.body.guestName = cleanGuestName;
+  req.body.guestEmail = cleanGuestEmail;
+  req.body.guestPhone = cleanGuestPhone;
+  req.body.specialNotes = cleanSpecialNotes;
+
+  next();
+}
+
 module.exports = {
   validateAvailabilityDates,
   validatePriceParams,
+  validateReservationBody,
 };

@@ -45,6 +45,8 @@ const FAQS = [
   },
 ];
 
+import { sanitizeText, isValidEmail, isValidPhone, sanitizePhone, isValidName } from '../utils/sanitize';
+
 export default function Contact() {
   const { i18n, t } = useTranslation();
   const currentLang = i18n.language || 'tr';
@@ -70,9 +72,43 @@ export default function Contact() {
   const [preferredChannel, setPreferredChannel] = useState('email');
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const [submitted, setSubmitted] = useState(false);
+  const [formError, setFormError] = useState(null);
+
+  // Form State
+  const [formName, setFormName] = useState('');
+  const [formPhone, setFormPhone] = useState('');
+  const [formEmail, setFormEmail] = useState('');
+  const [formMessage, setFormMessage] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setFormError(null);
+
+    const cleanName = sanitizeText(formName);
+    const cleanEmail = sanitizeText(formEmail);
+    const cleanPhone = sanitizePhone(formPhone);
+    const cleanMessage = sanitizeText(formMessage);
+
+    if (!cleanName || !cleanEmail || !cleanPhone || !cleanMessage) {
+      setFormError('Lütfen tüm zorunlu alanları doldurunuz.');
+      return;
+    }
+
+    if (!isValidName(cleanName)) {
+      setFormError('Lütfen ad ve soyadınızı geçerli bir formatta giriniz.');
+      return;
+    }
+
+    if (!isValidEmail(cleanEmail)) {
+      setFormError('Lütfen geçerli bir e-posta adresi giriniz.');
+      return;
+    }
+
+    if (!isValidPhone(cleanPhone)) {
+      setFormError('Lütfen geçerli bir telefon numarası giriniz.');
+      return;
+    }
+
     setSubmitted(true);
   };
 
@@ -230,12 +266,22 @@ export default function Contact() {
                   </div>
                 </div>
 
+                {/* Error Banner */}
+                {formError && (
+                  <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center gap-2 animate-fadeIn">
+                    <ShieldCheck className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>{formError}</span>
+                  </div>
+                )}
+
                 {/* Name & Phone */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5">{t('contact.form_name')}</label>
                     <input
                       type="text"
+                      value={formName}
+                      onChange={(e) => setFormName(e.target.value)}
                       placeholder={t('contact.form_name')}
                       className="w-full px-4 py-3 rounded-xl border border-[#E7E1D3] bg-[#F7F4EE] text-xs text-[#2B2B2B] focus:border-[#6F7255] focus:outline-none"
                       required
@@ -246,6 +292,8 @@ export default function Contact() {
                     <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5">{t('contact.form_phone')}</label>
                     <input
                       type="tel"
+                      value={formPhone}
+                      onChange={(e) => setFormPhone(e.target.value)}
                       placeholder="+90 532 000 00 00"
                       className="w-full px-4 py-3 rounded-xl border border-[#E7E1D3] bg-[#F7F4EE] text-xs text-[#2B2B2B] focus:border-[#6F7255] focus:outline-none"
                       required
@@ -258,6 +306,8 @@ export default function Contact() {
                   <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5">{t('contact.form_email')}</label>
                   <input
                     type="email"
+                    value={formEmail}
+                    onChange={(e) => setFormEmail(e.target.value)}
                     placeholder={t('contact.form_email')}
                     className="w-full px-4 py-3 rounded-xl border border-[#E7E1D3] bg-[#F7F4EE] text-xs text-[#2B2B2B] focus:border-[#6F7255] focus:outline-none"
                     required
@@ -296,6 +346,8 @@ export default function Contact() {
                   <label className="block text-xs font-medium text-[#2B2B2B] mb-1.5">{t('contact.message_label')}</label>
                   <textarea
                     rows="4"
+                    value={formMessage}
+                    onChange={(e) => setFormMessage(e.target.value)}
                     placeholder={t('contact.message_placeholder')}
                     className="w-full px-4 py-3 rounded-xl border border-[#E7E1D3] bg-[#F7F4EE] text-xs text-[#2B2B2B] focus:border-[#6F7255] focus:outline-none"
                     required

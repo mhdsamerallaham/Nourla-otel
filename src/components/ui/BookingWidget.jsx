@@ -39,6 +39,7 @@ import {
 import { ROOMS_DATA } from '../../data/rooms';
 import LuxuryDatePickerModal from './LuxuryDatePickerModal';
 import RoomLightboxModal from './RoomLightboxModal';
+import { sanitizeText, isValidEmail, isValidPhone, sanitizePhone, isValidName } from '../../utils/sanitize';
 import {
   getPrices,
   createReservation,
@@ -568,8 +569,30 @@ export default function BookingWidget({ preselectedRoomId = '', isSidebar = fals
   // Step 3 -> 4: Create Pending Reservation in Backend DB Snapshot + Supabase Lead
   const handleProceedToPayment = async (e) => {
     e.preventDefault();
-    if (!guestName || !guestEmail || !phoneLocal) {
+    setApiError(null);
+
+    const cleanGuestName = sanitizeText(guestName);
+    const cleanGuestEmail = sanitizeText(guestEmail);
+    const cleanGuestPhone = sanitizePhone(guestPhone);
+    const cleanSpecialNotes = sanitizeText(specialNotes);
+
+    if (!cleanGuestName || !cleanGuestEmail || !phoneLocal) {
       setApiError('Lütfen misafir ad, e-posta ve telefon alanlarını doldurunuz.');
+      return;
+    }
+
+    if (!isValidName(cleanGuestName)) {
+      setApiError('Lütfen ad ve soyad alanını geçerli bir formatta giriniz.');
+      return;
+    }
+
+    if (!isValidEmail(cleanGuestEmail)) {
+      setApiError('Lütfen geçerli bir e-posta adresi giriniz (örn: ad@ornek.com).');
+      return;
+    }
+
+    if (!isValidPhone(cleanGuestPhone)) {
+      setApiError('Lütfen geçerli bir telefon numarası giriniz (en az 7 hane).');
       return;
     }
 
@@ -579,7 +602,6 @@ export default function BookingWidget({ preselectedRoomId = '', isSidebar = fals
     }
 
     setIsProcessing(true);
-    setApiError(null);
 
     try {
       const roomSummaryNotes = cartItems
@@ -589,16 +611,16 @@ export default function BookingWidget({ preselectedRoomId = '', isSidebar = fals
         )
         .join(', ');
 
-      const fullNotes = `${specialNotes ? specialNotes + ' | ' : ''}Kiralanan Odalar: ${roomSummaryNotes}`;
+      const fullNotes = `${cleanSpecialNotes ? cleanSpecialNotes + ' | ' : ''}Kiralanan Odalar: ${roomSummaryNotes}`;
 
       const pendingRes = await createReservation({
         roomTypeId: selectedRoom.elektraRoomTypeId,
         checkIn,
         checkOut,
         adultCount: parseInt(guests, 10),
-        guestName,
-        guestEmail,
-        guestPhone,
+        guestName: cleanGuestName,
+        guestEmail: cleanGuestEmail,
+        guestPhone: cleanGuestPhone,
         specialNotes: fullNotes,
         currency,
         totalPrice: finalTotalPrice,

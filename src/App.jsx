@@ -22,6 +22,7 @@ import DistanceSalesAgreement from './pages/DistanceSalesAgreement';
 
 import StickyPhoneCTA from './components/ui/StickyPhoneCTA';
 import StructuredData, { HOTEL_SCHEMA } from './components/ui/StructuredData';
+import PageErrorBoundary from './components/ui/PageErrorBoundary';
 
 // Synchronize i18n language with URL path parameter
 function LanguageSyncWrapper({ children }) {
@@ -72,24 +73,24 @@ export default function App() {
               element={
                 <LanguageSyncWrapper>
                   <Routes>
-                    <Route index element={<Home />} />
-                    <Route path="about" element={<About />} />
-                    <Route path="rooms" element={<Rooms />} />
-                    <Route path="rooms/:roomId" element={<RoomDetail />} />
-                    <Route path="urla" element={<UrlaGuide />} />
-                    <Route path="urla/:topicSlug" element={<UrlaGuide />} />
-                    <Route path="sustainability" element={<Sustainability />} />
-                    <Route path="sustainability/:sectionSlug" element={<Sustainability />} />
-                    <Route path="gallery" element={<Gallery />} />
-                    <Route path="contact" element={<Contact />} />
-                    <Route path="reservation" element={<Reservation />} />
-                    <Route path="booking-status" element={<BookingStatus />} />
-                    <Route path="test-scroll-video" element={<TestScrollVideo />} />
-                    <Route path="privacy-policy" element={<PrivacyPolicy />} />
-                    <Route path="kvkk" element={<KVKK />} />
-                    <Route path="kvkk-aydinlatma-metni" element={<KVKK />} />
-                    <Route path="mesafeli-satis-sozlesmesi" element={<DistanceSalesAgreement />} />
-                    <Route path="distance-sales-agreement" element={<DistanceSalesAgreement />} />
+                    <Route index element={<PageErrorBoundary><Home /></PageErrorBoundary>} />
+                    <Route path="about" element={<PageErrorBoundary><About /></PageErrorBoundary>} />
+                    <Route path="rooms" element={<PageErrorBoundary><Rooms /></PageErrorBoundary>} />
+                    <Route path="rooms/:roomId" element={<PageErrorBoundary><RoomDetail /></PageErrorBoundary>} />
+                    <Route path="urla" element={<PageErrorBoundary><UrlaGuide /></PageErrorBoundary>} />
+                    <Route path="urla/:topicSlug" element={<PageErrorBoundary><UrlaGuide /></PageErrorBoundary>} />
+                    <Route path="sustainability" element={<PageErrorBoundary><Sustainability /></PageErrorBoundary>} />
+                    <Route path="sustainability/:sectionSlug" element={<PageErrorBoundary><Sustainability /></PageErrorBoundary>} />
+                    <Route path="gallery" element={<PageErrorBoundary><Gallery /></PageErrorBoundary>} />
+                    <Route path="contact" element={<PageErrorBoundary><Contact /></PageErrorBoundary>} />
+                    <Route path="reservation" element={<PageErrorBoundary><Reservation /></PageErrorBoundary>} />
+                    <Route path="booking-status" element={<PageErrorBoundary><BookingStatus /></PageErrorBoundary>} />
+                    <Route path="test-scroll-video" element={<PageErrorBoundary><TestScrollVideo /></PageErrorBoundary>} />
+                    <Route path="privacy-policy" element={<PageErrorBoundary><PrivacyPolicy /></PageErrorBoundary>} />
+                    <Route path="kvkk" element={<PageErrorBoundary><KVKK /></PageErrorBoundary>} />
+                    <Route path="kvkk-aydinlatma-metni" element={<PageErrorBoundary><KVKK /></PageErrorBoundary>} />
+                    <Route path="mesafeli-satis-sozlesmesi" element={<PageErrorBoundary><DistanceSalesAgreement /></PageErrorBoundary>} />
+                    <Route path="distance-sales-agreement" element={<PageErrorBoundary><DistanceSalesAgreement /></PageErrorBoundary>} />
                     {/* 404 — branded not-found page */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>

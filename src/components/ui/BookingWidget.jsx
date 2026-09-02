@@ -1826,7 +1826,11 @@ export default function BookingWidget({ preselectedRoomId = '', isSidebar = fals
             <button
               type="submit"
               disabled={isProcessing}
-              className="py-3.5 px-8 rounded-2xl bg-[#6F7255] text-white text-xs font-semibold uppercase tracking-widest flex items-center gap-2 hover:bg-[#4F523A] transition-all cursor-pointer shadow-md"
+              className={`py-3.5 px-8 rounded-2xl text-xs font-semibold uppercase tracking-widest flex items-center gap-2 transition-all shadow-md ${
+                isProcessing
+                  ? 'bg-[#6F7255]/60 text-white/70 cursor-not-allowed pointer-events-none'
+                  : 'bg-[#6F7255] hover:bg-[#4F523A] text-white cursor-pointer'
+              }`}
             >
               {isProcessing ? (
                 <>
@@ -2222,11 +2226,15 @@ export default function BookingWidget({ preselectedRoomId = '', isSidebar = fals
                 <button
                   type="submit"
                   disabled={isProcessing}
-                  className="w-full py-4 rounded-full bg-[#6F7255] hover:bg-[#8E9272] text-white text-xs font-semibold uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-xl cursor-pointer disabled:opacity-50"
+                  className={`w-full py-4 rounded-full text-xs font-semibold uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-xl ${
+                    isProcessing
+                      ? 'bg-[#6F7255]/50 text-white/60 cursor-not-allowed pointer-events-none'
+                      : 'bg-[#6F7255] hover:bg-[#8E9272] text-white cursor-pointer'
+                  }`}
                 >
                   {isProcessing ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin text-white" /> Rezervasyon İşleniyor...
+                      <Loader2 className="w-4 h-4 animate-spin text-white" /> İşlem Devam Ediyor, Lütfen Bekleyin...
                     </>
                   ) : (
                     <>

@@ -53,10 +53,12 @@ app.use(requestLogger);
 // Dynamic Sitemap Endpoint for Googlebot
 app.use('/', sitemapRoutes);
 
-// Rate limiting
+// ─── Rate Limiting (Katmanlı — endpoint önemine göre) ────────────────────────
+
+// 1. Genel API limiti — tüm /api/ için (1 dk içinde max 60 istek)
 const apiLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
-  max: 150,
+  max: 60,
   standardHeaders: true,
   legacyHeaders: false,
   validate: { xForwardedForHeader: false },
@@ -69,7 +71,48 @@ const apiLimiter = rateLimit({
   },
 });
 
+// 2. Kritik yazma işlemleri — rezervasyon & ödeme (1 dk içinde max 5 istek)
+const strictLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
+  message: {
+    success: false,
+    error: {
+      code: 'RATE_LIMIT_EXCEEDED',
+      message: 'Çok fazla rezervasyon/ödeme isteği. Lütfen 1 dakika bekleyip tekrar deneyin.',
+    },
+  },
+});
+
+// 3. Okuma ağırlıklı endpoint'ler — fiyat & müsaitlik (1 dk içinde max 30 istek)
+const readLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
+  message: {
+    success: false,
+    error: {
+      code: 'RATE_LIMIT_EXCEEDED',
+      message: 'Çok fazla istek gönderildi. Lütfen kısa bir süre bekleyin.',
+    },
+  },
+});
+
+// Genel limit: tüm /api/ rotaları
 app.use('/api/', apiLimiter);
+
+// Sıkı limit: rezervasyon oluşturma ve ödeme işlemleri
+app.use('/api/booking/reservation', strictLimiter);
+app.use('/api/payment/', strictLimiter);
+
+// Orta limit: fiyat ve müsaitlik sorguları (takvim her ay geçişinde çağrılır)
+app.use('/api/booking/price', readLimiter);
+app.use('/api/booking/availability', readLimiter);
 
 // ─── Routes Mounting ──────────────────────────────────────────────────────────
 app.use('/api/booking', bookingRoutes);

@@ -97,11 +97,19 @@ async function elektraGet(endpoint, params = {}, options = {}) {
 
       if (err.code === 'ECONNABORTED') {
         console.error(`[ELEKTRA GET TIMEOUT] ${label} | ${duration}ms`);
-        throw new ElektraError('TIMEOUT', `Elektraweb API yanıt vermedi (${TIMEOUT_MS / 1000}s timeout).`, 504);
+        throw new ElektraError(
+          'TIMEOUT',
+          `Rezervasyon sistemi şu anda yanıt vermiyor (${TIMEOUT_MS / 1000}sn beklendi). Lütfen birkaç saniye sonra tekrar deneyin.`,
+          504
+        );
       }
 
       console.error(`[ELEKTRA GET ERROR] ${label} | Network:`, err.message);
-      throw new ElektraError('NETWORK_ERROR', `Elektraweb API bağlantı hatası: ${err.message}`, 502);
+      throw new ElektraError(
+        'NETWORK_ERROR',
+        `Rezervasyon sistemine bağlanılamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.`,
+        502
+      );
     }
   }
 }
@@ -145,10 +153,18 @@ async function elektraPost(endpoint, body = {}) {
 
     if (err.code === 'ECONNABORTED') {
       console.error(`[ELEKTRA POST TIMEOUT] ${endpoint} | ${duration}ms`);
-      throw new ElektraError('TIMEOUT', `Elektraweb API yanıt vermedi.`, 504);
+      throw new ElektraError(
+        'TIMEOUT',
+        `Rezervasyon işlemi zaman aşımına uğradı. Lütfen tekrar deneyin.`,
+        504
+      );
     }
 
-    throw new ElektraError('NETWORK_ERROR', `Elektraweb bağlantı hatası: ${err.message}`, 502);
+    throw new ElektraError(
+      'NETWORK_ERROR',
+      `Rezervasyon sistemine bağlanılamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.`,
+      502
+    );
   }
 }
 

@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, X, Check, AlertCircle, Loader2 } from 'lucide-react';
 
 // Direct fetch — bypass any service-layer cache, always get fresh data
-async function fetchPricesRaw({ fromdate, todate, adult = 2, currency, language = 'TR' }) {
+// signal: AbortSignal — modal kapanınca veya ay değişince devam eden istekleri iptal eder
+async function fetchPricesRaw({ fromdate, todate, adult = 2, currency, language = 'TR', signal }) {
   const query = new URLSearchParams({ fromdate, todate, adult: String(adult), currency, language });
   const res = await fetch(`/api/booking/price?${query}`, {
     headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+    signal,
   });
   if (!res.ok) return [];
   const data = await res.json();
@@ -51,13 +53,34 @@ export default function LuxuryDatePickerModal({
     }
   }, [isOpen, initialTarget, checkIn, checkOut]);
 
+  // AbortController ref — ay değişince veya modal kapanınca eski fetch'i iptal et
+  const abortControllerRef = useRef(null);
+
   useEffect(() => {
     if (isOpen) {
-      fetchMonthPrices();
+      // Önceki fetch varsa iptal et
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+      fetchMonthPrices(controller.signal);
+    } else {
+      // Modal kapandı: devam eden fetch'i iptal et
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
     }
+    return () => {
+      // Cleanup: effect yeniden çalışırsa önceki isteği iptal et
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [isOpen, viewDate, currency]);
 
-  const fetchMonthPrices = async () => {
+  const fetchMonthPrices = async (signal) => {
     setIsLoadingMonth(true);
     setMonthData({}); // ← Her yüklemede eski veriyi temizle
     const year = viewDate.getFullYear();
@@ -78,8 +101,8 @@ export default function LuxuryDatePickerModal({
     }
 
     try {
-      // ── 1. İlk sorgu: ayın başından sonuna ────────────────────────────────
-      let offers = await fetchPricesRaw({ fromdate: fromStr, todate: toStr, adult: 2, currency, language: 'TR' });
+      // ── 1. İlk sorgu: ayın başından sonuna ────────────────────────────────────
+      let offers = await fetchPricesRaw({ fromdate: fromStr, todate: toStr, adult: 2, currency, language: 'TR', signal });
       let queryStartDateStr = fromStr;
 
       // ── 2. Hiç teklif gelmediyse: ayın ilk kapalı günlerini atla ─────────
@@ -89,7 +112,7 @@ export default function LuxuryDatePickerModal({
         if (midDay <= lastDayNum) {
           const midFromStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(midDay).padStart(2, '0')}`;
           if (midFromStr >= todayStr && midFromStr < toStr) {
-            const midOffers = await fetchPricesRaw({ fromdate: midFromStr, todate: toStr, adult: 2, currency, language: 'TR' });
+            const midOffers = await fetchPricesRaw({ fromdate: midFromStr, todate: toStr, adult: 2, currency, language: 'TR', signal });
             if (midOffers.length > 0) {
               offers = midOffers;
               queryStartDateStr = midFromStr; // ← Kritik: başlangıç tarihini güncelle
@@ -179,6 +202,8 @@ export default function LuxuryDatePickerModal({
 
       setMonthData(dayMap);
     } catch (err) {
+      // AbortError: modal kapandı veya ay değişti — beklenen durum, sessizce geç
+      if (err.name === 'AbortError') return;
       console.warn('[MONTH CALENDAR] Fiyat verisi alınamadı:', err.message);
       setMonthData({});
     } finally {

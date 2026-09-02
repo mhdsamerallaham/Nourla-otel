@@ -8,10 +8,16 @@
 const BOOKING_API_BASE = '/api/booking';
 const PAYMENT_API_BASE = '/api/payment';
 
+const FETCH_TIMEOUT_MS = 10000; // 10 saniye — dış API çağrıları için maksimum bekleme
+
 async function apiFetch(baseUrl, endpoint, options = {}) {
   const url = `${baseUrl}${endpoint}`;
-  let response;
 
+  // AbortController ile timeout — 10sn sonra isteği iptal et
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
+  let response;
   try {
     response = await fetch(url, {
       headers: {
@@ -19,9 +25,16 @@ async function apiFetch(baseUrl, endpoint, options = {}) {
         Accept: 'application/json',
       },
       ...options,
+      signal: controller.signal,
     });
   } catch (netErr) {
+    clearTimeout(timeoutId);
+    if (netErr.name === 'AbortError') {
+      throw new Error('İstek zaman aşımına uğradı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.');
+    }
     throw new Error(`Bağlantı sağlanamadı (${netErr.message}). Lütfen bağlantınızı kontrol ediniz.`);
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   const contentType = response.headers.get('content-type') || '';

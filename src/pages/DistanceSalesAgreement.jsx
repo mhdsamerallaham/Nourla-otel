@@ -2,11 +2,28 @@ import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FileCheck2, ArrowLeft, Scale, Clock, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export default function DistanceSalesAgreement() {
   const { i18n } = useTranslation();
   const { lang } = useParams();
   const currentLang = lang || i18n.language || 'tr';
+
+  // ── SEO & Open Graph Meta Tags (<60 chars title, <155 chars desc) ──
+  usePageMeta({
+    title: currentLang === 'tr'
+      ? 'Mesafeli Satış Sözleşmesi | Nourla Boutique Hotel'
+      : currentLang === 'de'
+      ? 'Fernabsatzvertrag | Nourla Boutique Hotel'
+      : currentLang === 'ru'
+      ? 'Договор Дистанционной Продажи | Nourla'
+      : 'Distance Sales Agreement | Nourla Hotel',
+    description: currentLang === 'tr'
+      ? '6502 Sayılı Tüketicinin Korunması Hakkında Kanun uyarınca Nourla Boutique Hotel mesafeli satış ve iptal/iade koşulları sözleşmesi.'
+      : 'Nourla Boutique Hotel distance sales agreement, cancellation terms and guest consumer protection conditions.',
+    canonical: `/${currentLang}/mesafeli-satis-sozlesmesi`,
+    lang: currentLang,
+  });
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] pt-28 pb-20">

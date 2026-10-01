@@ -4,28 +4,81 @@ const SITE_URL = 'https://www.nourla.com.tr';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-nourla.jpg`;
 
 /**
- * usePageMeta — client-side meta tag updater for SPA SEO.
- *
- * Updates document.title, meta description, canonical, OG tags,
- * and hreflang alternates on every route change.
+ * Clean & truncate a string to maximum length at word boundary
+ */
+function truncateText(str, maxLen = 155) {
+  if (!str || str.length <= maxLen) return str || '';
+  const truncated = str.slice(0, maxLen - 3);
+  const lastSpace = truncated.lastIndexOf(' ');
+  return (lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated) + '...';
+}
+
+/**
+ * Format a title strictly under 60 characters
+ */
+function formatTitle(rawTitle) {
+  if (!rawTitle) return 'Nourla Boutique Hotel — Urla, İzmir';
+  let title = rawTitle.trim();
+
+  // If already includes Nourla, don't append brand suffix
+  if (/nourla/i.test(title)) {
+    return title.length > 59 ? truncateText(title, 59) : title;
+  }
+
+  const suffix = ' | Nourla Hotel';
+  if ((title + suffix).length <= 59) {
+    return title + suffix;
+  }
+
+  const shortSuffix = ' | Nourla';
+  if ((title + shortSuffix).length <= 59) {
+    return title + shortSuffix;
+  }
+
+  return truncateText(title, 59);
+}
+
+/**
+ * usePageMeta — comprehensive meta & Open Graph tag updater for Technical SEO & GEO.
  *
  * @param {Object} options
- * @param {string} options.title          - Page <title> (without site suffix)
- * @param {string} options.description    - Meta description (150-160 chars)
- * @param {string} [options.canonical]    - Canonical URL path (e.g. "/tr/rooms")
- * @param {string} [options.ogImage]      - Absolute OG image URL
- * @param {string} [options.lang]         - Current language code
+ * @param {string} options.title          - Page title (targeted <60 chars)
+ * @param {string} options.description    - Meta description (targeted <155 chars)
+ * @param {string} [options.canonical]    - Relative canonical path (e.g. "/tr/rooms")
+ * @param {string} [options.ogImage]      - Absolute or relative OG image URL
+ * @param {string} [options.ogType]       - OpenGraph type (default: 'website')
+ * @param {string} [options.lang]         - Current language code ('tr', 'en', 'de', 'ru')
+ * @param {boolean} [options.noIndex]     - Set to true for 404, status, or private pages
  */
-export function usePageMeta({ title, description, canonical, ogImage, lang = 'tr' }) {
+export function usePageMeta({
+  title,
+  description,
+  canonical,
+  ogImage,
+  ogType = 'website',
+  lang = 'tr',
+  noIndex = false,
+}) {
   useEffect(() => {
-    const fullTitle = `${title} | Nourla Boutique Hotel — Urla, İzmir`;
-    const canonicalUrl = canonical
-      ? `${SITE_URL}${canonical}`
+    const finalTitle = formatTitle(title);
+    const finalDesc = truncateText(description, 155);
+
+    // Canonical URL calculation
+    const cleanCanonical = canonical
+      ? canonical.startsWith('http')
+        ? canonical
+        : `${SITE_URL}${canonical.startsWith('/') ? canonical : `/${canonical}`}`
       : `${SITE_URL}/${lang}`;
-    const image = ogImage || DEFAULT_OG_IMAGE;
+
+    // Image URL resolution
+    const image = ogImage
+      ? ogImage.startsWith('http')
+        ? ogImage
+        : `${SITE_URL}${ogImage.startsWith('/') ? ogImage : `/${ogImage}`}`
+      : DEFAULT_OG_IMAGE;
 
     // ── document.title ──────────────────────────────────────────
-    document.title = fullTitle;
+    document.title = finalTitle;
 
     // ── Helper: upsert a <meta> tag ─────────────────────────────
     const setMeta = (selector, content) => {
@@ -52,43 +105,58 @@ export function usePageMeta({ title, description, canonical, ogImage, lang = 'tr
       Object.entries(extra).forEach(([k, v]) => el.setAttribute(k, v));
     };
 
-    // ── Meta description ────────────────────────────────────────
-    setMeta('meta[name="description"]', description);
+    // ── Robots meta ─────────────────────────────────────────────
+    setMeta('meta[name="robots"]', noIndex ? 'noindex, nofollow' : 'index, follow');
 
-    // ── Canonical ───────────────────────────────────────────────
-    setLink('canonical', canonicalUrl);
+    // ── Meta description ────────────────────────────────────────
+    setMeta('meta[name="description"]', finalDesc);
+
+    // ── Canonical link ──────────────────────────────────────────
+    setLink('canonical', cleanCanonical);
 
     // ── Open Graph ──────────────────────────────────────────────
-    setMeta('meta[property="og:title"]', fullTitle);
-    setMeta('meta[property="og:description"]', description);
+    setMeta('meta[property="og:title"]', finalTitle);
+    setMeta('meta[property="og:description"]', finalDesc);
     setMeta('meta[property="og:image"]', image);
-    setMeta('meta[property="og:url"]', canonicalUrl);
-    setMeta('meta[property="og:type"]', 'website');
-    setMeta('meta[property="og:locale"]', lang === 'tr' ? 'tr_TR' : lang === 'de' ? 'de_DE' : lang === 'ru' ? 'ru_RU' : 'en_US');
+    setMeta('meta[property="og:url"]', cleanCanonical);
+    setMeta('meta[property="og:type"]', ogType);
+    setMeta(
+      'meta[property="og:locale"]',
+      lang === 'tr'
+        ? 'tr_TR'
+        : lang === 'de'
+        ? 'de_DE'
+        : lang === 'ru'
+        ? 'ru_RU'
+        : 'en_US'
+    );
     setMeta('meta[property="og:site_name"]', 'Nourla Boutique Hotel');
 
     // ── Twitter / X Card ────────────────────────────────────────
     setMeta('meta[name="twitter:card"]', 'summary_large_image');
-    setMeta('meta[name="twitter:title"]', fullTitle);
-    setMeta('meta[name="twitter:description"]', description);
+    setMeta('meta[name="twitter:title"]', finalTitle);
+    setMeta('meta[name="twitter:description"]', finalDesc);
     setMeta('meta[name="twitter:image"]', image);
 
     // ── hreflang alternates ─────────────────────────────────────
-    const basePath = canonical ? canonical.replace(/^\/(tr|en|de|ru)/, '') : '';
-    ['tr', 'en', 'de', 'ru'].forEach((l) => {
-      const selector = `link[rel="alternate"][hreflang="${l}"]`;
-      let el = document.querySelector(selector);
-      if (!el) {
-        el = document.createElement('link');
-        el.setAttribute('rel', 'alternate');
-        el.setAttribute('hreflang', l);
-        document.head.appendChild(el);
-      }
-      el.setAttribute('href', `${SITE_URL}/${l}${basePath}`);
-    });
+    if (!noIndex) {
+      const basePath = canonical
+        ? canonical.replace(/^\/(tr|en|de|ru)/, '')
+        : '';
 
-    // ── x-default hreflang ──────────────────────────────────────
-    {
+      ['tr', 'en', 'de', 'ru'].forEach((l) => {
+        const selector = `link[rel="alternate"][hreflang="${l}"]`;
+        let el = document.querySelector(selector);
+        if (!el) {
+          el = document.createElement('link');
+          el.setAttribute('rel', 'alternate');
+          el.setAttribute('hreflang', l);
+          document.head.appendChild(el);
+        }
+        el.setAttribute('href', `${SITE_URL}/${l}${basePath}`);
+      });
+
+      // ── x-default hreflang ──────────────────────────────────────
       const xd = document.querySelector('link[rel="alternate"][hreflang="x-default"]');
       const el = xd || document.createElement('link');
       if (!xd) {
@@ -98,5 +166,6 @@ export function usePageMeta({ title, description, canonical, ogImage, lang = 'tr
       }
       el.setAttribute('href', `${SITE_URL}/tr${basePath}`);
     }
-  }, [title, description, canonical, ogImage, lang]);
+  }, [title, description, canonical, ogImage, ogType, lang, noIndex]);
 }
+

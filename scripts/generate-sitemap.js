@@ -19,13 +19,25 @@ const PAGES = [
   { slug: 'contact', priority: '0.9', changefreq: 'daily' },
   { slug: 'reservation', priority: '0.9', changefreq: 'daily' },
   { slug: 'privacy-policy', priority: '0.3', changefreq: 'yearly' },
+  { slug: 'kvkk', priority: '0.3', changefreq: 'yearly' },
+  { slug: 'mesafeli-satis-sozlesmesi', priority: '0.3', changefreq: 'yearly' },
+];
+
+const URLA_TOPIC_SLUGS = [
+  'urla-tarihi',
+  'yakin-plajlar',
+  'kulturel-ziyaretler',
+  'bagcilik',
+  'gastronomi',
+  'bisiklet-rotalari',
 ];
 
 const ROOM_SLUGS = [
-  'deluxe-stone-suite',
-  'olive-garden-suite',
-  'presidential-aegean-suite',
-  'heritage-courtyard-suite',
+  'standart-room',
+  'tasarim-room',
+  'superior-tasarim-room',
+  'suit-room',
+  'loft-villa',
 ];
 
 export function generateSitemapXml() {
@@ -69,6 +81,23 @@ export function generateSitemapXml() {
       LANGUAGES.forEach((altLang) => {
         xml += `    <xhtml:link rel="alternate" hreflang="${altLang}" href="${DOMAIN}/${altLang}/rooms/${roomSlug}" />\n`;
       });
+      xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="${DOMAIN}/tr/rooms/${roomSlug}" />\n`;
+      xml += `  </url>\n`;
+    });
+
+    // 3. Urla Guide Topic pages
+    URLA_TOPIC_SLUGS.forEach((topicSlug) => {
+      const topicUrl = `${DOMAIN}/${lang}/urla/${topicSlug}`;
+      xml += `  <url>
+    <loc>${topicUrl}</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+`;
+      LANGUAGES.forEach((altLang) => {
+        xml += `    <xhtml:link rel="alternate" hreflang="${altLang}" href="${DOMAIN}/${altLang}/urla/${topicSlug}" />\n`;
+      });
+      xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="${DOMAIN}/tr/urla/${topicSlug}" />\n`;
       xml += `  </url>\n`;
     });
   });

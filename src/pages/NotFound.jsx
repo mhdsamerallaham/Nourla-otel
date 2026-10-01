@@ -2,11 +2,20 @@ import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Home, ArrowLeft, Calendar, ArrowRight } from 'lucide-react';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export default function NotFound() {
   const { i18n } = useTranslation();
   const { lang } = useParams();
   const currentLang = lang || i18n.language || 'tr';
+
+  // ── SEO: noindex, nofollow for 404 pages ─────────────────────
+  usePageMeta({
+    title: '404 Sayfa Bulunamadı | Nourla Hotel',
+    description: 'Aradığınız sayfa bulunamadı. Nourla Boutique Hotel ana sayfasına dönün.',
+    noIndex: true,
+    lang: currentLang,
+  });
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] flex flex-col items-center justify-center px-4 py-24 text-center">

@@ -104,7 +104,20 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-[#E7E1D3]/50 font-light gap-4">
-          <p>© {new Date().getFullYear()} Nourla Boutique Hotel. {t('footer.rights')}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p>© {new Date().getFullYear()} Nourla Boutique Hotel. {t('footer.rights')}</p>
+            <span className="text-[#E7E1D3]/20">•</span>
+            <a
+              href="https://www.samer.life/"
+              target="_blank"
+              rel="nofollow noopener"
+              title="Developer Portfolio"
+              style={{ color: 'inherit', textDecoration: 'none' }}
+              className="hover:text-[#6F7255] transition-colors"
+            >
+              Built by
+            </a>
+          </div>
           <div className="flex flex-wrap items-center gap-4">
             <Link
               to={`/${currentLang}/privacy-policy`}

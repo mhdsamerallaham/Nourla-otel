@@ -16,6 +16,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { getReservationByCode, getPaymentStatus } from '../services/api';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 /**
  * BookingStatus Page
@@ -29,6 +30,13 @@ import { getReservationByCode, getPaymentStatus } from '../services/api';
  */
 export default function BookingStatus() {
   const [searchParams] = useSearchParams();
+
+  // ── SEO: noindex, nofollow for payment status page ────────────
+  usePageMeta({
+    title: 'Rezervasyon Durumu | Nourla Hotel',
+    description: 'Nourla Boutique Hotel rezervasyon ve ödeme onay sayfası.',
+    noIndex: true,
+  });
 
   const status = searchParams.get('status');        // "success" | "failed"
   const reservationCode = searchParams.get('code');

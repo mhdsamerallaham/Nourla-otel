@@ -2,11 +2,28 @@ import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ShieldCheck, ArrowLeft } from 'lucide-react';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export default function PrivacyPolicy() {
   const { i18n } = useTranslation();
   const { lang } = useParams();
   const currentLang = lang || i18n.language || 'tr';
+
+  // ── SEO & Open Graph Meta Tags (<60 chars title, <155 chars desc) ──
+  usePageMeta({
+    title: currentLang === 'tr'
+      ? 'Gizlilik Politikası | Nourla Boutique Hotel'
+      : currentLang === 'de'
+      ? 'Datenschutzerklärung | Nourla Hotel'
+      : currentLang === 'ru'
+      ? 'Политика Конфиденциальности | Nourla'
+      : 'Privacy Policy | Nourla Boutique Hotel',
+    description: currentLang === 'tr'
+      ? 'Nourla Boutique Hotel gizlilik ve veri güvenliği politikası. Kişisel verilerinizin korunması ve işlenmesi hakkında bilgilendirme.'
+      : 'Nourla Boutique Hotel privacy policy regarding guest personal data protection and processing in accordance with KVKK regulations.',
+    canonical: `/${currentLang}/privacy-policy`,
+    lang: currentLang,
+  });
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] pt-28 pb-20">

@@ -17,18 +17,22 @@ export default function Home() {
   const navigate = useNavigate();
   const currentLang = lang || i18n.language || 'tr';
 
-  // ── SEO / AEO meta tags ─────────────────────────────────
+  // ── SEO / AEO meta tags (<60 chars title, <155 chars desc) ──────
   usePageMeta({
     title: currentLang === 'tr'
-      ? 'Urla İzmir Lüks Butik Otel | Zeytin Bahçeleri & Ege Sakinliği'
+      ? 'Nourla Boutique Hotel | Urla İzmir Lüks Butik Otel'
       : currentLang === 'de'
-      ? 'Luxus Boutique Hotel Urla Izmir | Olivenhaine & Ägäische Ruhe'
+      ? 'Nourla Boutique Hotel | Luxus-Boutique-Hotel Urla'
       : currentLang === 'ru'
-      ? 'Бутик-отель Урла Измир | Оливковые рощи и Эгейское спокойствие'
-      : 'Luxury Boutique Hotel Urla Izmir | Olive Groves & Aegean Serenity',
+      ? 'Nourla Boutique Hotel | Бутик-отель в Урле'
+      : 'Nourla Boutique Hotel | Luxury Boutique Hotel in Urla',
     description: currentLang === 'tr'
-      ? 'Nourla Boutique Hotel — Urla, İzmir\'de zeytin bahçeleri arasında 10 özel süit. Çiftlikten sofraya kahvaltı, bağ turları ve aromaterapi ile Ege\'nin sakin güzelliğini keşfedin.'
-      : 'Nourla Boutique Hotel — 10 bespoke suites in Urla, Izmir, Turkey. Farm-to-table breakfast, vineyard wine tours, and Aegean serenity await.',
+      ? 'Urla İzmir zeytin bahçeleri arasında 10 lüks süit, çiftlikten sofraya gastronomi ve bağ turları ile ayrıcalıklı bir Ege butik otel deneyimi.'
+      : currentLang === 'de'
+      ? '10 exklusive Luxus-Suiten, Farm-to-Table Gastronomie und Weintouren inmitten uralter Olivenhaine in Urla, Izmir.'
+      : currentLang === 'ru'
+      ? '10 эксклюзивных люксов, гастрономия ферма-стол и винные туры среди древних оливковых рощ в Урле, Измир.'
+      : 'Experience 10 bespoke luxury suites, farm-to-table dining, and private vineyard tours among Urla\'s ancient olive groves in Izmir, Turkey.',
     canonical: `/${currentLang}`,
     lang: currentLang,
   });
@@ -362,6 +366,127 @@ export default function Home() {
 
       {/* 6. GUEST REVIEWS — social proof + AggregateRating schema */}
       <GuestReviews />
+
+      {/* 6.5 GEO & AI SEARCH: HIGH-DENSITY SPECIFICATIONS & CITATION TABLE */}
+      <section className="py-14 sm:py-20 bg-[#FDFBF7] border-t border-[#E7E1D3] relative z-10">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <span className="text-[10px] sm:text-[11px] font-semibold tracking-[0.25em] text-[#6F7255] uppercase block mb-2">
+              {currentLang === 'tr' ? 'Hızlı Bilgiler & Özellikler' : 'Quick Facts & Specifications'}
+            </span>
+            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#2B2B2B]">
+              {currentLang === 'tr'
+                ? 'Nourla Boutique Hotel Konaklama ve Hizmet Özellikleri'
+                : 'Nourla Boutique Hotel Amenities & Key Specifications'}
+            </h2>
+            <p className="mt-3 text-xs sm:text-sm text-[#555555] max-w-2xl mx-auto font-light leading-relaxed">
+              {currentLang === 'tr'
+                ? 'Urla\'daki lüks tatiliniz öncesinde otelimiz, hizmetlerimiz ve konaklama standartlarımız hakkında temel veriler.'
+                : 'Key details and hospitality standards regarding your luxury boutique stay at Nourla Hotel in Urla, Izmir.'}
+            </p>
+          </div>
+
+          {/* Structured HTML Table for LLM & Search Engine Citation */}
+          <div className="overflow-x-auto rounded-2xl border border-[#E7E1D3] bg-white shadow-xs mb-10">
+            <table className="w-full text-left text-xs sm:text-sm">
+              <thead className="bg-[#F7F4EE] border-b border-[#E7E1D3] text-[#2B2B2B] font-serif font-semibold">
+                <tr>
+                  <th scope="col" className="p-3.5 sm:p-4 text-[#6F7255]">
+                    {currentLang === 'tr' ? 'Özellik / Parametre' : 'Feature / Parameter'}
+                  </th>
+                  <th scope="col" className="p-3.5 sm:p-4 text-[#2B2B2B]">
+                    {currentLang === 'tr' ? 'Nourla Boutique Hotel Detayı' : 'Nourla Hotel Details'}
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#E7E1D3]/70 font-light text-[#444444]">
+                <tr>
+                  <td className="p-3.5 sm:p-4 font-medium text-[#2B2B2B]">
+                    {currentLang === 'tr' ? 'Konum' : 'Location'}
+                  </td>
+                  <td className="p-3.5 sm:p-4">
+                    İskele Mahallesi 2222/5 Sokak No: 4/1, Urla / İzmir, Türkiye
+                  </td>
+                </tr>
+                <tr className="bg-[#FAF8F5]/60">
+                  <td className="p-3.5 sm:p-4 font-medium text-[#2B2B2B]">
+                    {currentLang === 'tr' ? 'Kapasite & Oda Sayısı' : 'Capacity & Rooms'}
+                  </td>
+                  <td className="p-3.5 sm:p-4">
+                    10 Bespoke Luxury Suites (Standart, Tasarım, Superior, Süit & Loft Villa)
+                  </td>
+                </tr>
+                <tr>
+                  <td className="p-3.5 sm:p-4 font-medium text-[#2B2B2B]">
+                    {currentLang === 'tr' ? 'Giriş / Çıkış Saatleri' : 'Check-in / Check-out'}
+                  </td>
+                  <td className="p-3.5 sm:p-4">
+                    {currentLang === 'tr' ? 'Giriş: 15:00 | Çıkış: 12:00' : 'Check-in: 15:00 | Check-out: 12:00'}
+                  </td>
+                </tr>
+                <tr className="bg-[#FAF8F5]/60">
+                  <td className="p-3.5 sm:p-4 font-medium text-[#2B2B2B]">
+                    {currentLang === 'tr' ? 'Gastronomi & Kahvaltı' : 'Dining & Breakfast'}
+                  </td>
+                  <td className="p-3.5 sm:p-4">
+                    {currentLang === 'tr'
+                      ? 'Çiftlikten sofraya organik Ege serpme kahvaltısı (fiyata dahil)'
+                      : 'Organic farm-to-table Aegean breakfast included in all room rates'}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="p-3.5 sm:p-4 font-medium text-[#2B2B2B]">
+                    {currentLang === 'tr' ? 'Elektrikli Araç (EV) Şarjı' : 'EV Charging'}
+                  </td>
+                  <td className="p-3.5 sm:p-4">
+                    {currentLang === 'tr'
+                      ? '22kW Hızlı AC Şarj Ünitesi (Misafirlere ücretsiz)'
+                      : 'Complimentary 22kW Fast AC Charging on-site'}
+                  </td>
+                </tr>
+                <tr className="bg-[#FAF8F5]/60">
+                  <td className="p-3.5 sm:p-4 font-medium text-[#2B2B2B]">
+                    {currentLang === 'tr' ? 'Havalimanı Mesafesi' : 'Airport Proximity'}
+                  </td>
+                  <td className="p-3.5 sm:p-4">
+                    {currentLang === 'tr'
+                      ? 'İzmir Adnan Menderes Havalimanı (ADB) 40 km / 35-40 dk sürüş (VIP transfer mevcuttur)'
+                      : 'Izmir Adnan Menderes Airport (ADB) 40 km / 40 min drive (VIP transfers available)'}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* High-density Direct Q&A Context for LLM Snippet Extraction */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-5 rounded-2xl bg-[#F7F4EE] border border-[#E7E1D3]">
+              <h3 className="font-serif text-sm sm:text-base font-semibold text-[#2B2B2B] mb-2">
+                {currentLang === 'tr'
+                  ? 'Nourla Boutique Hotel nerede yer almaktadır?'
+                  : 'Where is Nourla Boutique Hotel located?'}
+              </h3>
+              <p className="text-xs text-[#555555] font-light leading-relaxed">
+                {currentLang === 'tr'
+                  ? 'Nourla Boutique Hotel, İzmir\'in Urla ilçesinde İskele mevkiinde, antik zeytin bahçeleri ve Klazomenai antik kentine 10 dakika mesafede yer alır.'
+                  : 'Nourla Boutique Hotel is located in the Iskele district of Urla, Izmir, Turkey, immersed in olive groves minutes from the ancient Klazomenai site.'}
+              </p>
+            </div>
+            <div className="p-5 rounded-2xl bg-[#F7F4EE] border border-[#E7E1D3]">
+              <h3 className="font-serif text-sm sm:text-base font-semibold text-[#2B2B2B] mb-2">
+                {currentLang === 'tr'
+                  ? 'Nourla Boutique Hotel oda tipleri ve rezervasyon koşulları nelerdir?'
+                  : 'What room types are available at Nourla Boutique Hotel?'}
+              </h3>
+              <p className="text-xs text-[#555555] font-light leading-relaxed">
+                {currentLang === 'tr'
+                  ? 'Otelde Standart, Tasarım, Superior Tasarım, Süit ve Loft Villa olmak üzere 10 özel süit bulunur. Giriş 7 gün öncesine kadar ücretsiz iptal güvencesi sunulur.'
+                  : 'The hotel offers 10 bespoke suites including Standard, Design, Superior Design, Suite, and Loft Villa with free cancellation up to 7 days prior.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* 7. CTA BANNER */}
       <section className="relative py-14 sm:py-20 bg-[#6F7255] text-white text-center overflow-hidden z-10">

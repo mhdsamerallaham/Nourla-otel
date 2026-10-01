@@ -11,15 +11,19 @@ export default function About() {
 
   usePageMeta({
     title: currentLang === 'tr'
-      ? 'Hakkımızda | Nourla Boutique Hotel — Urla İzmir\'in Lavüks Butik Oteli'
+      ? 'Hakkımızda | Nourla Boutique Hotel Urla İzmir'
       : currentLang === 'de'
-      ? 'Über Uns | Nourla Boutique Hotel Urla İzmir'
+      ? 'Über Uns | Nourla Boutique Hotel Urla Izmir'
       : currentLang === 'ru'
       ? 'О нас | Nourla Boutique Hotel Урла Измир'
-      : 'About Us | Nourla Boutique Hotel — Luxury in Urla Izmir',
+      : 'About Us | Nourla Boutique Hotel Urla Izmir',
     description: currentLang === 'tr'
-      ? 'Nourla Boutique Hotel, Urla\'nın tarihi taş mimarisi ve antik zeytin bahçeleri arasında restore edilmiş bir hanımdır. Hikayemizi, felsefemizi ve Ege\'nin ruhunu keşfedin.'
-      : 'Nourla Boutique Hotel was born in Urla\'s ancient olive groves. Discover our philosophy of restorative luxury, farm-to-table gastronomy and Aegean heritage.',
+      ? 'Nourla Boutique Hotel, Urla\'nın tarihi taş mimarisi ve antik zeytin bahçelerinde lüks konaklama ve çiftlikten sofraya Ege lezzetleri sunar.'
+      : currentLang === 'de'
+      ? 'Entdecken Sie das Nourla Boutique Hotel: Entspannung, ägäische Gastronomie und historische Steinarchitektur in Urla, Izmir.'
+      : currentLang === 'ru'
+      ? 'Узнайте о Nourla Boutique Hotel: восстанавливающий отдых, эгейская гастрономия и каменная архитектура в Урле, Измир.'
+      : 'Discover Nourla Boutique Hotel: restorative luxury, Aegean gastronomy, and timeless stone architecture in Urla, Izmir.',
     canonical: `/${currentLang}/about`,
     lang: currentLang,
   });

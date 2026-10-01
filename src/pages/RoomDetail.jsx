@@ -22,7 +22,7 @@ import {
 import { ROOMS_DATA } from '../data/rooms';
 import BookingWidget from '../components/ui/BookingWidget';
 import Breadcrumb from '../components/ui/Breadcrumb';
-import StructuredData, { buildRoomSchema } from '../components/ui/StructuredData';
+import StructuredData, { buildRoomSchema, buildBreadcrumbSchema } from '../components/ui/StructuredData';
 import { usePageMeta } from '../hooks/usePageMeta';
 import RoomLightboxModal from '../components/ui/RoomLightboxModal';
 
@@ -73,11 +73,13 @@ export default function RoomDetail() {
   const roomDesc = room.description[currentLang] || room.description.tr;
   const roomView = room.view[currentLang] || room.view.tr;
 
-  // ── SEO meta tags ─────────────────────────────────────
+  // ── SEO meta tags (<60 chars title, <155 chars desc) ───────
   usePageMeta({
-    title: `${roomName} | Nourla Boutique Hotel Urla İzmir`,
-    description: `${roomDesc?.slice(0, 150)}...`,
+    title: `${roomName} | Nourla Boutique Hotel`,
+    description: roomDesc || 'Nourla Boutique Hotel lüks süit konaklama detayları, olanakları ve rezervasyon.',
     canonical: `/${currentLang}/rooms/${room.id}`,
+    ogImage: room.image,
+    ogType: 'product',
     lang: currentLang,
   });
 
@@ -99,10 +101,13 @@ export default function RoomDetail() {
     { label: roomName },
   ];
 
+  const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbItems);
+
   return (
     <div className="pt-20 sm:pt-28 pb-14 sm:pb-24 min-h-screen bg-[#FDFBF7]">
-      {/* HotelRoom JSON-LD schema */}
+      {/* HotelRoom & BreadcrumbList JSON-LD schemas */}
       <StructuredData id="jsonld-room" schema={roomSchema} />
+      <StructuredData id="jsonld-room-breadcrumb" schema={breadcrumbSchema} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}

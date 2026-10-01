@@ -4,7 +4,7 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://www.nourla.com.tr/tr</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr" />
@@ -15,7 +15,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/tr/rooms</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms" />
@@ -26,7 +26,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/tr/about</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/about" />
@@ -37,7 +37,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/tr/urla</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla" />
@@ -48,7 +48,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/tr/sustainability</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/sustainability" />
@@ -59,7 +59,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/tr/gallery</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/gallery" />
@@ -70,7 +70,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/tr/contact</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/contact" />
@@ -81,7 +81,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/tr/reservation</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/reservation" />
@@ -92,7 +92,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/tr/privacy-policy</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/privacy-policy" />
@@ -102,48 +102,151 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/privacy-policy" />
   </url>
   <url>
-    <loc>https://www.nourla.com.tr/tr/rooms/deluxe-stone-suite</loc>
-    <lastmod>2026-09-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/deluxe-stone-suite" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/deluxe-stone-suite" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/deluxe-stone-suite" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/deluxe-stone-suite" />
+    <loc>https://www.nourla.com.tr/tr/kvkk</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/kvkk" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/kvkk" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/kvkk" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/kvkk" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/kvkk" />
   </url>
   <url>
-    <loc>https://www.nourla.com.tr/tr/rooms/olive-garden-suite</loc>
-    <lastmod>2026-09-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/olive-garden-suite" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/olive-garden-suite" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/olive-garden-suite" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/olive-garden-suite" />
+    <loc>https://www.nourla.com.tr/tr/mesafeli-satis-sozlesmesi</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/mesafeli-satis-sozlesmesi" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/mesafeli-satis-sozlesmesi" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/mesafeli-satis-sozlesmesi" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/mesafeli-satis-sozlesmesi" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/mesafeli-satis-sozlesmesi" />
   </url>
   <url>
-    <loc>https://www.nourla.com.tr/tr/rooms/presidential-aegean-suite</loc>
-    <lastmod>2026-09-02</lastmod>
+    <loc>https://www.nourla.com.tr/tr/rooms/standart-room</loc>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/presidential-aegean-suite" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/presidential-aegean-suite" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/presidential-aegean-suite" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/presidential-aegean-suite" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/standart-room" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/standart-room" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/standart-room" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/standart-room" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/standart-room" />
   </url>
   <url>
-    <loc>https://www.nourla.com.tr/tr/rooms/heritage-courtyard-suite</loc>
-    <lastmod>2026-09-02</lastmod>
+    <loc>https://www.nourla.com.tr/tr/rooms/tasarim-room</loc>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/heritage-courtyard-suite" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/heritage-courtyard-suite" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/heritage-courtyard-suite" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/heritage-courtyard-suite" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/tasarim-room" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/tr/rooms/superior-tasarim-room</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/superior-tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/superior-tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/superior-tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/superior-tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/superior-tasarim-room" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/tr/rooms/suit-room</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/suit-room" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/suit-room" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/suit-room" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/suit-room" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/suit-room" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/tr/rooms/loft-villa</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/loft-villa" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/loft-villa" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/loft-villa" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/loft-villa" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/loft-villa" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/tr/urla/urla-tarihi</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/urla-tarihi" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/urla-tarihi" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/urla-tarihi" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/urla-tarihi" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/urla-tarihi" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/tr/urla/yakin-plajlar</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/yakin-plajlar" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/yakin-plajlar" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/yakin-plajlar" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/yakin-plajlar" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/yakin-plajlar" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/tr/urla/kulturel-ziyaretler</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/kulturel-ziyaretler" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/kulturel-ziyaretler" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/kulturel-ziyaretler" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/kulturel-ziyaretler" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/kulturel-ziyaretler" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/tr/urla/bagcilik</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/bagcilik" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/bagcilik" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/bagcilik" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/bagcilik" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/bagcilik" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/tr/urla/gastronomi</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/gastronomi" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/gastronomi" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/gastronomi" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/gastronomi" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/gastronomi" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/tr/urla/bisiklet-rotalari</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/bisiklet-rotalari" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/bisiklet-rotalari" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/bisiklet-rotalari" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/bisiklet-rotalari" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/bisiklet-rotalari" />
   </url>
   <url>
     <loc>https://www.nourla.com.tr/en</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr" />
@@ -154,7 +257,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/en/rooms</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms" />
@@ -165,7 +268,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/en/about</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/about" />
@@ -176,7 +279,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/en/urla</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla" />
@@ -187,7 +290,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/en/sustainability</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/sustainability" />
@@ -198,7 +301,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/en/gallery</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/gallery" />
@@ -209,7 +312,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/en/contact</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/contact" />
@@ -220,7 +323,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/en/reservation</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/reservation" />
@@ -231,7 +334,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/en/privacy-policy</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/privacy-policy" />
@@ -241,48 +344,151 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/privacy-policy" />
   </url>
   <url>
-    <loc>https://www.nourla.com.tr/en/rooms/deluxe-stone-suite</loc>
-    <lastmod>2026-09-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/deluxe-stone-suite" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/deluxe-stone-suite" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/deluxe-stone-suite" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/deluxe-stone-suite" />
+    <loc>https://www.nourla.com.tr/en/kvkk</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/kvkk" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/kvkk" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/kvkk" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/kvkk" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/kvkk" />
   </url>
   <url>
-    <loc>https://www.nourla.com.tr/en/rooms/olive-garden-suite</loc>
-    <lastmod>2026-09-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/olive-garden-suite" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/olive-garden-suite" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/olive-garden-suite" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/olive-garden-suite" />
+    <loc>https://www.nourla.com.tr/en/mesafeli-satis-sozlesmesi</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/mesafeli-satis-sozlesmesi" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/mesafeli-satis-sozlesmesi" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/mesafeli-satis-sozlesmesi" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/mesafeli-satis-sozlesmesi" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/mesafeli-satis-sozlesmesi" />
   </url>
   <url>
-    <loc>https://www.nourla.com.tr/en/rooms/presidential-aegean-suite</loc>
-    <lastmod>2026-09-02</lastmod>
+    <loc>https://www.nourla.com.tr/en/rooms/standart-room</loc>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/presidential-aegean-suite" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/presidential-aegean-suite" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/presidential-aegean-suite" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/presidential-aegean-suite" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/standart-room" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/standart-room" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/standart-room" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/standart-room" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/standart-room" />
   </url>
   <url>
-    <loc>https://www.nourla.com.tr/en/rooms/heritage-courtyard-suite</loc>
-    <lastmod>2026-09-02</lastmod>
+    <loc>https://www.nourla.com.tr/en/rooms/tasarim-room</loc>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/heritage-courtyard-suite" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/heritage-courtyard-suite" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/heritage-courtyard-suite" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/heritage-courtyard-suite" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/tasarim-room" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/en/rooms/superior-tasarim-room</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/superior-tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/superior-tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/superior-tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/superior-tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/superior-tasarim-room" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/en/rooms/suit-room</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/suit-room" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/suit-room" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/suit-room" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/suit-room" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/suit-room" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/en/rooms/loft-villa</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/loft-villa" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/loft-villa" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/loft-villa" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/loft-villa" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/loft-villa" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/en/urla/urla-tarihi</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/urla-tarihi" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/urla-tarihi" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/urla-tarihi" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/urla-tarihi" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/urla-tarihi" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/en/urla/yakin-plajlar</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/yakin-plajlar" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/yakin-plajlar" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/yakin-plajlar" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/yakin-plajlar" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/yakin-plajlar" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/en/urla/kulturel-ziyaretler</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/kulturel-ziyaretler" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/kulturel-ziyaretler" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/kulturel-ziyaretler" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/kulturel-ziyaretler" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/kulturel-ziyaretler" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/en/urla/bagcilik</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/bagcilik" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/bagcilik" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/bagcilik" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/bagcilik" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/bagcilik" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/en/urla/gastronomi</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/gastronomi" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/gastronomi" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/gastronomi" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/gastronomi" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/gastronomi" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/en/urla/bisiklet-rotalari</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/bisiklet-rotalari" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/bisiklet-rotalari" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/bisiklet-rotalari" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/bisiklet-rotalari" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/bisiklet-rotalari" />
   </url>
   <url>
     <loc>https://www.nourla.com.tr/de</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr" />
@@ -293,7 +499,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/de/rooms</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms" />
@@ -304,7 +510,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/de/about</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/about" />
@@ -315,7 +521,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/de/urla</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla" />
@@ -326,7 +532,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/de/sustainability</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/sustainability" />
@@ -337,7 +543,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/de/gallery</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/gallery" />
@@ -348,7 +554,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/de/contact</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/contact" />
@@ -359,7 +565,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/de/reservation</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/reservation" />
@@ -370,7 +576,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/de/privacy-policy</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/privacy-policy" />
@@ -380,48 +586,151 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/privacy-policy" />
   </url>
   <url>
-    <loc>https://www.nourla.com.tr/de/rooms/deluxe-stone-suite</loc>
-    <lastmod>2026-09-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/deluxe-stone-suite" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/deluxe-stone-suite" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/deluxe-stone-suite" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/deluxe-stone-suite" />
+    <loc>https://www.nourla.com.tr/de/kvkk</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/kvkk" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/kvkk" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/kvkk" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/kvkk" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/kvkk" />
   </url>
   <url>
-    <loc>https://www.nourla.com.tr/de/rooms/olive-garden-suite</loc>
-    <lastmod>2026-09-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/olive-garden-suite" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/olive-garden-suite" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/olive-garden-suite" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/olive-garden-suite" />
+    <loc>https://www.nourla.com.tr/de/mesafeli-satis-sozlesmesi</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/mesafeli-satis-sozlesmesi" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/mesafeli-satis-sozlesmesi" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/mesafeli-satis-sozlesmesi" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/mesafeli-satis-sozlesmesi" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/mesafeli-satis-sozlesmesi" />
   </url>
   <url>
-    <loc>https://www.nourla.com.tr/de/rooms/presidential-aegean-suite</loc>
-    <lastmod>2026-09-02</lastmod>
+    <loc>https://www.nourla.com.tr/de/rooms/standart-room</loc>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/presidential-aegean-suite" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/presidential-aegean-suite" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/presidential-aegean-suite" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/presidential-aegean-suite" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/standart-room" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/standart-room" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/standart-room" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/standart-room" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/standart-room" />
   </url>
   <url>
-    <loc>https://www.nourla.com.tr/de/rooms/heritage-courtyard-suite</loc>
-    <lastmod>2026-09-02</lastmod>
+    <loc>https://www.nourla.com.tr/de/rooms/tasarim-room</loc>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/heritage-courtyard-suite" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/heritage-courtyard-suite" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/heritage-courtyard-suite" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/heritage-courtyard-suite" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/tasarim-room" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/de/rooms/superior-tasarim-room</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/superior-tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/superior-tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/superior-tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/superior-tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/superior-tasarim-room" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/de/rooms/suit-room</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/suit-room" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/suit-room" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/suit-room" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/suit-room" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/suit-room" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/de/rooms/loft-villa</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/loft-villa" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/loft-villa" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/loft-villa" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/loft-villa" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/loft-villa" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/de/urla/urla-tarihi</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/urla-tarihi" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/urla-tarihi" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/urla-tarihi" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/urla-tarihi" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/urla-tarihi" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/de/urla/yakin-plajlar</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/yakin-plajlar" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/yakin-plajlar" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/yakin-plajlar" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/yakin-plajlar" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/yakin-plajlar" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/de/urla/kulturel-ziyaretler</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/kulturel-ziyaretler" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/kulturel-ziyaretler" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/kulturel-ziyaretler" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/kulturel-ziyaretler" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/kulturel-ziyaretler" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/de/urla/bagcilik</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/bagcilik" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/bagcilik" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/bagcilik" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/bagcilik" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/bagcilik" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/de/urla/gastronomi</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/gastronomi" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/gastronomi" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/gastronomi" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/gastronomi" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/gastronomi" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/de/urla/bisiklet-rotalari</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/bisiklet-rotalari" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/bisiklet-rotalari" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/bisiklet-rotalari" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/bisiklet-rotalari" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/bisiklet-rotalari" />
   </url>
   <url>
     <loc>https://www.nourla.com.tr/ru</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr" />
@@ -432,7 +741,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/ru/rooms</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms" />
@@ -443,7 +752,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/ru/about</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/about" />
@@ -454,7 +763,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/ru/urla</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla" />
@@ -465,7 +774,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/ru/sustainability</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/sustainability" />
@@ -476,7 +785,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/ru/gallery</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/gallery" />
@@ -487,7 +796,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/ru/contact</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/contact" />
@@ -498,7 +807,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/ru/reservation</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/reservation" />
@@ -509,7 +818,7 @@
   </url>
   <url>
     <loc>https://www.nourla.com.tr/ru/privacy-policy</loc>
-    <lastmod>2026-09-02</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
     <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/privacy-policy" />
@@ -519,43 +828,146 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/privacy-policy" />
   </url>
   <url>
-    <loc>https://www.nourla.com.tr/ru/rooms/deluxe-stone-suite</loc>
-    <lastmod>2026-09-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/deluxe-stone-suite" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/deluxe-stone-suite" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/deluxe-stone-suite" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/deluxe-stone-suite" />
+    <loc>https://www.nourla.com.tr/ru/kvkk</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/kvkk" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/kvkk" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/kvkk" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/kvkk" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/kvkk" />
   </url>
   <url>
-    <loc>https://www.nourla.com.tr/ru/rooms/olive-garden-suite</loc>
-    <lastmod>2026-09-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/olive-garden-suite" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/olive-garden-suite" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/olive-garden-suite" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/olive-garden-suite" />
+    <loc>https://www.nourla.com.tr/ru/mesafeli-satis-sozlesmesi</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/mesafeli-satis-sozlesmesi" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/mesafeli-satis-sozlesmesi" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/mesafeli-satis-sozlesmesi" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/mesafeli-satis-sozlesmesi" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/mesafeli-satis-sozlesmesi" />
   </url>
   <url>
-    <loc>https://www.nourla.com.tr/ru/rooms/presidential-aegean-suite</loc>
-    <lastmod>2026-09-02</lastmod>
+    <loc>https://www.nourla.com.tr/ru/rooms/standart-room</loc>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/presidential-aegean-suite" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/presidential-aegean-suite" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/presidential-aegean-suite" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/presidential-aegean-suite" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/standart-room" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/standart-room" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/standart-room" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/standart-room" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/standart-room" />
   </url>
   <url>
-    <loc>https://www.nourla.com.tr/ru/rooms/heritage-courtyard-suite</loc>
-    <lastmod>2026-09-02</lastmod>
+    <loc>https://www.nourla.com.tr/ru/rooms/tasarim-room</loc>
+    <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/heritage-courtyard-suite" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/heritage-courtyard-suite" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/heritage-courtyard-suite" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/heritage-courtyard-suite" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/tasarim-room" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/ru/rooms/superior-tasarim-room</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/superior-tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/superior-tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/superior-tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/superior-tasarim-room" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/superior-tasarim-room" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/ru/rooms/suit-room</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/suit-room" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/suit-room" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/suit-room" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/suit-room" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/suit-room" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/ru/rooms/loft-villa</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/rooms/loft-villa" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/rooms/loft-villa" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/rooms/loft-villa" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/rooms/loft-villa" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/rooms/loft-villa" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/ru/urla/urla-tarihi</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/urla-tarihi" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/urla-tarihi" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/urla-tarihi" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/urla-tarihi" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/urla-tarihi" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/ru/urla/yakin-plajlar</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/yakin-plajlar" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/yakin-plajlar" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/yakin-plajlar" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/yakin-plajlar" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/yakin-plajlar" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/ru/urla/kulturel-ziyaretler</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/kulturel-ziyaretler" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/kulturel-ziyaretler" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/kulturel-ziyaretler" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/kulturel-ziyaretler" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/kulturel-ziyaretler" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/ru/urla/bagcilik</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/bagcilik" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/bagcilik" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/bagcilik" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/bagcilik" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/bagcilik" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/ru/urla/gastronomi</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/gastronomi" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/gastronomi" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/gastronomi" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/gastronomi" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/gastronomi" />
+  </url>
+  <url>
+    <loc>https://www.nourla.com.tr/ru/urla/bisiklet-rotalari</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://www.nourla.com.tr/tr/urla/bisiklet-rotalari" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.nourla.com.tr/en/urla/bisiklet-rotalari" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.nourla.com.tr/de/urla/bisiklet-rotalari" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://www.nourla.com.tr/ru/urla/bisiklet-rotalari" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.nourla.com.tr/tr/urla/bisiklet-rotalari" />
   </url>
 </urlset>

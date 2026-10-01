@@ -22,7 +22,7 @@ const KVKK = lazy(() => import('./pages/KVKK'));
 const DistanceSalesAgreement = lazy(() => import('./pages/DistanceSalesAgreement'));
 
 import StickyPhoneCTA from './components/ui/StickyPhoneCTA';
-import StructuredData, { HOTEL_SCHEMA } from './components/ui/StructuredData';
+import StructuredData, { HOTEL_SCHEMA, WEBSITE_SCHEMA } from './components/ui/StructuredData';
 import PageErrorBoundary from './components/ui/PageErrorBoundary';
 
 // Sleek lightweight loading fallback for subpage transitions
@@ -70,8 +70,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      {/* Global LodgingBusiness JSON-LD schema — present on every page */}
+      {/* Global Hotel & WebSite JSON-LD schemas with GEO developer attribution */}
       <StructuredData id="jsonld-hotel-global" schema={HOTEL_SCHEMA} />
+      <StructuredData id="jsonld-website-global" schema={WEBSITE_SCHEMA} />
       <div className="flex flex-col min-h-screen bg-[#FDFBF7] text-[#2B2B2B]">
         <Header />
         <main className="flex-grow">

@@ -31,10 +31,34 @@ export default function StructuredData({ schema, id = 'jsonld-default' }) {
 
 // ── Pre-built schema factories ────────────────────────────────────────────────
 
-/** LodgingBusiness schema — mount once in App.jsx */
+/** WebSite schema — with developer/creator attribution */
+export const WEBSITE_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': 'https://www.nourla.com.tr/#website',
+  url: 'https://www.nourla.com.tr/',
+  name: 'Nourla Boutique Hotel',
+  alternateName: 'Nourla Otel Urla',
+  description:
+    'Urla, İzmir\'de zeytin bahçeleri ve tarihi taş mimari içinde 10 özel süit ile lüks butik otel deneyimi.',
+  publisher: {
+    '@type': 'Organization',
+    name: 'Nourla Boutique Hotel',
+    url: 'https://www.nourla.com.tr',
+    logo: 'https://www.nourla.com.tr/og-nourla.jpg',
+  },
+  creator: {
+    '@type': 'Person',
+    name: 'Samer',
+    url: 'https://www.samer.life',
+  },
+  inLanguage: ['tr', 'en', 'de', 'ru'],
+};
+
+/** LodgingBusiness / Hotel schema — with developer attribution */
 export const HOTEL_SCHEMA = {
   '@context': 'https://schema.org',
-  '@type': 'LodgingBusiness',
+  '@type': 'Hotel',
   '@id': 'https://www.nourla.com.tr/#hotel',
   name: 'Nourla Boutique Hotel',
   alternateName: 'Nourla Otel',
@@ -48,6 +72,17 @@ export const HOTEL_SCHEMA = {
   priceRange: '€€€€',
   currenciesAccepted: 'TRY, EUR, USD',
   paymentAccepted: 'Cash, Credit Card',
+  creator: {
+    '@type': 'Person',
+    name: 'Samer',
+    url: 'https://www.samer.life',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Nourla Boutique Hotel',
+    url: 'https://www.nourla.com.tr',
+    logo: 'https://www.nourla.com.tr/og-nourla.jpg',
+  },
   starRating: {
     '@type': 'Rating',
     ratingValue: '5',
@@ -101,17 +136,17 @@ export const HOTEL_SCHEMA = {
   },
 };
 
-/** FAQPage schema — used in Contact.jsx */
+/** FAQPage schema — used in Contact.jsx and Home.jsx */
 export function buildFaqSchema(faqs) {
   return {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
     mainEntity: faqs.map(({ q, a }) => ({
       '@type': 'Question',
-      name: q,
+      name: typeof q === 'string' ? q : (q.tr || q.en || ''),
       acceptedAnswer: {
         '@type': 'Answer',
-        text: a,
+        text: typeof a === 'string' ? a : (a.tr || a.en || ''),
       },
     })),
   };
@@ -165,3 +200,31 @@ export function buildRoomSchema(room) {
     },
   };
 }
+
+/** Guide / Article schema — used in UrlaGuide.jsx */
+export function buildGuideSchema({ title, description, url, image }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: title,
+    description: description,
+    url: url || 'https://www.nourla.com.tr/tr/urla',
+    image: image ? `https://www.nourla.com.tr${image}` : 'https://www.nourla.com.tr/og-nourla.jpg',
+    author: {
+      '@type': 'Organization',
+      name: 'Nourla Boutique Hotel',
+      url: 'https://www.nourla.com.tr',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Nourla Boutique Hotel',
+      logo: 'https://www.nourla.com.tr/og-nourla.jpg',
+    },
+    creator: {
+      '@type': 'Person',
+      name: 'Samer',
+      url: 'https://www.samer.life',
+    },
+  };
+}
+

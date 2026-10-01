@@ -2,11 +2,28 @@ import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ShieldCheck, ArrowLeft, FileText, CheckCircle2 } from 'lucide-react';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export default function KVKK() {
   const { i18n } = useTranslation();
   const { lang } = useParams();
   const currentLang = lang || i18n.language || 'tr';
+
+  // ── SEO & Open Graph Meta Tags (<60 chars title, <155 chars desc) ──
+  usePageMeta({
+    title: currentLang === 'tr'
+      ? 'KVKK Aydınlatma Metni | Nourla Boutique Hotel'
+      : currentLang === 'de'
+      ? 'KVKK Datenschutzhinweis | Nourla Hotel'
+      : currentLang === 'ru'
+      ? 'Уведомление KVKK | Nourla Boutique Hotel'
+      : 'KVKK Data Protection Notice | Nourla Hotel',
+    description: currentLang === 'tr'
+      ? '6698 Sayılı Kişisel Verilerin Korunması Kanunu (KVKK) uyarınca Nourla Boutique Hotel aydınlatma ve açık rıza bilgilendirme metni.'
+      : 'Official KVKK Personal Data Protection Law clarification statement and information for Nourla Boutique Hotel guests.',
+    canonical: `/${currentLang}/kvkk`,
+    lang: currentLang,
+  });
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] pt-28 pb-20">

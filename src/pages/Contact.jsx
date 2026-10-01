@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { MapPin, Phone, Mail, Send, CheckCircle2, Compass, MessageCircle, Clock, Car, Wine, Sparkles, ChevronDown, ShieldCheck, Star } from 'lucide-react';
 import SectionHeader from '../components/ui/SectionHeader';
 import MediaPlaceholder from '../components/ui/MediaPlaceholder';
 import Breadcrumb from '../components/ui/Breadcrumb';
-import StructuredData, { buildFaqSchema } from '../components/ui/StructuredData';
+import StructuredData, { buildFaqSchema, buildBreadcrumbSchema } from '../components/ui/StructuredData';
 import { usePageMeta } from '../hooks/usePageMeta';
 
 const CONTACT_TOPICS = [
@@ -49,23 +50,31 @@ import { sanitizeText, isValidEmail, isValidPhone, sanitizePhone, isValidName } 
 
 export default function Contact() {
   const { i18n, t } = useTranslation();
-  const currentLang = i18n.language || 'tr';
+  const { lang } = useParams();
+  const currentLang = lang || i18n.language || 'tr';
 
-  // ── SEO meta tags
+  // ── SEO meta tags (<60 chars title, <155 chars desc) ───────
   usePageMeta({
     title: currentLang === 'tr'
-      ? 'İletişim & Rezervasyon | Nourla Boutique Hotel Urla'
-      : 'Contact & Booking | Nourla Boutique Hotel Urla',
+      ? 'İletişim & Rezervasyon | Nourla Boutique Hotel'
+      : currentLang === 'de'
+      ? 'Kontakt & Buchung | Nourla Boutique Hotel'
+      : currentLang === 'ru'
+      ? 'Контакты & Бронь | Nourla Boutique Hotel'
+      : 'Contact & Booking | Nourla Boutique Hotel',
     description: currentLang === 'tr'
-      ? 'Nourla Boutique Hotel concierge ekibi ile iletişime geçin. VIP havalimanı transferi, özel etkinlik ve rezervasyon için 7/24 hizmetinizdeyiz. +90 232 754 00 00'
+      ? 'Nourla Boutique Hotel concierge ekibi ile iletişime geçin. VIP transfer, özel etkinlik ve rezervasyon için 7/24 hizmetinizdeyiz. +90 232 754 00 00'
       : 'Contact Nourla Boutique Hotel concierge team. Available 24/7 for VIP airport transfers, private events and reservations in Urla, Izmir.',
     canonical: `/${currentLang}/contact`,
     lang: currentLang,
   });
 
-  // ── FAQ JSON-LD schema (English — best for AI crawlers)
+  // ── FAQ JSON-LD schema (Current language)
   const faqSchema = buildFaqSchema(
-    FAQS.map((f) => ({ q: f.q.en || f.q.tr, a: f.a.en || f.a.tr }))
+    FAQS.map((f) => ({
+      q: f.q[currentLang] || f.q.en || f.q.tr,
+      a: f.a[currentLang] || f.a.en || f.a.tr,
+    }))
   );
 
   const [selectedTopic, setSelectedTopic] = useState('stay');
@@ -119,8 +128,9 @@ export default function Contact() {
 
   return (
     <div className="pt-28 pb-24 min-h-screen bg-[#FDFBF7]">
-      {/* FAQ JSON-LD schema */}
+      {/* FAQ & Breadcrumb JSON-LD schemas */}
       <StructuredData id="jsonld-faq" schema={faqSchema} />
+      <StructuredData id="jsonld-contact-breadcrumb" schema={buildBreadcrumbSchema(breadcrumbItems)} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}

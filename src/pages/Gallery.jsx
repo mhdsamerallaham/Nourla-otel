@@ -1,12 +1,32 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { Maximize2, X, ChevronLeft, ChevronRight, Sparkles, Camera, Image as ImageIcon } from 'lucide-react';
 import SectionHeader from '../components/ui/SectionHeader';
 import { GALLERY_ITEMS } from '../data/gallery';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export default function Gallery() {
   const { i18n, t } = useTranslation();
-  const currentLang = i18n.language || 'tr';
+  const { lang } = useParams();
+  const currentLang = lang || i18n.language || 'tr';
+
+  // ── SEO & Open Graph Meta Tags (<60 chars title, <155 chars desc) ──
+  usePageMeta({
+    title: currentLang === 'tr'
+      ? 'Fotoğraf Galerisi | Nourla Boutique Hotel'
+      : currentLang === 'de'
+      ? 'Fotogalerie | Nourla Boutique Hotel'
+      : currentLang === 'ru'
+      ? 'Фотогалерея | Nourla Boutique Hotel'
+      : 'Photo Gallery | Nourla Boutique Hotel',
+    description: currentLang === 'tr'
+      ? 'Nourla Boutique Hotel odaları, taş mimarisi, zeytin bahçeleri ve Urla atmosferinden yüksek çözünürlüklü fotoğraf karelerini inceleyin.'
+      : 'Explore high-resolution photographs of Nourla Boutique Hotel\'s suites, stone architecture, serene gardens and Urla experiences.',
+    canonical: `/${currentLang}/gallery`,
+    ogImage: '/nourla/dış cephe/WhatsApp Image 2026-07-23 at 18.42.48 (6).jpeg',
+    lang: currentLang,
+  });
   
   const [activeFilter, setActiveFilter] = useState('all');
   const [lightboxIndex, setLightboxIndex] = useState(null);

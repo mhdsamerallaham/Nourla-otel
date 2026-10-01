@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Leaf, Sun, HeartHandshake, Users, CheckCircle2, Award, Sparkles, ShieldCheck } from 'lucide-react';
 
+import { useParams } from 'react-router-dom';
 import SectionHeader from '../components/ui/SectionHeader';
 import MediaPlaceholder from '../components/ui/MediaPlaceholder';
 import { SUSTAINABILITY_SECTIONS, SUSTAINABILITY_METRICS, SURVEY_QUESTIONS } from '../data/sustainability';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const ICON_MAP = {
   Leaf,
@@ -15,7 +17,24 @@ const ICON_MAP = {
 
 export default function Sustainability() {
   const { i18n, t } = useTranslation();
-  const currentLang = i18n.language || 'tr';
+  const { lang } = useParams();
+  const currentLang = lang || i18n.language || 'tr';
+
+  // ── SEO & Open Graph Meta Tags (<60 chars title, <155 chars desc) ──
+  usePageMeta({
+    title: currentLang === 'tr'
+      ? 'Sürdürülebilirlik & Eko-Lüks | Nourla Hotel'
+      : currentLang === 'de'
+      ? 'Nachhaltigkeit & Öko-Luxus | Nourla Hotel'
+      : currentLang === 'ru'
+      ? 'Устойчивое Развитие | Nourla Hotel'
+      : 'Sustainability & Eco-Luxury | Nourla Hotel',
+    description: currentLang === 'tr'
+      ? 'Nourla Boutique Hotel %100 yeşil enerji, sıfır plastik ve yerel Ege tarımı ile sürdürülebilir lüks konaklama standartlarını sunar.'
+      : 'Nourla Boutique Hotel champions regenerative luxury in Urla: 100% renewable energy, organic farming & zero single-use plastics.',
+    canonical: `/${currentLang}/sustainability`,
+    lang: currentLang,
+  });
 
   // Survey UI State
   const [surveyAnswers, setSurveyAnswers] = useState({});

@@ -21,15 +21,31 @@ Disallow: /api/
 # Sitemap location
 Sitemap: https://www.nourla.com.tr/sitemap.xml
 
-# Allow key AI crawlers explicitly
+# ── Generative Engine Optimization (GEO): AI & LLM Search Crawlers ──
 User-agent: GPTBot
 Allow: /
 
-User-agent: ClaudeBot
+User-agent: ChatGPT-User
 Allow: /
 
 User-agent: PerplexityBot
 Allow: /
 
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
 User-agent: Google-Extended
 Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
